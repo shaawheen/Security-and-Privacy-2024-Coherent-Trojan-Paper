@@ -1,0 +1,9 @@
+# ignore all
+vivado*
+.Xil
+
+#except
+!build_design.sh
+!design_1.tcl
+!README.md
+!.gitignore

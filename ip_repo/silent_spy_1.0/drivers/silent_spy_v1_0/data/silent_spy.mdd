@@ -1,0 +1,10 @@
+
+
+OPTION psf_version = 2.1;
+
+BEGIN DRIVER silent_spy
+	OPTION supported_peripherals = (silent_spy);
+	OPTION copyfiles = all;
+	OPTION VERSION = 1.0;
+	OPTION NAME = silent_spy;
+END DRIVER
