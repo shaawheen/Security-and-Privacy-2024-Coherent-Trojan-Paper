@@ -1,6 +1,7 @@
 # ignore all
 vivado*
 .Xil
+backstabbing_devil
 
 #except
 !build_design.sh
