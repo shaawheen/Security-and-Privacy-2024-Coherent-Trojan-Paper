@@ -2,9 +2,3 @@
 vivado*
 .Xil
 backstabbing_devil
-
-#except
-!build_design.sh
-!design_1.tcl
-!README.md
-!.gitignore
