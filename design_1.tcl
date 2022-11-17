@@ -1139,6 +1139,15 @@ common::send_gid_msg -ssname BD::TCL -id 2052 -severity "CRITICAL WARNING" "This
 
 create_root_design ""
 
+
+##################################################################
+# Remove Extra Probe Line
+##################################################################
+startgroup
+set_property -dict [list CONFIG.C_NUM_OF_PROBES {24}] [get_bd_cells system_ila_0]
+delete_bd_objs [get_bd_nets backstabber_0_debug_reply_state]
+endgroup
+
 ##################################################################
 # Wrap Design 
 ##################################################################
