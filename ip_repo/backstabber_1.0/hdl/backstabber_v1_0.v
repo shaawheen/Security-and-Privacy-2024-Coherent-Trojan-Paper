@@ -401,7 +401,7 @@
 	assign config_port_to_backstabber_address_range_end   = buffer[128 +: 64];
 
 	//assign crresp   = (is_in_range & ace_enable) ? 5'b01001 : 5'b00000; //Alyaws accept if is in range - DataTransfer & IsShared;
-    assign crresp   = (snoop_state == REPLY) ? 5'b00100 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
+    assign crresp   = (snoop_state == REPLY) ? 5'b00001 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     // assign crresp   = (snoop_state == REPLY) ? config_port_to_backstabber_liar_crresp[4 : 0] : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     assign acready  =  ~queue_full && ((snoop_state == IDLE)          ||
                        (snoop_state == DVM_SYNC_WAIT) ||
