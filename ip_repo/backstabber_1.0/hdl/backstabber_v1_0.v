@@ -506,15 +506,20 @@
             if(reg0[0]) // IF disable, it fails
                 begin
                     if(non_reply_condition || dvm_operation_last_condition)
-                        snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
+                        if(reg0[3]) 
+                            snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
                     else if (dvm_sync_multi_condition)
-                        snoop_state <= DVM_SYNC_MP; 
+                        if(reg0[4]) 
+                            snoop_state <= DVM_SYNC_MP; 
                     else if (dvm_sync_last_condition)
-                        snoop_state <= DVM_SYNC_LAST;
+                        if(reg0[5]) 
+                            snoop_state <= DVM_SYNC_LAST;
                     else if (dvm_operation_multi_condition)
-                        snoop_state <= DVM_OP_MP;
+                        if(reg0[6]) 
+                            snoop_state <= DVM_OP_MP;
                     else if (reply_condition && ~queue_full)
-                        snoop_state <= REPLY;
+                        if(reg0[7]) 
+                            snoop_state <= REPLY;
                     else
                         snoop_state <= snoop_state;
                 end 
