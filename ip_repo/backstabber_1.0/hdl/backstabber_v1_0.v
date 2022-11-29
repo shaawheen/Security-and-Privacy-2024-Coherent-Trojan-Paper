@@ -450,7 +450,9 @@
     assign arqos    = 0;
     assign arregion = 0;
     assign arsize   = 4'b100; //Size of each burst is 16B
-    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? 4'he : 0; //Means arbar and ardomain have to be 0
+    
+    `define DVM_COMPLETE 4'he
+    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : 0; //Means arbar and ardomain have to be 0
     assign aruser   = 0;
     assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready); //acvalid & is_in_range & ace_enable;
     assign awaddr   = 0;
@@ -482,12 +484,14 @@
     assign rack     = (snoop_state == DVM_SYNC_READ);
     assign ac_handshake                   = acready && acvalid;
     assign r_handshake                    = rready && rvalid && rlast;
-    assign reply_condition                = ac_handshake && (acsnoop != 4'hf) && lying_condition;
-    assign non_reply_condition            = ac_handshake && (acsnoop != 4'hf) && ~lying_condition;
-    assign dvm_operation_last_condition   = ac_handshake && (acsnoop == 4'hf) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 0);
-    assign dvm_operation_multi_condition  = ac_handshake && (acsnoop == 4'hf) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 1);
-    assign dvm_sync_last_condition        = ac_handshake && (acsnoop == 4'hf) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
-    assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == 4'hf) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
+
+    `define DVM_MESSAGE 4'hf
+    assign reply_condition                = ac_handshake && (acsnoop != `DVM_MESSAGE) && lying_condition;
+    assign non_reply_condition            = ac_handshake && (acsnoop != `DVM_MESSAGE) && ~lying_condition;
+    assign dvm_operation_last_condition   = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 0);
+    assign dvm_operation_multi_condition  = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 1);
+    assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
+    assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
 
     assign debug_state                    = snoop_state;
 
@@ -499,12 +503,12 @@
             snoop_state <= IDLE;
         else if (snoop_state == IDLE)
         begin
-            if(reg0[0])
+            if(reg0[0]) // IF disable, it fails
                 begin
                     if(non_reply_condition || dvm_operation_last_condition)
                         snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
                     else if (dvm_sync_multi_condition)
-                        snoop_state <= DVM_SYNC_MP;
+                        snoop_state <= DVM_SYNC_MP; 
                     else if (dvm_sync_last_condition)
                         snoop_state <= DVM_SYNC_LAST;
                     else if (dvm_operation_multi_condition)
@@ -529,14 +533,24 @@
         else if (snoop_state == DVM_SYNC_MP)
         begin
              if (crready)
-                 snoop_state <= DVM_SYNC_WAIT;
+                begin
+                    if(reg0[1])
+                        snoop_state <= DVM_SYNC_WAIT;
+                    else
+                        snoop_state <= DVM_SYNC_LAST; // Fail Condition
+                end
              else
                  snoop_state <= snoop_state;
         end
         else if (snoop_state == DVM_SYNC_WAIT)
         begin
              if (ac_handshake)// && (acsnoop == 4'hF))
-                 snoop_state <= DVM_SYNC_LAST;
+                begin
+                    if(reg0[2])
+                        snoop_state <= DVM_SYNC_LAST;
+                    else
+                        snoop_state <= IDLE; // Fail Condition
+                end
              else
                  snoop_state <= snoop_state;
         end
