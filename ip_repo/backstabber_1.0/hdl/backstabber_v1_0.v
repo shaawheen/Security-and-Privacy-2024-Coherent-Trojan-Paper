@@ -61,6 +61,9 @@
         parameter integer C_S00_AXI_WUSER_WIDTH     = 0,
         parameter integer C_S00_AXI_RUSER_WIDTH     = 0,
         parameter integer C_S00_AXI_BUSER_WIDTH     = 0,
+        // Parameters of Axi Slave Bus Interface s01_AXI
+		parameter integer C_S01_AXI_DATA_WIDTH	= 32,
+		parameter integer C_S01_AXI_ADDR_WIDTH	= 8,
         // Generic
         parameter integer WRITER                    = 1
 	)
@@ -267,6 +270,28 @@
         output wire            [C_S00_AXI_RUSER_WIDTH-1 : 0] s00_axi_ruser,
         output wire                                          s00_axi_rvalid,
         input  wire                                          s00_axi_rready,
+        // Ports of Axi Slave Bus Interface s01_AXI
+		input wire                                           s01_axi_aclk,
+		input wire                                           s01_axi_aresetn,
+		input wire              [C_S01_AXI_ADDR_WIDTH-1 : 0] s01_axi_awaddr,
+		input wire                                   [2 : 0] s01_axi_awprot,
+		input wire                                           s01_axi_awvalid,
+		output wire                                          s01_axi_awready,
+		input wire              [C_S01_AXI_DATA_WIDTH-1 : 0] s01_axi_wdata,
+		input wire          [(C_S01_AXI_DATA_WIDTH/8)-1 : 0] s01_axi_wstrb,
+		input wire                                           s01_axi_wvalid,
+		output wire                                          s01_axi_wready,
+		output wire                                  [1 : 0] s01_axi_bresp,
+		output wire                                          s01_axi_bvalid,
+		input wire                                           s01_axi_bready,
+		input wire              [C_S01_AXI_ADDR_WIDTH-1 : 0] s01_axi_araddr,
+		input wire                                   [2 : 0] s01_axi_arprot,
+		input wire                                           s01_axi_arvalid,
+		output wire                                          s01_axi_arready,
+		output wire             [C_S01_AXI_DATA_WIDTH-1 : 0] s01_axi_rdata,
+		output wire                                  [1 : 0] s01_axi_rresp,
+		output wire                                          s01_axi_rvalid,
+		input wire                                           s01_axi_rready,
         // Debug (temporary) IO
         output wire                                    [3:0] debug_state
 	);
@@ -285,6 +310,7 @@
     wire                          queue_full;
     wire [C_ACE_ADDR_WIDTH-1 : 0] read_addr;
     wire                          lying_condition;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] reg0;
 
     // AXI outputs
     // AW channel
@@ -401,7 +427,8 @@
 	assign config_port_to_backstabber_address_range_end   = buffer[128 +: 64];
 
 	//assign crresp   = (is_in_range & ace_enable) ? 5'b01001 : 5'b00000; //Alyaws accept if is in range - DataTransfer & IsShared;
-    assign crresp   = (snoop_state == REPLY) ? 5'b00001 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
+    // assign crresp   = (snoop_state == REPLY) ? 5'b00001 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
+    assign crresp   = (snoop_state == REPLY) ? 5'b00100 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     // assign crresp   = (snoop_state == REPLY) ? config_port_to_backstabber_liar_crresp[4 : 0] : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     assign acready  =  ~queue_full && ((snoop_state == IDLE)          ||
                        (snoop_state == DVM_SYNC_WAIT) ||
@@ -472,18 +499,25 @@
             snoop_state <= IDLE;
         else if (snoop_state == IDLE)
         begin
-            if(non_reply_condition || dvm_operation_last_condition)
-                snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
-            else if (dvm_sync_multi_condition)
-                snoop_state <= DVM_SYNC_MP;
-            else if (dvm_sync_last_condition)
-                snoop_state <= DVM_SYNC_LAST;
-            else if (dvm_operation_multi_condition)
-                snoop_state <= DVM_OP_MP;
-            else if (reply_condition && ~queue_full)
-                snoop_state <= REPLY;
+            if(reg0[0])
+                begin
+                    if(non_reply_condition || dvm_operation_last_condition)
+                        snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
+                    else if (dvm_sync_multi_condition)
+                        snoop_state <= DVM_SYNC_MP;
+                    else if (dvm_sync_last_condition)
+                        snoop_state <= DVM_SYNC_LAST;
+                    else if (dvm_operation_multi_condition)
+                        snoop_state <= DVM_OP_MP;
+                    else if (reply_condition && ~queue_full)
+                        snoop_state <= REPLY;
+                    else
+                        snoop_state <= snoop_state;
+                end 
             else
-                snoop_state <= snoop_state;
+                begin
+                    snoop_state <= snoop_state;
+                end
         end
         else if (snoop_state == NON_REPLY_OR_DVM_OP_LAST)
         begin
@@ -618,6 +652,35 @@
         .S_AXI_RREADY(config_axi_rready),
         .memory_out(buffer)
     );
+
+    // Instantiation of Axi-Lite Bus Interface s01_AXI
+	fuzzing_ACE_v1_0_S01_AXI # ( 
+		.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
+		.C_S_AXI_ADDR_WIDTH(C_S01_AXI_ADDR_WIDTH)
+	) fuzzing_ACE_v1_0_s01_AXI_inst (
+		.S_AXI_ACLK(s01_axi_aclk),
+		.S_AXI_ARESETN(s01_axi_aresetn),
+		.S_AXI_AWADDR(s01_axi_awaddr),
+		.S_AXI_AWPROT(s01_axi_awprot),
+		.S_AXI_AWVALID(s01_axi_awvalid),
+		.S_AXI_AWREADY(s01_axi_awready),
+		.S_AXI_WDATA(s01_axi_wdata),
+		.S_AXI_WSTRB(s01_axi_wstrb),
+		.S_AXI_WVALID(s01_axi_wvalid),
+		.S_AXI_WREADY(s01_axi_wready),
+		.S_AXI_BRESP(s01_axi_bresp),
+		.S_AXI_BVALID(s01_axi_bvalid),
+		.S_AXI_BREADY(s01_axi_bready),
+		.S_AXI_ARADDR(s01_axi_araddr),
+		.S_AXI_ARPROT(s01_axi_arprot),
+		.S_AXI_ARVALID(s01_axi_arvalid),
+		.S_AXI_ARREADY(s01_axi_arready),
+		.S_AXI_RDATA(s01_axi_rdata),
+		.S_AXI_RRESP(s01_axi_rresp),
+		.S_AXI_RVALID(s01_axi_rvalid),
+		.S_AXI_RREADY(s01_axi_rready),
+        .reg_0(reg0)
+	);
 
 
 	endmodule
