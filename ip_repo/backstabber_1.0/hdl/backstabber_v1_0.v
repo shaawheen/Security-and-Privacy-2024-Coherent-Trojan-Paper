@@ -506,19 +506,19 @@
             if(reg0[0]) // IF disable, it fails
                 begin
                     if(non_reply_condition || dvm_operation_last_condition)
-                        if(reg0[3]) 
+                        if(reg0[3]) // crashou
                             snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
                     else if (dvm_sync_multi_condition)
-                        if(reg0[4]) 
+                        if(reg0[4]) // Não crashou
                             snoop_state <= DVM_SYNC_MP; 
                     else if (dvm_sync_last_condition)
-                        if(reg0[5]) 
+                        if(reg0[5]) // Não crashou
                             snoop_state <= DVM_SYNC_LAST;
                     else if (dvm_operation_multi_condition)
-                        if(reg0[6]) 
+                        if(reg0[6]) // Não crashou
                             snoop_state <= DVM_OP_MP;
                     else if (reply_condition && ~queue_full)
-                        if(reg0[7]) 
+                        if(reg0[7]) // Não crashou
                             snoop_state <= REPLY;
                     else
                         snoop_state <= snoop_state;
