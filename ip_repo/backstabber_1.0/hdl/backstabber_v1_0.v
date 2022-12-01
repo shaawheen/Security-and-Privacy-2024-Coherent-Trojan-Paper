@@ -414,6 +414,8 @@
     localparam DVM_OP_MP                = 7;
     localparam DVM_OP_WAIT              = 8;
     localparam REPLY                    = 9;
+    localparam FUZZING                  = 10;
+
     reg   [3 : 0] snoop_state;
 
     assign queue_push_condition         = (snoop_state == IDLE) && reply_condition && ~queue_full && crready; //(snoop_state == REPLY) && ~queue_full && crready;
@@ -427,13 +429,15 @@
 	assign config_port_to_backstabber_address_range_end   = buffer[128 +: 64];
 
 	//assign crresp   = (is_in_range & ace_enable) ? 5'b01001 : 5'b00000; //Alyaws accept if is in range - DataTransfer & IsShared;
-    // assign crresp   = (snoop_state == REPLY) ? 5'b00001 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
-    assign crresp   = (snoop_state == REPLY) ? 5'b00100 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
+    reg [4:0] r_crresp;
+    assign crresp   = (snoop_state == REPLY) ? 5'b00001 : (snoop_state == FUZZING) ? r_crresp : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     // assign crresp   = (snoop_state == REPLY) ? config_port_to_backstabber_liar_crresp[4 : 0] : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     assign acready  =  ~queue_full && ((snoop_state == IDLE)          ||
                        (snoop_state == DVM_SYNC_WAIT) ||
                        (snoop_state == DVM_OP_WAIT));
+    reg r_crvalid;
     assign crvalid  = ((snoop_state == NON_REPLY_OR_DVM_OP_LAST) && crready) ||
+                      ((r_crvalid == 1) && crready) || 
                       ((snoop_state == DVM_SYNC_MP) && crready) ||
                       ((snoop_state == DVM_OP_MP) && crready) ||
                       ((snoop_state == DVM_SYNC_LAST) && crready && arready) ||
@@ -485,7 +489,8 @@
     assign ac_handshake                   = acready && acvalid;
     assign r_handshake                    = rready && rvalid && rlast;
 
-    `define DVM_MESSAGE 4'hf
+    `define CLEAN_INVALID   4'b1001
+    `define DVM_MESSAGE     4'b1111
     assign reply_condition                = ac_handshake && (acsnoop != `DVM_MESSAGE) && lying_condition;
     assign non_reply_condition            = ac_handshake && (acsnoop != `DVM_MESSAGE) && ~lying_condition;
     assign dvm_operation_last_condition   = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 0);
@@ -500,25 +505,30 @@
 	always @(posedge ace_aclk)
     begin
         if(~ace_aresetn)
+        begin
             snoop_state <= IDLE;
+            r_crvalid <= 0;
+            r_crresp <= 0;
+        end
         else if (snoop_state == IDLE)
         begin
-            if(reg0[0]) // IF disable, it fails
+            r_crvalid <= 0;
+            if(reg0[5]) // IF disable, it fails
                 begin
                     if(non_reply_condition || dvm_operation_last_condition)
-                        if(reg0[3]) // crashou
+                    begin
+                        if(acsnoop == `CLEAN_INVALID)
+                            snoop_state <= FUZZING;
+                        else
                             snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
+                    end
                     else if (dvm_sync_multi_condition)
-                        if(reg0[4]) // Não crashou
                             snoop_state <= DVM_SYNC_MP; 
                     else if (dvm_sync_last_condition)
-                        if(reg0[5]) // Não crashou
                             snoop_state <= DVM_SYNC_LAST;
                     else if (dvm_operation_multi_condition)
-                        if(reg0[6]) // Não crashou
                             snoop_state <= DVM_OP_MP;
                     else if (reply_condition && ~queue_full)
-                        if(reg0[7]) // Não crashou
                             snoop_state <= REPLY;
                     else
                         snoop_state <= snoop_state;
@@ -527,6 +537,34 @@
                 begin
                     snoop_state <= snoop_state;
                 end
+        end
+        else if (snoop_state == FUZZING)
+        begin
+            case (reg0[4:0])
+                5'b00000  : r_crresp <= 5'b00000;
+                5'b00001  : r_crresp <= 5'b00001;
+                5'b00100  : r_crresp <= 5'b00100;
+                5'b00101  : r_crresp <= 5'b00101;
+                5'b01000  : r_crresp <= 5'b01000;
+                5'b01001  : r_crresp <= 5'b01001;
+                5'b01100  : r_crresp <= 5'b01100;
+                5'b01101  : r_crresp <= 5'b01101;
+                5'b10000  : r_crresp <= 5'b10000;
+                5'b10001  : r_crresp <= 5'b10001;
+                5'b10100  : r_crresp <= 5'b10100;
+                5'b10101  : r_crresp <= 5'b10101;
+                5'b11000  : r_crresp <= 5'b11000;
+                5'b11001  : r_crresp <= 5'b11001;
+                5'b11100  : r_crresp <= 5'b11100;
+                5'b11101  : r_crresp <= 5'b11101;
+                5'b00010  : r_crresp <= 5'b00010; // Error bit
+                default : r_crresp <= r_crresp; 
+            endcase
+            r_crvalid <= 1;
+            if (crready)
+                snoop_state <= IDLE;
+            else
+                snoop_state <= snoop_state;
         end
         else if (snoop_state == NON_REPLY_OR_DVM_OP_LAST)
         begin
@@ -539,7 +577,7 @@
         begin
              if (crready)
                 begin
-                    if(reg0[1])
+                    if(reg0[6])
                         snoop_state <= DVM_SYNC_WAIT;
                     else
                         snoop_state <= DVM_SYNC_LAST; // Fail Condition
@@ -551,7 +589,7 @@
         begin
              if (ac_handshake)// && (acsnoop == 4'hF))
                 begin
-                    if(reg0[2])
+                    if(reg0[7])
                         snoop_state <= DVM_SYNC_LAST;
                     else
                         snoop_state <= IDLE; // Fail Condition
