@@ -430,7 +430,8 @@
 
 	//assign crresp   = (is_in_range & ace_enable) ? 5'b01001 : 5'b00000; //Alyaws accept if is in range - DataTransfer & IsShared;
     reg [4:0] r_crresp;
-    assign crresp   = (snoop_state == REPLY) ? 5'b00001 : (snoop_state == FUZZING) ? r_crresp : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
+    // assign crresp   = (snoop_state == REPLY) ? 5'b00001 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
+    assign crresp   =  r_crresp; //if in a reply state, pass_data & pass_dirty & was_unique;
     // assign crresp   = (snoop_state == REPLY) ? config_port_to_backstabber_liar_crresp[4 : 0] : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     assign acready  =  ~queue_full && ((snoop_state == IDLE)          ||
                        (snoop_state == DVM_SYNC_WAIT) ||
@@ -513,6 +514,7 @@
         else if (snoop_state == IDLE)
         begin
             r_crvalid <= 0;
+            r_crresp <= 0;
             if(reg0[5]) // IF disable, it fails
                 begin
                     if(non_reply_condition || dvm_operation_last_condition)
