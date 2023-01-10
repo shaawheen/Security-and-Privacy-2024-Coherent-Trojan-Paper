@@ -482,9 +482,14 @@
     assign wstrb    = 0;
     assign wuser    = 0;
     assign wvalid   = 0;
-    assign cddata   = m00_axi_rdata;
+
+    reg r_rvalid;
+    reg [C_ACE_DATA_WIDTH-1:0] r_rdata;
+    // assign cddata   = m00_axi_rdata;
+    assign cddata   = r_rdata;
+    assign cdvalid  = r_rvalid;
     assign cdlast   = m00_axi_rlast;
-    assign cdvalid  = m00_axi_rvalid;
+    // assign cdvalid  = m00_axi_rvalid;
     assign rready   = (snoop_state == DVM_SYNC_READ);
     assign rack     = (snoop_state == DVM_SYNC_READ);
     assign ac_handshake                   = acready && acvalid;
@@ -510,6 +515,8 @@
             snoop_state <= IDLE;
             r_crvalid <= 0;
             r_crresp <= 0;
+            r_rdata  <= 32'hffff0000;
+            r_rvalid <= 0;
         end
         else if (snoop_state == IDLE)
         begin
@@ -543,23 +550,23 @@
         else if (snoop_state == FUZZING)
         begin
             case (reg0[4:0])
-                5'b00000  : r_crresp <= 5'b00000;
-                5'b00001  : r_crresp <= 5'b00001;
-                5'b00100  : r_crresp <= 5'b00100;
-                5'b00101  : r_crresp <= 5'b00101;
-                5'b01000  : r_crresp <= 5'b01000;
-                5'b01001  : r_crresp <= 5'b01001;
-                5'b01100  : r_crresp <= 5'b01100;
-                5'b01101  : r_crresp <= 5'b01101;
-                5'b10000  : r_crresp <= 5'b10000;
-                5'b10001  : r_crresp <= 5'b10001;
-                5'b10100  : r_crresp <= 5'b10100;
-                5'b10101  : r_crresp <= 5'b10101;
-                5'b11000  : r_crresp <= 5'b11000;
-                5'b11001  : r_crresp <= 5'b11001;
-                5'b11100  : r_crresp <= 5'b11100;
-                5'b11101  : r_crresp <= 5'b11101;
-                5'b00010  : r_crresp <= 5'b00010; // Error bit
+                5'b00000  : begin r_crresp <= 5'b00000; end
+                5'b00001  : begin r_crresp <= 5'b00001; r_rdata <= 5'b00001 ; r_rvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b00100  : begin r_crresp <= 5'b00100; end
+                5'b00101  : begin r_crresp <= 5'b00101; r_rdata <= 5'b00101 ; r_rvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b01000  : begin r_crresp <= 5'b01000; end
+                5'b01001  : begin r_crresp <= 5'b01001; r_rdata <= 5'b01001 ; r_rvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b01100  : begin r_crresp <= 5'b01100; end
+                5'b01101  : begin r_crresp <= 5'b01101; r_rdata <= 5'b01101 ; r_rvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b10000  : begin r_crresp <= 5'b10000; end
+                5'b10001  : begin r_crresp <= 5'b10001; r_rdata <= 5'b10001 ; r_rvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b10100  : begin r_crresp <= 5'b10100; end
+                5'b10101  : begin r_crresp <= 5'b10101; r_rdata <= 5'b10101 ; r_rvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b11000  : begin r_crresp <= 5'b11000; end
+                5'b11001  : begin r_crresp <= 5'b11001; r_rdata <= 5'b11001 ; r_rvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b11100  : begin r_crresp <= 5'b11100; end
+                5'b11101  : begin r_crresp <= 5'b11101; r_rdata <= 5'b11101 ; r_rvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b00010  : begin r_crresp <= 5'b00010; end // Error bit, system freezes
                 default : r_crresp <= r_crresp; 
             endcase
             r_crvalid <= 1;
