@@ -590,7 +590,7 @@
                 else
                 begin
                     r_counter <= r_counter + 1;
-                    snoop_state <= REPLY_WITH_DELAY;
+                    snoop_state <= REPLY_WITH_DELAY_CDLAST;
                 end
             end
         else if (snoop_state == REPLY_WITH_DELAY_CDVALID)
@@ -627,7 +627,7 @@
                 else
                 begin
                     r_counter <= r_counter + 1;
-                    snoop_state <= REPLY_WITH_DELAY;
+                    snoop_state <= REPLY_WITH_DELAY_CDVALID;
                 end
             end
         else if (snoop_state == REPLY_WITH_DELAY_CRVALID)
@@ -643,7 +643,7 @@
                 else
                 begin
                     r_counter <= r_counter + 1;
-                    snoop_state <= REPLY_WITH_DELAY;
+                    snoop_state <= REPLY_WITH_DELAY_CRVALID;
                 end
             end
         else if (snoop_state == FUZZING)
