@@ -415,7 +415,9 @@
     localparam DVM_OP_WAIT              = 8;
     localparam REPLY                    = 9;
     localparam FUZZING                  = 10; 
-    localparam REPLY_WITH_DELAY         = 11; 
+    localparam REPLY_WITH_DELAY_CRVALID = 11; 
+    localparam REPLY_WITH_DELAY_CDVALID = 12; 
+    localparam REPLY_WITH_DELAY_CDLAST  = 13; 
 
     reg   [3 : 0] snoop_state;
 
