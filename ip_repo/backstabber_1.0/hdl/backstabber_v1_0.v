@@ -539,7 +539,7 @@
                         2'b00  : snoop_state <= FUZZING; 
                         2'b01  : snoop_state <= REPLY_WITH_DELAY_CRVALID; 
                         2'b10  : snoop_state <= REPLY_WITH_DELAY_CDVALID; 
-                        2'b01  : snoop_state <= REPLY_WITH_DELAY_CDLAST; 
+                        2'b11  : snoop_state <= REPLY_WITH_DELAY_CDLAST; 
                         default : r_crresp <= r_crresp; 
                     endcase      
                 end
