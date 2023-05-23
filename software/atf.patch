@@ -1,0 +1,12 @@
+diff --git a/plat/arm/common/arm_cci.c b/plat/arm/common/arm_cci.c
+index 3795fc52f..fcbe89f82 100644
+--- a/plat/arm/common/arm_cci.c
++++ b/plat/arm/common/arm_cci.c
+@@ -39,6 +39,7 @@ void __init plat_arm_interconnect_init(void)
+ void plat_arm_interconnect_enter_coherency(void)
+ {
+ 	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
++	cci_enable_snoop_dvm_reqs(1); //enable cci port of PL
+ }
+ 
+ /******************************************************************************

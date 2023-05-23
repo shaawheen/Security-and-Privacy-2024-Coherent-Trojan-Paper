@@ -32,7 +32,7 @@ stdenv.mkDerivation rec {
 
         mkdir -p ./images
         cp -L ${vm1}/baremetal.bin ./images
-        # cp -L ${vm2}/linux.bin ./images
+        cp -L ${vm2}/linux.bin ./images
 
         make PLATFORM=${platform}\
              CONFIG_REPO=./config\

@@ -16,6 +16,10 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-In98OT60ELrbybj1dS6kLrdPSQFO7UbwNkb2zbxM0jo=";
     };
 
+    patches = [
+         ../../atf.patch
+    ];
+
     nativeBuildInputs = [ toolchain openssl]; #build time dependencies
 
     buildPhase = ''

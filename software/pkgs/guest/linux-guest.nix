@@ -5,6 +5,8 @@
 , toolchain
 }:
 
+##TODO: Build Linux from source
+
 stdenv.mkDerivation rec {
     pname = "linux-guest";
     version = "6.1";

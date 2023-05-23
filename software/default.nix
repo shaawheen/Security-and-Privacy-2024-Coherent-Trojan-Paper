@@ -7,9 +7,6 @@
 
 with pkgs;
 
-##TODO: Build bao package (It will have already the linux kernel)
-  ##TODO: Build Linux
-
 let
   packages = rec {
     platform = "zcu102";
@@ -33,16 +30,21 @@ let
       name = "send_sd.sh";
       executable = true;
       text = ''
-      #!/bin/bash
-      # sudo rm -r /media/$USER/rootfs/*
-      # sudo cp -r ${gen_sd}/fs_partition/* /media/$USER/rootfs/
+        #!/bin/bash
 
-      sudo rm -r /media/$USER/boot1/*
-      sudo cp -r ${gen_sd}/boot_partition/* /media/$USER/boot1/
-      echo "Setup Done"
+        export BAO_SDCARD=/media/$USER/boot1
+        
+        if [ -d $BAO_SDCARD ]
+            then  
+                sudo rm -r $BAO_SDCARD/*
+                sudo cp -r ${gen_sd}/boot_partition/* $BAO_SDCARD
+                umount $BAO_SDCARD
+                echo $'\e[1;32m SD Card flashed!\e[0m'
+            else
+                echo $'\e[1;31m SD Card not mounted!\e[0m'
+        fi
       '';
     };
-    
   };
 in
   packages
