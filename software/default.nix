@@ -10,13 +10,15 @@ with pkgs;
 let
   packages = rec {
     platform = "zcu102";
+    #artifacts
+    artifacts = callPackage ./pkgs/artifacts/artifacts.nix {};
     # tools
     aarch64-none-elf = callPackage ./pkgs/toolchains/aarch64-none-elf-11-3.nix {};
     bootgen = callPackage ./pkgs/bootgen/bootgen.nix {toolchain = aarch64-none-elf;};
     # buildroot = callPackage ./pkgs/buildroot/buildroot.nix { inherit platform; };
 
     # firmwares
-    baremetal = callPackage ./pkgs/guest/baremetal-guest.nix { toolchain = aarch64-none-elf; inherit platform; };
+    baremetal = callPackage ./pkgs/guest/baremetal-guest.nix { toolchain = aarch64-none-elf; inherit artifacts; inherit platform; };
     linux = callPackage ./pkgs/guest/linux-guest.nix { toolchain = aarch64-none-elf; inherit platform; };
     bao = callPackage ./pkgs/bao/bao.nix { toolchain = aarch64-none-elf; vm1 = baremetal; vm2 = linux; inherit platform;};
     atf = callPackage ./pkgs/atf/atf.nix { toolchain = aarch64-none-elf; };
@@ -26,7 +28,8 @@ let
     # scripts = callPackage ./pkgs/scripts/scripts.nix { inherit gen_sd; };
     inherit pkgs; # similar to `pkgs = pkgs;` This lets callers use the nixpkgs version defined in this file.
     
-    sen_sd = writeTextFile { #result-8
+    #result-8
+    sen_sd = writeTextFile { 
       name = "send_sd.sh";
       executable = true;
       text = ''
