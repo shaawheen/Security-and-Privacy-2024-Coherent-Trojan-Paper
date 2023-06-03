@@ -2,6 +2,7 @@
 , fetchFromGitHub
 , platform
 , bash
+, artifacts
 }:
 
 stdenv.mkDerivation rec {
@@ -15,7 +16,7 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-XSBzShQ6bT+lFAT0eC36/SSP0lE5qQZ/QSe2fbCYvDk=";
     };
 
-    setup = ../../setups/baremetal_linux/buildroot/aarch64.config;
+    setup = "${artifacts}/setups/baremetal_linux/buildroot/aarch64.config";
 
     nativeBuildInputs = [ bash]; #build time dependencies
     

@@ -14,17 +14,17 @@ let
     artifacts = callPackage ./pkgs/artifacts/artifacts.nix {};
     # tools
     aarch64-none-elf = callPackage ./pkgs/toolchains/aarch64-none-elf-11-3.nix {};
-    bootgen = callPackage ./pkgs/bootgen/bootgen.nix {toolchain = aarch64-none-elf;};
-    # buildroot = callPackage ./pkgs/buildroot/buildroot.nix { inherit platform; };
+    bootgen = callPackage ./pkgs/bootgen/bootgen.nix {toolchain = aarch64-none-elf; };
+    # buildroot = callPackage ./pkgs/buildroot/buildroot.nix { inherit artifacts; inherit platform; };
 
     # firmwares
     baremetal = callPackage ./pkgs/guest/baremetal-guest.nix { toolchain = aarch64-none-elf; inherit artifacts; inherit platform; };
-    linux = callPackage ./pkgs/guest/linux-guest.nix { toolchain = aarch64-none-elf; inherit platform; };
-    bao = callPackage ./pkgs/bao/bao.nix { toolchain = aarch64-none-elf; vm1 = baremetal; vm2 = linux; inherit platform;};
-    atf = callPackage ./pkgs/atf/atf.nix { toolchain = aarch64-none-elf; };
-    xilinx_firmware = callPackage ./pkgs/firmware/firmware.nix { }; 
+    linux = callPackage ./pkgs/guest/linux-guest.nix { toolchain = aarch64-none-elf; inherit artifacts; inherit platform; };
+    bao = callPackage ./pkgs/bao/bao.nix { toolchain = aarch64-none-elf; inherit artifacts; vm1 = baremetal; vm2 = linux; inherit platform;};
+    atf = callPackage ./pkgs/atf/atf.nix { toolchain = aarch64-none-elf; inherit artifacts;};
+    xilinx_firmware = callPackage ./pkgs/firmware/firmware.nix { inherit artifacts; }; 
 
-    gen_sd = callPackage ./pkgs/gen_sd/gen_sd.nix { inherit bao; inherit bootgen; inherit xilinx_firmware; inherit atf; };
+    gen_sd = callPackage ./pkgs/gen_sd/gen_sd.nix { inherit artifacts; inherit bao; inherit bootgen; inherit xilinx_firmware; inherit atf; };
     # scripts = callPackage ./pkgs/scripts/scripts.nix { inherit gen_sd; };
     inherit pkgs; # similar to `pkgs = pkgs;` This lets callers use the nixpkgs version defined in this file.
     

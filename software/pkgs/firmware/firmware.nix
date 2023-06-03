@@ -1,4 +1,5 @@
 { stdenv
+, artifacts
 }:
 
 stdenv.mkDerivation rec {
@@ -6,7 +7,7 @@ stdenv.mkDerivation rec {
     version = "2022.1";
 
     # Download From -> https://www.xilinx.com/member/forms/download/xef.html?filename=2022.1-zcu102-release.tar.xz
-    src = ../../artifacts/2022.1-zcu102-release.tar.gz;
+    src = "${artifacts}/2022.1-zcu102-release.tar.gz";
 
     installPhase = ''
         mkdir -p $out

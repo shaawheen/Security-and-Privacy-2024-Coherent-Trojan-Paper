@@ -1,0 +1,11 @@
+prefix=/home/diogo/Desktop/renato-collab/shared_mem_setup/wrkdir/srcs/linux_VM/buildroot-aarch64-v6.1/output/host
+exec_prefix=/home/diogo/Desktop/renato-collab/shared_mem_setup/wrkdir/srcs/linux_VM/buildroot-aarch64-v6.1/output/host
+libdir=/home/diogo/Desktop/renato-collab/shared_mem_setup/wrkdir/srcs/linux_VM/buildroot-aarch64-v6.1/output/host/lib
+includedir=/home/diogo/Desktop/renato-collab/shared_mem_setup/wrkdir/srcs/linux_VM/buildroot-aarch64-v6.1/output/host/include
+
+Name: fdisk
+Description: fdisk library
+Version: 2.38.0
+Requires.private: uuid blkid
+Cflags: -I${includedir}/libfdisk
+Libs: -L${libdir} -lfdisk

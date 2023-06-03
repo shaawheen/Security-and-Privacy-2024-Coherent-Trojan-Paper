@@ -2,6 +2,7 @@
 , fetchFromGitHub
 , toolchain
 , openssl
+, artifacts
 }:
 
 stdenv.mkDerivation rec {
@@ -17,7 +18,7 @@ stdenv.mkDerivation rec {
     };
 
     patches = [
-         ../../atf.patch
+         "${artifacts}/atf.patch"
     ];
 
     nativeBuildInputs = [ toolchain openssl]; #build time dependencies

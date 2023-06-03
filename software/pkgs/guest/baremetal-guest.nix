@@ -16,7 +16,6 @@ stdenv.mkDerivation rec {
     #     sha256 = "sha256-aiKraDtjv+n/cXtdYdNDKlbzOiBxYTDrMT8bdG9B9vU=";
     # };
 
-
     src = "${artifacts}/baremetal";
 
     nativeBuildInputs = [ toolchain]; #build time dependencies

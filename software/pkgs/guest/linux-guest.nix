@@ -3,6 +3,7 @@
 , dtc
 , platform
 , toolchain
+, artifacts
 }:
 
 ##TODO: Build Linux from source
@@ -11,8 +12,8 @@ stdenv.mkDerivation rec {
     pname = "linux-guest";
     version = "6.1";
 
-    src = ../../artifacts/linux/Image;
-    config = ../../setups/baremetal_linux;
+    src = "${artifacts}/linux/Image";
+    config = "${artifacts}/setups/baremetal_linux";
 
     # dontUnpack = true;
 

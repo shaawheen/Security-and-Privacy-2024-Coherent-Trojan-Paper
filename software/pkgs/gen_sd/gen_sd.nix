@@ -5,6 +5,7 @@
 , bao
 , writeText
 , writeTextFile
+, artifacts
 }:
 
 stdenv.mkDerivation rec {
@@ -14,14 +15,12 @@ stdenv.mkDerivation rec {
     dontUnpack = true;
     dontBuild = true;
 
-    bitstream = ../../artifacts;
-
     bif_file = writeText "bootgen.bif" ''
         the_ROM_image:
         {
             [bootloader, destination_cpu=a53-0] ${xilinx_firmware}/zynqmp_fsbl.elf
             [pmufw_image] ${xilinx_firmware}/pmufw.elf
-            [destination_device=pl] ${bitstream}/backstabbing.bit 
+            [destination_device=pl] ${artifacts}/backstabbing.bit 
             [destination_cpu=a53-0, exception_level=el-3, trustzone] ${atf}/bl31.elf
             [destination_cpu=a53-0, load=0x00100000] ${xilinx_firmware}/system.dtb
             [destination_cpu=a53-0, exception_level=el-2] ${xilinx_firmware}/u-boot.elf

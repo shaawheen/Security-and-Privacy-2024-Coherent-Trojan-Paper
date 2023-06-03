@@ -1,0 +1,11 @@
+prefix=/home/diogo/Desktop/renato-collab/shared_mem_setup/wrkdir/srcs/linux_VM/buildroot-aarch64-v6.1/output/host
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: e2p
+Description: Ext2fs userspace programs utility library
+Version: 1.46.5
+Requires: 
+Cflags: -I${includedir}/e2p -I${includedir}
+Libs: -L${libdir} -le2p

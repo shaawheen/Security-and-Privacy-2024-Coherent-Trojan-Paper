@@ -6,6 +6,7 @@
 , vm1
 , vm2
 , ubootTools
+, artifacts
 }:
 
 stdenv.mkDerivation rec {
@@ -19,7 +20,7 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-2kC2zDPVtaiEdeK4LqGnsJl7bnJ8ptJUdFF2bHA73gY=";
     };
 
-    config = ../../setups/baremetal_linux/configs/${platform}.c;
+    config = "${artifacts}/setups/baremetal_linux/configs/${platform}.c";
     
     nativeBuildInputs = [ toolchain vm1 vm2 ubootTools]; #build time dependencies
 

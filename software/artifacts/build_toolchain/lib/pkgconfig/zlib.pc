@@ -1,0 +1,13 @@
+prefix=/home/diogo/Desktop/renato-collab/shared_mem_setup/wrkdir/srcs/linux_VM/buildroot-aarch64-v6.1/output/host
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+sharedlibdir=${libdir}
+includedir=${prefix}/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.2.13
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}
