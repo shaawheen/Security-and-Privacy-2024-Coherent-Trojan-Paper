@@ -1,9 +1,4 @@
-Back link: [[Devil in FPGA » Attacks Use Cases » Permanent Failure]]
-
-# Devil in FPGA » Permanent Failure » README
-
-**TODO:** Create for each test a dir with all the things needed to replicate the experiment. SW+HW. Eacvh page have something similar to what I have down here. 
-
+# Devil in FPGA » Permanent Failure 
 ## Setup
 (**Cross-VM Attack**) Bao condifgured with 2 VMs, 1 VM running Linux and other running baremetal code, the malicious code will be deployed on this VM.
 - The Malicious VM has control over a custom IP (based on backstabber)
