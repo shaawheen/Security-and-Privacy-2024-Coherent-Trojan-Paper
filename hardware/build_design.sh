@@ -6,6 +6,10 @@ if [ -d ./backstabbing_devil ]
         rm -r backstabbing_devil
 fi
 
-echo $'\e[1;31m Building hardware components...\e[0m'
-# vivado -source design_1.tcl
-vivado -mode tcl -source design_1.tcl
+# Open project in graphical mode
+if [ "$1" == "graph" ]; then
+    vivado -source design_1.tcl
+else
+    echo $'\e[1;31m Building hardware components...\e[0m'
+    vivado -mode tcl -source design_1.tcl
+fi

@@ -531,9 +531,9 @@
         begin
             r_crvalid <= 0;
             r_crresp <= 0;
-            if(non_reply_condition || dvm_operation_last_condition)
+            if( (ac_handshake && (acsnoop != `DVM_MESSAGE)) || dvm_operation_last_condition)
             begin
-                if(acsnoop == `CLEAN_INVALID)
+                if(acsnoop != `DVM_MESSAGE)
                 begin
                     case (reg0[6:5])
                         2'b00  : snoop_state <= FUZZING; 

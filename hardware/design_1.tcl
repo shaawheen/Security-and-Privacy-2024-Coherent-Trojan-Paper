@@ -1263,7 +1263,7 @@ reset_run design_1_smartconnect_0_0_synth_1
 reset_run design_1_system_ila_0_0_synth_1
 reset_run design_1_vio_0_0_synth_1
 reset_run design_1_zynq_ultra_ps_e_0_0_synth_1
-launch_runs impl_1 -to_step write_bitstream -jobs 32
+launch_runs impl_1 -to_step write_bitstream -jobs 8
 
 
 get_property PROGRESS [get_runs impl_1]
