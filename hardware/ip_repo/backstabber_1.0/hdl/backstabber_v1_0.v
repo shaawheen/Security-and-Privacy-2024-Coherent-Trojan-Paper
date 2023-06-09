@@ -533,7 +533,7 @@
         begin
             r_crvalid <= 0;
             r_crresp <= r_crresp;
-            if( && (reg0[30] == 1'b1))
+            if((reg0[30] == 1'b1))
                 begin 
                      if(non_reply_condition || dvm_operation_last_condition)
                         begin
