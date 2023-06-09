@@ -446,6 +446,7 @@
                       ((snoop_state == DVM_OP_MP) && crready) ||
                       ((snoop_state == DVM_SYNC_LAST) && crready && arready) ||
                       ((snoop_state == REPLY) && crready);
+    
     assign araddr   = 0;
     assign arbar    = 1'b0;
     assign arburst  = 2'b01; //Should be calculated based on the acaddr inc or wrap?
@@ -459,7 +460,10 @@
     assign arregion = 0;
     assign arsize   = 4'b100; //Size of each burst is 16B
     
-    `define DVM_COMPLETE 4'he
+    `define CLEAN_INVALID   4'b1001
+    `define DVM_COMPLETE    4'b1110
+    `define DVM_MESSAGE     4'b1111
+    
     assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : 0; //Means arbar and ardomain have to be 0
     assign aruser   = 0;
     assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready); //acvalid & is_in_range & ace_enable;
@@ -500,9 +504,7 @@
     assign rack     = (snoop_state == DVM_SYNC_READ);
     assign ac_handshake                   = acready && acvalid;
     assign r_handshake                    = rready && rvalid && rlast;
-
-    `define CLEAN_INVALID   4'b1001
-    `define DVM_MESSAGE     4'b1111
+    
     `define NUM_OF_CYCLES   150 // 1 us 
     assign reply_condition                = ac_handshake && (acsnoop != `DVM_MESSAGE) && lying_condition;
     assign non_reply_condition            = ac_handshake && (acsnoop != `DVM_MESSAGE) && ~lying_condition;
@@ -530,32 +532,39 @@
         else if (snoop_state == IDLE)
         begin
             r_crvalid <= 0;
-            r_crresp <= 0;
-            if( (ac_handshake && (acsnoop != `DVM_MESSAGE)) || dvm_operation_last_condition)
-            begin
-                if(acsnoop != `DVM_MESSAGE)
-                begin
-                    case (reg0[6:5])
-                        2'b00  : snoop_state <= FUZZING; 
-                        2'b01  : snoop_state <= REPLY_WITH_DELAY_CRVALID; 
-                        2'b10  : snoop_state <= REPLY_WITH_DELAY_CDVALID; 
-                        2'b11  : snoop_state <= REPLY_WITH_DELAY_CDLAST; 
-                        default : r_crresp <= r_crresp; 
-                    endcase      
-                end
-                else
-                    snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
-            end
-            else if (dvm_sync_multi_condition)
-                    snoop_state <= DVM_SYNC_MP; 
-            else if (dvm_sync_last_condition)
-                    snoop_state <= DVM_SYNC_LAST;
-            else if (dvm_operation_multi_condition)
-                    snoop_state <= DVM_OP_MP;
-            else if (reply_condition && ~queue_full)
-                    snoop_state <= REPLY;
+            r_crresp <= r_crresp;
+            if( && (reg0[30] == 1'b1))
+                begin 
+                     if(non_reply_condition || dvm_operation_last_condition)
+                        begin
+                            if(acsnoop != `DVM_MESSAGE)
+                            begin
+                                case (reg0[6:5])
+                                    2'b00  : snoop_state <= FUZZING; 
+                                    2'b01  : snoop_state <= REPLY_WITH_DELAY_CRVALID; 
+                                    2'b10  : snoop_state <= REPLY_WITH_DELAY_CDVALID; 
+                                    2'b11  : snoop_state <= REPLY_WITH_DELAY_CDLAST; 
+                                    default : r_crresp <= r_crresp; 
+                                endcase      
+                            end
+                            else
+                                snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
+                        end
+                        else if (dvm_sync_multi_condition)
+                                snoop_state <= DVM_SYNC_MP; 
+                        else if (dvm_sync_last_condition)
+                                snoop_state <= DVM_SYNC_LAST;
+                        else if (dvm_operation_multi_condition)
+                                snoop_state <= DVM_OP_MP;
+                        else if (reply_condition && ~queue_full)
+                                snoop_state <= REPLY;
+                        else
+                            snoop_state <= snoop_state;
+                end 
             else
-                snoop_state <= snoop_state;
+                begin
+                    snoop_state <= snoop_state;
+                end           
         end
         else if (snoop_state == REPLY_WITH_DELAY_CDLAST)
            begin
@@ -632,7 +641,26 @@
             end
         else if (snoop_state == REPLY_WITH_DELAY_CRVALID)
             begin
-            r_crresp <= 5'b00000;
+            case (reg0[4:0])
+                5'b00000  : begin r_crresp <= 5'b00000; end
+                5'b00001  : begin r_crresp <= 5'b00001; r_rdata <= 5'b00001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b00100  : begin r_crresp <= 5'b00100; end
+                5'b00101  : begin r_crresp <= 5'b00101; r_rdata <= 5'b00101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b01000  : begin r_crresp <= 5'b01000; end
+                5'b01001  : begin r_crresp <= 5'b01001; r_rdata <= 5'b01001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b01100  : begin r_crresp <= 5'b01100; end
+                5'b01101  : begin r_crresp <= 5'b01101; r_rdata <= 5'b01101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b10000  : begin r_crresp <= 5'b10000; end
+                5'b10001  : begin r_crresp <= 5'b10001; r_rdata <= 5'b10001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b10100  : begin r_crresp <= 5'b10100; end
+                5'b10101  : begin r_crresp <= 5'b10101; r_rdata <= 5'b10101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b11000  : begin r_crresp <= 5'b11000; end
+                5'b11001  : begin r_crresp <= 5'b11001; r_rdata <= 5'b11001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b11100  : begin r_crresp <= 5'b11100; end
+                5'b11101  : begin r_crresp <= 5'b11101; r_rdata <= 5'b11101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
+                5'b00010  : begin r_crresp <= 5'b00010; end // Error bit, system freezes
+                default : r_crresp <= r_crresp; 
+            endcase
             // wait some cycles to respond
             if(r_counter == `NUM_OF_CYCLES*reg0[29:7] )
                 begin
