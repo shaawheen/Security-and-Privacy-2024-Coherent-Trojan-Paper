@@ -18,6 +18,7 @@ stdenv.mkDerivation rec {
     bif_file = writeText "bootgen.bif" ''
         the_ROM_image:
         {
+            [init] ${artifacts}/regs.int
             [bootloader, destination_cpu=a53-0] ${xilinx_firmware}/zynqmp_fsbl.elf
             [pmufw_image] ${xilinx_firmware}/pmufw.elf
             [destination_device=pl] ${artifacts}/backstabbing.bit 
