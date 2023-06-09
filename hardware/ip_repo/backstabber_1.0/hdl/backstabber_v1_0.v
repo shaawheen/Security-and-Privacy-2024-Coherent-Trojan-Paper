@@ -533,38 +533,31 @@
         begin
             r_crvalid <= 0;
             r_crresp <= r_crresp;
-            if((reg0[30] == 1'b1))
-                begin 
-                     if(non_reply_condition || dvm_operation_last_condition)
-                        begin
-                            if(acsnoop != `DVM_MESSAGE)
-                            begin
-                                case (reg0[6:5])
-                                    2'b00  : snoop_state <= FUZZING; 
-                                    2'b01  : snoop_state <= REPLY_WITH_DELAY_CRVALID; 
-                                    2'b10  : snoop_state <= REPLY_WITH_DELAY_CDVALID; 
-                                    2'b11  : snoop_state <= REPLY_WITH_DELAY_CDLAST; 
-                                    default : r_crresp <= r_crresp; 
-                                endcase      
-                            end
-                            else
-                                snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
-                        end
-                        else if (dvm_sync_multi_condition)
-                                snoop_state <= DVM_SYNC_MP; 
-                        else if (dvm_sync_last_condition)
-                                snoop_state <= DVM_SYNC_LAST;
-                        else if (dvm_operation_multi_condition)
-                                snoop_state <= DVM_OP_MP;
-                        else if (reply_condition && ~queue_full)
-                                snoop_state <= REPLY;
-                        else
-                            snoop_state <= snoop_state;
-                end 
-            else
+             if(non_reply_condition || dvm_operation_last_condition)
                 begin
-                    snoop_state <= snoop_state;
-                end           
+                    if((acsnoop != `DVM_MESSAGE) && (reg0[30] == 1'b1))
+                    begin
+                        case (reg0[6:5])
+                            2'b00  : snoop_state <= FUZZING; 
+                            2'b01  : snoop_state <= REPLY_WITH_DELAY_CRVALID; 
+                            2'b10  : snoop_state <= REPLY_WITH_DELAY_CDVALID; 
+                            2'b11  : snoop_state <= REPLY_WITH_DELAY_CDLAST; 
+                            default : r_crresp <= r_crresp; 
+                        endcase      
+                    end
+                    else
+                        snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
+                end
+            else if (dvm_sync_multi_condition)
+                snoop_state <= DVM_SYNC_MP;
+            else if (dvm_sync_last_condition)
+                snoop_state <= DVM_SYNC_LAST;
+            else if (dvm_operation_multi_condition)
+                snoop_state <= DVM_OP_MP;
+            else if (reply_condition && ~queue_full)
+                snoop_state <= REPLY;
+            else
+                snoop_state <= snoop_state;
         end
         else if (snoop_state == REPLY_WITH_DELAY_CDLAST)
            begin
