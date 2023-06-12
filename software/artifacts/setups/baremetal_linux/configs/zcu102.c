@@ -49,7 +49,7 @@ struct config config = {
                     }
                 },
 
-                .dev_num = 3,
+                .dev_num = 4,
                 .devs =  (struct vm_dev_region[]) {
                     {   
                         /* UART1 */
@@ -75,7 +75,12 @@ struct config config = {
                         .interrupt_num = 2,
                         .interrupts = 
                             (irqid_t[]) {95, 96}                           
-                    }
+                    },
+                    {   /* PL */
+                        .pa = 0x80000000,
+                        .va = 0x80000000,
+                        .size = 0x20000
+                    },
                 },
 
                 .arch = {
@@ -121,7 +126,7 @@ struct config config = {
                     }
                 },
 
-                .dev_num = 2,
+                .dev_num = 3,
                 .devs =  (struct vm_dev_region[]) {
                     {   
                         /* UART0 */
@@ -134,7 +139,12 @@ struct config config = {
                         .interrupt_num = 1,
                         .interrupts = 
                             (irqid_t[]) {27}                         
-                    }
+                    },
+                    {   /* PL */
+                        .pa = 0x80000000,
+                        .va = 0x80000000,
+                        .size = 0x20000
+                    },
                 },
 
                 .arch = {

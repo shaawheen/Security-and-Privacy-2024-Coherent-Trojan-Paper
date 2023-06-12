@@ -1,12 +1,33 @@
 diff --git a/plat/arm/common/arm_cci.c b/plat/arm/common/arm_cci.c
-index 3795fc52f..fcbe89f82 100644
+index 3795fc52f..f2de0515f 100644
 --- a/plat/arm/common/arm_cci.c
 +++ b/plat/arm/common/arm_cci.c
-@@ -39,6 +39,7 @@ void __init plat_arm_interconnect_init(void)
+@@ -10,6 +10,7 @@
+ #include <drivers/arm/cci.h>
+ #include <lib/utils.h>
+ #include <plat/arm/common/plat_arm.h>
++#include <lib/mmio.h>
+ 
+ static const int cci_map[] = {
+ 	PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX,
+@@ -39,6 +40,8 @@ void __init plat_arm_interconnect_init(void)
  void plat_arm_interconnect_enter_coherency(void)
  {
  	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
++	mmio_write_32(0xFD6E0000UL + 0x90004UL, 0xffffffff); // disable prefetch in all interfaces
 +	cci_enable_snoop_dvm_reqs(1); //enable cci port of PL
  }
  
  /******************************************************************************
+diff --git a/plat/xilinx/zynqmp/aarch64/zynqmp_common.c b/plat/xilinx/zynqmp/aarch64/zynqmp_common.c
+index 9f374b03d..db295b972 100644
+--- a/plat/xilinx/zynqmp/aarch64/zynqmp_common.c
++++ b/plat/xilinx/zynqmp/aarch64/zynqmp_common.c
+@@ -26,6 +26,7 @@ const mmap_region_t plat_arm_mmap[] = {
+ 	{ DEVICE0_BASE, DEVICE0_BASE, DEVICE0_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
+ 	{ DEVICE1_BASE, DEVICE1_BASE, DEVICE1_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
+ 	{ CRF_APB_BASE, CRF_APB_BASE, CRF_APB_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
++	{ UL(0x80000000), UL(0x80000000), UL(0x30000), MT_DEVICE | MT_RW | MT_SECURE },
+ 	{0}
+ };
+ 

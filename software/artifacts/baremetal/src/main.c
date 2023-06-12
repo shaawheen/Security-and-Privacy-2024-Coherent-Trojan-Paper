@@ -51,16 +51,35 @@ char* strnchr(const char* s, size_t n, char c) {
     }
     return NULL;
 }
-
+int *ptr_sh = (int*)0x80010000;
+int delay = 0;
 void shmem_handler() {
 
     spin_lock(&print_lock);
-    printf("shmem irq\n");
+    printf("shmem irq %d\n", irq_count);
     spin_unlock(&print_lock);
     linux_buff[shmem_channel_size-1] = '\0';
     char* end = strchr(linux_buff, '\n');
     if (end != NULL) {
         *end = '\0';
+    }
+    sprintf(shmem_buff, "%d", irq_count);
+    // 0b0011111010000100000 -> 1ms
+    // 0b00100111000100000100000 -> 10ms
+    // 0b110000110101000000100000 -> 100ms
+    // if(irq_count < 3)
+     
+    // Enable [30] | Delay [29:7] | Signal to delay [6:5] | CRRESP [4:0]  
+    // *ptr_sh =  (0b1 << 30) | (delay << 7) | ( 0b01 << 5 ) | 0b10000;;
+    
+    // irq_count++;
+    // printf("sh: %d\n", delay);
+    // delay = delay+100;
+    //  while (1)
+    {
+        *ptr_sh =  (0b1 << 30) | (delay << 7) | ( 0b01 << 5 ) | 0b00000;;
+        printf("sh: %d\n", delay);
+        delay = delay+100;
     }
 }
 
@@ -89,7 +108,8 @@ void timer_handler(){
 void main(void){
 
     static volatile bool master_done = false;
-
+    // int *ptr = (int*)0x80001000;
+    
     if(cpu_is_master()){
         spin_lock(&print_lock);
         printf("Bao bare-metal test guest\n");
@@ -98,15 +118,18 @@ void main(void){
         irq_set_handler(TIMER_IRQ_ID, timer_handler);
 
         timer_set(TIMER_INTERVAL);
-        irq_enable(TIMER_IRQ_ID);
-        irq_set_prio(TIMER_IRQ_ID, IRQ_MAX_PRIO);
+        // irq_enable(TIMER_IRQ_ID);
+        // irq_set_prio(TIMER_IRQ_ID, IRQ_MAX_PRIO);
 
         shmem_init();
 
         master_done = true;
+        printf("IPC\n");
+        sprintf(shmem_buff, "%d", irq_count);
+        irq_count++;
     }
 
     while(!master_done);
 
-    while(1) wfi();
+    while(1) wfi();    
 }

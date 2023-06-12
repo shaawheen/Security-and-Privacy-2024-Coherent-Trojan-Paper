@@ -117,6 +117,12 @@
 				#phy-cells = <0x4>;
 			};
 		};
+
+		pl_interrupter@0x80000000 {
+		    compatible = "pl_module,1.0";
+		    interrupt-parent = <&gic>;
+		    reg = <0x80000000 0x20000>;
+		};
 	};
 
     bao-ipc@f0000000 {
