@@ -1502,7 +1502,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>bf1cd59a</spirit:value>
+            <spirit:value>68b8f8ca</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1518,7 +1518,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>bf1cd59a</spirit:value>
+            <spirit:value>68b8f8ca</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -1561,6 +1561,21 @@
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
             <spirit:value>d47be580</spirit:value>
+          </spirit:parameter>
+        </spirit:parameters>
+      </spirit:view>
+      <spirit:view>
+        <spirit:name>xilinx_testbench</spirit:name>
+        <spirit:displayName>Test Bench</spirit:displayName>
+        <spirit:envIdentifier>:vivado.xilinx.com:simulation.testbench</spirit:envIdentifier>
+        <spirit:modelName>devil_tb</spirit:modelName>
+        <spirit:fileSetRef>
+          <spirit:localName>xilinx_testbench_view_fileset</spirit:localName>
+        </spirit:fileSetRef>
+        <spirit:parameters>
+          <spirit:parameter>
+            <spirit:name>viewChecksum</spirit:name>
+            <spirit:value>d6dde1d5</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -5214,7 +5229,24 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>debug_state</spirit:name>
+        <spirit:name>debug_snoop_state</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long">3</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>wire</spirit:typeName>
+              <spirit:viewNameRef>xilinx_verilogsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_verilogbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>debug_devil_state</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:vector>
@@ -5420,6 +5452,10 @@
     <spirit:fileSet>
       <spirit:name>xilinx_verilogsynthesis_view_fileset</spirit:name>
       <spirit:file>
+        <spirit:name>hdl/devil_in_fpga.v</spirit:name>
+        <spirit:fileType>verilogSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>hdl/fuzzing_ACE_v1_0_S01_AXI.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
       </spirit:file>
@@ -5438,11 +5474,15 @@
       <spirit:file>
         <spirit:name>hdl/backstabber_v1_0.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_39c2b2be</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_84f127c1</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
       <spirit:name>xilinx_verilogbehavioralsimulation_view_fileset</spirit:name>
+      <spirit:file>
+        <spirit:name>hdl/devil_in_fpga.v</spirit:name>
+        <spirit:fileType>verilogSource</spirit:fileType>
+      </spirit:file>
       <spirit:file>
         <spirit:name>hdl/fuzzing_ACE_v1_0_S01_AXI.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
@@ -5510,6 +5550,16 @@
       <spirit:file>
         <spirit:name>bd/bd.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
+      </spirit:file>
+    </spirit:fileSet>
+    <spirit:fileSet>
+      <spirit:name>xilinx_testbench_view_fileset</spirit:name>
+      <spirit:file>
+        <spirit:name>src/devil_tb.sv</spirit:name>
+        <spirit:fileType>systemVerilogSource</spirit:fileType>
+        <spirit:userFileType>USED_IN_implementation</spirit:userFileType>
+        <spirit:userFileType>USED_IN_simulation</spirit:userFileType>
+        <spirit:userFileType>USED_IN_synthesis</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
   </spirit:fileSets>
@@ -5729,7 +5779,7 @@
       </xilinx:taxonomies>
       <xilinx:displayName>backstabber_v1.0</xilinx:displayName>
       <xilinx:coreRevision>183</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2023-06-06T15:14:32Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2023-06-13T16:50:03Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="user.org:user:backstabber:1.0_ARCHIVE_LOCATION">/home/ro0zkhosh/Backstabbing/backstabbing/ip_repo/backstabber_1.0</xilinx:tag>
       </xilinx:tags>
@@ -5739,8 +5789,8 @@
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="c8c5dcf7"/>
       <xilinx:checksum xilinx:scope="addressSpaces" xilinx:value="d5aa1827"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="47654bc5"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="84503f22"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="93456333"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="8abde93a"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="9f0087b5"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="502cb642"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="fdbd34ed"/>
     </xilinx:packagingInfo>
