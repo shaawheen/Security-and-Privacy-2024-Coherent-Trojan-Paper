@@ -8,7 +8,7 @@ fi
 
 # Open project in graphical mode
 if [ "$1" == "graph" ]; then
-    vivado -source design_1.tcl
+    vivado -source design_1_graph.tcl
 else
     echo $'\e[1;31m Building hardware components...\e[0m'
     vivado -mode tcl -source design_1.tcl

@@ -132,7 +132,7 @@ module devil_tb();
         // 5 replys with delay
         wait(w_fsm_devil_state == DEVIL_RESPONSE); 
         wait(w_fsm_devil_state == DEVIL_CONTINUOS_DELAY); 
-        control_reg[4:1] = REPLY_WITH_DELAY_CRVALID; 
+        control_reg[4:1] = REPLY_WITH_DELAY_CDVALID; 
       end
       control_reg[17] = 1'b0; // disable Continuous Delay
 

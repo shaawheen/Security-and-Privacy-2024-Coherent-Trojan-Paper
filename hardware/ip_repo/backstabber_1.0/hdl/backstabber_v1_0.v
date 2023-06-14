@@ -454,7 +454,7 @@
 	//assign crresp   = (is_in_range & ace_enable) ? 5'b01001 : 5'b00000; //Alyaws accept if is in range - DataTransfer & IsShared;
 
     // assign crresp   = (snoop_state == REPLY) ? 5'b00001 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
-    assign crresp   =  w_crresp; //if in a reply state, pass_data & pass_dirty & was_unique;
+    assign crresp   =  w_crresp;
     // assign crresp   = (snoop_state == REPLY) ? config_port_to_backstabber_liar_crresp[4 : 0] : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     assign acready  =  ~queue_full && ((snoop_state == IDLE)          ||
                        (snoop_state == DVM_SYNC_WAIT) ||
@@ -547,15 +547,6 @@
                 begin
                     if((acsnoop != `DVM_MESSAGE) && (w_en == 1'b1))
                         snoop_state <= DEVIL_EN;
-                    // begin
-                    //     case (w_test[3:0])
-                    //         4'b0000  : snoop_state <= FUZZING; 
-                    //         4'b0001  : snoop_state <= REPLY_WITH_DELAY_CRVALID; 
-                    //         4'b0010  : snoop_state <= REPLY_WITH_DELAY_CDVALID; 
-                    //         4'b0011  : snoop_state <= REPLY_WITH_DELAY_CDLAST; 
-                    //         default : r_crresp <= r_crresp; 
-                    //     endcase      
-                    // end
                     else
                         snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
                 end
@@ -577,142 +568,6 @@
             else
                 snoop_state <= snoop_state;
         end
-        // else if (snoop_state == REPLY_WITH_DELAY_CDLAST)
-        //    begin
-        //     case (w_crresp[4:0])
-        //         5'b00000  : begin r_crresp <= 5'b00000; end
-        //         5'b00001  : begin r_crresp <= 5'b00001; r_rdata <= 5'b00001; r_cdvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b00100  : begin r_crresp <= 5'b00100; end
-        //         5'b00101  : begin r_crresp <= 5'b00101; r_rdata <= 5'b00101; r_cdvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b01000  : begin r_crresp <= 5'b01000; end
-        //         5'b01001  : begin r_crresp <= 5'b01001; r_rdata <= 5'b01001; r_cdvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b01100  : begin r_crresp <= 5'b01100; end
-        //         5'b01101  : begin r_crresp <= 5'b01101; r_rdata <= 5'b01101; r_cdvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b10000  : begin r_crresp <= 5'b10000; end
-        //         5'b10001  : begin r_crresp <= 5'b10001; r_rdata <= 5'b10001; r_cdvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b10100  : begin r_crresp <= 5'b10100; end
-        //         5'b10101  : begin r_crresp <= 5'b10101; r_rdata <= 5'b10101; r_cdvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b11000  : begin r_crresp <= 5'b11000; end
-        //         5'b11001  : begin r_crresp <= 5'b11001; r_rdata <= 5'b11001; r_cdvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b11100  : begin r_crresp <= 5'b11100; end
-        //         5'b11101  : begin r_crresp <= 5'b11101; r_rdata <= 5'b11101; r_cdvalid <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b00010  : begin r_crresp <= 5'b00010; end // Error bit, system freezes
-        //         default : r_crresp <= r_crresp; 
-        //     endcase
-        //     r_crvalid <= 1;
-        //     // wait some cycles to respond
-        //     if(r_counter == `NUM_OF_CYCLES*w_delay_reg[31:0] )
-        //         begin
-        //             r_cdlast <= 1;
-        //             snoop_state <= IDLE;
-        //             r_counter <= 0;
-        //         end
-        //         else
-        //         begin
-        //             r_counter <= r_counter + 1;
-        //             snoop_state <= REPLY_WITH_DELAY_CDLAST;
-        //         end
-        //     end
-        // else if (snoop_state == REPLY_WITH_DELAY_CDVALID)
-        //     begin
-        //     case (w_crresp[4:0])
-        //         5'b00000  : begin r_crresp <= 5'b00000; end
-        //         5'b00001  : begin r_crresp <= 5'b00001; r_rdata <= 5'b00001; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b00100  : begin r_crresp <= 5'b00100; end
-        //         5'b00101  : begin r_crresp <= 5'b00101; r_rdata <= 5'b00101; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b01000  : begin r_crresp <= 5'b01000; end
-        //         5'b01001  : begin r_crresp <= 5'b01001; r_rdata <= 5'b01001; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b01100  : begin r_crresp <= 5'b01100; end
-        //         5'b01101  : begin r_crresp <= 5'b01101; r_rdata <= 5'b01101; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b10000  : begin r_crresp <= 5'b10000; end
-        //         5'b10001  : begin r_crresp <= 5'b10001; r_rdata <= 5'b10001; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b10100  : begin r_crresp <= 5'b10100; end
-        //         5'b10101  : begin r_crresp <= 5'b10101; r_rdata <= 5'b10101; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b11000  : begin r_crresp <= 5'b11000; end
-        //         5'b11001  : begin r_crresp <= 5'b11001; r_rdata <= 5'b11001; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b11100  : begin r_crresp <= 5'b11100; end
-        //         5'b11101  : begin r_crresp <= 5'b11101; r_rdata <= 5'b11101; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b00010  : begin r_crresp <= 5'b00010; end // Error bit, system freezes
-        //         default : r_crresp <= r_crresp; 
-        //     endcase
-        //     r_crvalid <= 1;
-        //     // wait some cycles to respond
-        //     if(r_counter == `NUM_OF_CYCLES*w_delay_reg[31:0] )
-        //         begin
-        //             r_cdvalid <= 1; 
-        //             r_cdlast <= 1;
-        //             snoop_state <= IDLE;
-        //             r_counter <= 0;
-        //         end
-        //         else
-        //         begin
-        //             r_counter <= r_counter + 1;
-        //             snoop_state <= REPLY_WITH_DELAY_CDVALID;
-        //         end
-        //     end
-        // else if (snoop_state == REPLY_WITH_DELAY_CRVALID)
-        //     begin
-        //     case (w_crresp[4:0])
-        //         5'b00000  : begin r_crresp <= 5'b00000; end
-        //         5'b00001  : begin r_crresp <= 5'b00001; r_rdata <= 5'b00001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b00100  : begin r_crresp <= 5'b00100; end
-        //         5'b00101  : begin r_crresp <= 5'b00101; r_rdata <= 5'b00101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b01000  : begin r_crresp <= 5'b01000; end
-        //         5'b01001  : begin r_crresp <= 5'b01001; r_rdata <= 5'b01001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b01100  : begin r_crresp <= 5'b01100; end
-        //         5'b01101  : begin r_crresp <= 5'b01101; r_rdata <= 5'b01101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b10000  : begin r_crresp <= 5'b10000; end
-        //         5'b10001  : begin r_crresp <= 5'b10001; r_rdata <= 5'b10001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b10100  : begin r_crresp <= 5'b10100; end
-        //         5'b10101  : begin r_crresp <= 5'b10101; r_rdata <= 5'b10101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b11000  : begin r_crresp <= 5'b11000; end
-        //         5'b11001  : begin r_crresp <= 5'b11001; r_rdata <= 5'b11001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b11100  : begin r_crresp <= 5'b11100; end
-        //         5'b11101  : begin r_crresp <= 5'b11101; r_rdata <= 5'b11101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b00010  : begin r_crresp <= 5'b00010; end // Error bit, system freezes
-        //         default : r_crresp <= r_crresp; 
-        //     endcase
-        //     // wait some cycles to respond
-        //     if(r_counter == `NUM_OF_CYCLES*w_delay_reg[31:0] )
-        //         begin
-        //             r_crvalid <= 1;
-        //             snoop_state <= IDLE;
-        //             r_counter <= 0;
-        //         end
-        //         else
-        //         begin
-        //             r_counter <= r_counter + 1;
-        //             snoop_state <= REPLY_WITH_DELAY_CRVALID;
-        //         end
-        //     end
-        // else if (snoop_state == FUZZING)
-        // begin
-        //     case (w_crresp[4:0])
-        //         5'b00000  : begin r_crresp <= 5'b00000; end
-        //         5'b00001  : begin r_crresp <= 5'b00001; r_rdata <= 5'b00001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b00100  : begin r_crresp <= 5'b00100; end
-        //         5'b00101  : begin r_crresp <= 5'b00101; r_rdata <= 5'b00101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b01000  : begin r_crresp <= 5'b01000; end
-        //         5'b01001  : begin r_crresp <= 5'b01001; r_rdata <= 5'b01001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b01100  : begin r_crresp <= 5'b01100; end
-        //         5'b01101  : begin r_crresp <= 5'b01101; r_rdata <= 5'b01101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b10000  : begin r_crresp <= 5'b10000; end
-        //         5'b10001  : begin r_crresp <= 5'b10001; r_rdata <= 5'b10001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b10100  : begin r_crresp <= 5'b10100; end
-        //         5'b10101  : begin r_crresp <= 5'b10101; r_rdata <= 5'b10101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b11000  : begin r_crresp <= 5'b11000; end
-        //         5'b11001  : begin r_crresp <= 5'b11001; r_rdata <= 5'b11001 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b11100  : begin r_crresp <= 5'b11100; end
-        //         5'b11101  : begin r_crresp <= 5'b11101; r_rdata <= 5'b11101 ; r_cdvalid <= 1; r_cdlast <= 1; end // system freezes, maybe due to lack of driving CDVALID
-        //         5'b00010  : begin r_crresp <= 5'b00010; end // Error bit, system freezes
-        //         default : r_crresp <= r_crresp; 
-        //     endcase
-        //     r_crvalid <= 1;
-        //     if (crready)
-        //         snoop_state <= IDLE;
-        //     else
-        //         snoop_state <= snoop_state;
-        // end
         else if (snoop_state == NON_REPLY_OR_DVM_OP_LAST)
         begin
             if (crready)
