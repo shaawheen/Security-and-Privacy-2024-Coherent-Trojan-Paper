@@ -23,13 +23,36 @@
 
 module devil_tb();
 
-
+// FSM snoop states
+    localparam IDLE                     = 0;
+    localparam NON_REPLY_OR_DVM_OP_LAST = 1;
+    localparam DVM_SYNC_MP              = 2;
+    localparam DVM_SYNC_WAIT            = 3;
+    localparam DVM_SYNC_LAST            = 4;
+    localparam DVM_SYNC_READ            = 5;
+    localparam DVM_SYNC_RACK            = 6;
+    localparam DVM_OP_MP                = 7;
+    localparam DVM_OP_WAIT              = 8;
+    localparam REPLY                    = 9;; 
+    localparam DEVIL_EN                 = 10; 
+    
+// Devil FSM states
     parameter [3:0] DEVIL_IDLE               = 0,
                     DEVIL_ONE_SHOT_DELAY     = 1,
                     DEVIL_CONTINUOS_DELAY    = 2,
                     DEVIL_RESPONSE           = 3,
                     DEVIL_DELAY              = 4,
                     DEVIL_END                = 5;
+    
+// Devil-in-the-fpga Functions
+    parameter [3:0] OSH = 0,
+                    CON = 1;
+
+// Devil-in-the-fpga Tests
+    parameter [3:0] FUZZING                  = 0,
+                    REPLY_WITH_DELAY_CRVALID = 1,
+                    REPLY_WITH_DELAY_CDVALID = 2,
+                    REPLY_WITH_DELAY_CDLAST  = 3;
 
     bit tb_clk;
     bit tb_reset;
@@ -63,7 +86,7 @@ module devil_tb();
         .i_control_reg(control_reg),
         .i_read_status_reg(read_status_reg), // The Value that User Writes to Status Reg
         .o_write_status_reg(w_write_status_reg), // The Value that the this IP Writes to Status Reg 
-        .i_delay_reg(),
+        .i_delay_reg(delay_reg),
         .i_acsnoop_reg(acsnoop_reg),
         .i_base_addr_reg(base_addr_reg),
         .i_addr_size_reg(addr_size_reg),
@@ -83,71 +106,38 @@ module devil_tb();
 	   	tb_reset = 1'b0;
 	    #135
 	    tb_reset = 1'b1;
-        #10
-        
-        snoop_state = 10;
-        control_reg[4:1] = 4'b0001; 
-        delay_reg = 1; 
+      #1
+      control_reg[0] = 1; //EN IP
 
-	    #10000
+      #1
+      snoop_state = DEVIL_EN;
+      control_reg[4:1] = REPLY_WITH_DELAY_CRVALID; 
+      control_reg[8:5] = OSH;
+      control_reg[13:9] = 0; //crresp
+      control_reg[16] = 1; //OSH_EN
+      delay_reg = 1; 
 
-	    wait(w_fsm_devil_state == DEVIL_END); // wait for idle state
+	    #1
 
-	    /*wait((tvalid_R && tvalid_I))
-	    wait(!(tvalid_R && tvalid_I))*/
+	    wait(w_fsm_devil_state == DEVIL_IDLE); // wait for idle state
+      snoop_state = IDLE;
+      control_reg[16] = 0; //OSH_EN
 
+      #1
 
-	    /*for (int i = 0; i < 80; i++) begin
-	    	//send vector of input gnss data and grid
-	    	send_in_grid <= 1;
-	    	#10
-	    	end_in_grid <= 0;
-	    	//Wait for the fft to finish
-	    	wait(fft_TValid)
-	    	//Send PRNx 
-	    	send_prn_fft <= 1;
-	    	#10
-	    	send_prn_fft <= 0;
-	    	//wait for the TLast of the FFT to send another vector of data | This is done sequential here, but will be non-sequential in reality
-	    	wait(FFT_TLast)
-	    	//wait for the the TValid of the first stage of the squareABS (This modulo has two stage, i.e., 2 clocks)
-	    	// to assert the TLast of the accumulator and clean the accumulator
-	    	wait(first_stage_squareABS_tvalid) // isto depois vai ter de ser independente do último, i.e., FFT_TLast e first_stage_squareABS_tvalid sendo geridos em blocos diferentes
-	    	// asserting TLast makes the accumulator start counting from scratch
-	    	s_accumulator_Tlast_aka_reset_0 <= 1; 
-	    	#10
-	    	s_accumulator_Tlast_aka_reset_0 <= 0;
+      control_reg[17] = 1; //CON_EN
 
-	    end*/
-	    // start = 1;
-	    // #10
-	    // start = 0;
+      #1
 
-	    // for (int i = 0; i < 2; i++) begin 
-		//     //count 80 TValids in the result -> all 80 bins processed
-	    // 	wait((m_axis_result_tvalid ));
-	    // 	wait(!(m_axis_result_tvalid));
-	    // end
+	    for (int i = 0; i < 5; i++) begin 
+        // reply with delay 5 times
+	    	wait(w_fsm_devil_state == DEVIL_RESPONSE);
+	    	wait(w_fsm_devil_state == DEVIL_CONTINUOS_DELAY);
+	    end
 
-  // ------------------- Code for carrier_gen simulation ------------------------ 
-  /* 	start = 1;
-    #10
-		s_axis_config_tdata_0 = coefficient[bin];
-    start = 0;
-    #10
-    //for (int i = 0; i < 80; i++) begin 
-		s_axis_config_tvalid_0 = 1;
-		#10
-		s_axis_config_tvalid_0 = 0;
-		#30 // 3 clocks
-		Tvalid_dds = 1; 
-		//count 8000
-		wait((tb_end ));
-	//end
-	//wait(!(m_axis_result_tvalid)); 
-    */
+      #100
 
-    $display("Successful Test");
+    $display("End of Simulation");
  
     $finish;
   end 
