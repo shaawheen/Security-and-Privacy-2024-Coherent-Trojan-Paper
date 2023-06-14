@@ -41,7 +41,7 @@
         output wire                              o_crvalid,
         output wire                              o_cdvalid,
         output wire                              o_cdlast
-        );
+    );
 
     reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
     reg                    [3:0] fsm_devil_state;        
@@ -79,7 +79,7 @@
     wire [4:0] w_crresp;
     wire       w_acf_lt;    
     wire       w_addr_flt;    
-    wire       w_cont_en;    
+    wire       w_con_en;    
     assign w_en = i_control_reg[0];
     assign w_test = i_control_reg[4:1];
     assign w_func = i_control_reg[8:5];
@@ -87,7 +87,8 @@
     assign w_acf_lt = i_control_reg[14];
     assign w_addr_flt = i_control_reg[15];
     assign w_osh_en = i_control_reg[16];
-    assign w_cont_en = i_control_reg[17];
+    assign w_con_en = i_control_reg[17];
+
 // Devil-in-the-fpga Control Reg parameters/bits
     wire    w_osh_end;
     assign  w_osh_end = i_read_status_reg[0];
@@ -107,9 +108,9 @@
         begin
         fsm_devil_state <= DEVIL_IDLE;
         r_status_reg <= 0;
-        r_crvalid <= 0;
         r_crresp <= 0;
         r_rdata  <= 32'hffff0000;
+        r_crvalid <= 0;
         r_cdvalid <= 0;
         r_cdlast <= 0;
         r_counter <= 0;
@@ -135,7 +136,13 @@
                                 else
                                     fsm_devil_state <= DEVIL_IDLE;
                             end
-                            `CON  : fsm_devil_state <= DEVIL_CONTINUOS_DELAY; 
+                            `CON  : 
+                            begin
+                                if (w_con_en)
+                                    fsm_devil_state <= DEVIL_CONTINUOS_DELAY;  
+                                else
+                                    fsm_devil_state <= DEVIL_IDLE;
+                            end
                             default : fsm_devil_state <= DEVIL_IDLE; 
                         endcase      
                     end
@@ -154,17 +161,21 @@
                         fsm_devil_state  <= DEVIL_END;                                      
                     end                                                                                               
                 end
-            // DEVIL_CONTINUOS_DELAY:
-            //     begin
-            //         if (start)                                                 
-            //         begin    
-            //             fsm_devil_state  <= DEVIL_END;                              
-            //         end                                                             
-            //         else                                                              
-            //         begin                                                           
-            //             fsm_devil_state  <= DEVIL_CONTINUOS_DELAY;                                      
-            //         end                                  
-            //     end
+            DEVIL_CONTINUOS_DELAY:
+                begin
+                    if (!w_con_en)                                      
+                    begin                                                            
+                        fsm_devil_state  <= DEVIL_END;                                      
+                    end  
+                    else                                                       
+                    begin                                                         
+                        fsm_devil_state  <= DEVIL_RESPONSE;
+                        r_return <= DEVIL_CONTINUOS_DELAY;      
+                        r_crvalid <= 0;
+                        r_cdvalid <= 0;
+                        r_cdlast <= 0;                        
+                    end                                                                                               
+                end
             DEVIL_RESPONSE:
                 begin
                     if(w_func[3:0] == `OSH)
@@ -252,6 +263,9 @@
                 end
             DEVIL_END: // State to signal the End of the FSM operation
                 begin
+                    r_crvalid <= 0;
+                    r_cdvalid <= 0;
+                    r_cdlast <= 0;
                     fsm_devil_state <= DEVIL_IDLE;                                                  
                 end
             default :                                                                

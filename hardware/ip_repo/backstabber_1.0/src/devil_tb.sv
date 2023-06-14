@@ -43,6 +43,17 @@ module devil_tb();
                     DEVIL_RESPONSE           = 3,
                     DEVIL_DELAY              = 4,
                     DEVIL_END                = 5;
+    
+    // Devil-in-the-fpga Tests
+    parameter [3:0] OSH  = 0,
+                    CON  = 1;
+    
+    // Devil-in-the-fpga Tests
+    parameter [3:0] FUZZING                   = 0,
+                    REPLY_WITH_DELAY_CRVALID  = 1,
+                    REPLY_WITH_DELAY_CDVALID  = 2,
+                    REPLY_WITH_DELAY_CDLAST   = 3;
+
 
     bit tb_clk;
     bit tb_reset;
@@ -65,9 +76,9 @@ module devil_tb();
 
     // Instantiation of devil-in-fpgs module
     devil_in_fpga #(
-		.C_S_AXI_DATA_WIDTH(32),
+		    .C_S_AXI_DATA_WIDTH(32),
         .C_ACE_DATA_WIDTH(128),
-        .DEVIL_EN(10)
+        .DEVIL_EN(DEVIL_EN)
     ) devil_in_fpga_inst(
         .ace_aclk(tb_clk),
         .ace_aresetn(tb_reset),
@@ -96,82 +107,38 @@ module devil_tb();
 	   	tb_reset = 1'b0;
 	    #135
 	    tb_reset = 1'b1;
-    
+
+      // Test one shot delay
+      control_reg[8:5] = OSH;
       snoop_state = DEVIL_EN;
-      control_reg[4:1] = 4'b0011; 
+      control_reg[4:1] = REPLY_WITH_DELAY_CDLAST; 
       control_reg[16] = 1'b1; // enable One Shot Delay
       delay_reg = 1; 
-
-      #1
-
+      #1 // one clock for the registers to be asserteded
 	    wait(w_fsm_devil_state == DEVIL_IDLE); // wait for idle state
       control_reg[16] = 1'b0; // disable One Shot Delay
-      snoop_state = DEVIL_EN; 
-      
-      # 100 // extra time to clean the status reg 
-
       snoop_state = IDLE; 
-
 
       #100
 
-      
+      // test continuous delay
+      control_reg[8:5] = CON;
+      snoop_state = DEVIL_EN;
+      control_reg[4:1] = REPLY_WITH_DELAY_CRVALID; 
+      control_reg[17] = 1'b1; // enable Continuous Delay
+      delay_reg = 2;
+      #1 // one clock for the registers to be asserted
+      for (int i = 0; i < 5; i++) begin 
+        // 5 replys with delay
+        wait(w_fsm_devil_state == DEVIL_RESPONSE); 
+        wait(w_fsm_devil_state == DEVIL_CONTINUOS_DELAY); 
+        control_reg[4:1] = REPLY_WITH_DELAY_CRVALID; 
+      end
+      control_reg[17] = 1'b0; // disable Continuous Delay
 
-	    /*wait((tvalid_R && tvalid_I))
-	    wait(!(tvalid_R && tvalid_I))*/
+      #100
 
-
-	    /*for (int i = 0; i < 80; i++) begin
-	    	//send vector of input gnss data and grid
-	    	send_in_grid <= 1;
-	    	#10
-	    	end_in_grid <= 0;
-	    	//Wait for the fft to finish
-	    	wait(fft_TValid)
-	    	//Send PRNx 
-	    	send_prn_fft <= 1;
-	    	#10
-	    	send_prn_fft <= 0;
-	    	//wait for the TLast of the FFT to send another vector of data | This is done sequential here, but will be non-sequential in reality
-	    	wait(FFT_TLast)
-	    	//wait for the the TValid of the first stage of the squareABS (This modulo has two stage, i.e., 2 clocks)
-	    	// to assert the TLast of the accumulator and clean the accumulator
-	    	wait(first_stage_squareABS_tvalid) // isto depois vai ter de ser independente do último, i.e., FFT_TLast e first_stage_squareABS_tvalid sendo geridos em blocos diferentes
-	    	// asserting TLast makes the accumulator start counting from scratch
-	    	s_accumulator_Tlast_aka_reset_0 <= 1; 
-	    	#10
-	    	s_accumulator_Tlast_aka_reset_0 <= 0;
-
-	    end*/
-	    // start = 1;
-	    // #10
-	    // start = 0;
-
-	    // for (int i = 0; i < 2; i++) begin 
-		//     //count 80 TValids in the result -> all 80 bins processed
-	    // 	wait((m_axis_result_tvalid ));
-	    // 	wait(!(m_axis_result_tvalid));
-	    // end
-
-  // ------------------- Code for carrier_gen simulation ------------------------ 
-  /* 	start = 1;
-    #10
-		s_axis_config_tdata_0 = coefficient[bin];
-    start = 0;
-    #10
-    //for (int i = 0; i < 80; i++) begin 
-		s_axis_config_tvalid_0 = 1;
-		#10
-		s_axis_config_tvalid_0 = 0;
-		#30 // 3 clocks
-		Tvalid_dds = 1; 
-		//count 8000
-		wait((tb_end ));
-	//end
-	//wait(!(m_axis_result_tvalid)); 
-    */
-
-    $display("Successful Test");
+    $display("End");
  
     $finish;
   end 
