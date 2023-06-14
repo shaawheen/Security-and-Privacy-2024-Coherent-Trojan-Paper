@@ -399,20 +399,20 @@
 // Devil-in-the-fpga
 //******************************************************************************
 // Devil-in-the-fpga AXI-Lite
-    wire [C_S_AXI_DATA_WIDTH-1:0] w_control_reg;
-    wire [C_S_AXI_DATA_WIDTH-1:0] w_write_status_reg;
-    wire [C_S_AXI_DATA_WIDTH-1:0] w_read_status_reg;
-    wire [C_S_AXI_DATA_WIDTH-1:0] w_delay_reg;
-    wire [C_S_AXI_DATA_WIDTH-1:0] w_acsnoop_reg;
-    wire [C_S_AXI_DATA_WIDTH-1:0] w_base_addr_reg;
-    wire [C_S_AXI_DATA_WIDTH-1:0] w_addr_size_reg;
-    wire   [C_ACE_DATA_WIDTH-1:0] w_rdata;
-    wire                    [4:0] w_crresp;
-    wire                          w_crvalid;
-    wire                          w_cdvalid;
-    wire                          w_cdlast;
-    wire                    [3:0] w_snoop_state;
-    wire                    [3:0] w_fsm_devil_state;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_control_reg;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_write_status_reg;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_read_status_reg;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_delay_reg;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_acsnoop_reg;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_base_addr_reg;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_addr_size_reg;
+    wire     [C_ACE_DATA_WIDTH-1:0] w_rdata;
+    wire                      [4:0] w_crresp;
+    wire                            w_crvalid;
+    wire                            w_cdvalid;
+    wire                            w_cdlast;
+    wire                      [3:0] w_snoop_state;
+    wire                      [3:0] w_fsm_devil_state;
 
     assign w_snoop_state = snoop_state;
                       
@@ -438,6 +438,7 @@
     localparam DVM_OP_WAIT              = 8;
     localparam REPLY                    = 9;; 
     localparam DEVIL_EN                 = 10; 
+    
 
     reg   [3 : 0] snoop_state;
 
@@ -532,6 +533,10 @@
     assign debug_snoop_state    = snoop_state;
     assign debug_devil_state    = w_fsm_devil_state;
 
+    wire   w_en;
+    assign w_en = w_control_reg[0];
+
+
 	//main state-machine
 	always @(posedge ace_aclk)
     begin
@@ -541,8 +546,6 @@
         end
         else if (snoop_state == IDLE)
         begin
-            r_crvalid <= 0;
-            r_crresp <= r_crresp;
              if(non_reply_condition || dvm_operation_last_condition)
                 begin
                     if((acsnoop != `DVM_MESSAGE) && (w_en == 1'b1))
@@ -563,7 +566,7 @@
         end
         else if (snoop_state == DEVIL_EN)
         begin
-            if (w_fsm_devil_state == DEVIL_END)
+            if (w_fsm_devil_state == 5) // DEVIL_END
                 snoop_state <= IDLE;
             else
                 snoop_state <= snoop_state;
