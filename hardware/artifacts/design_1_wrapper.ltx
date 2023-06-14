@@ -1148,6 +1148,36 @@
                                         ]
                                     }
                                 ]
+                            },
+                            {
+                                "name": "probe24",
+                                "id": 24,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 3,
+                                "portIndex": 24,
+                                "nets": [
+                                    {
+                                        "name": "design_1_i/system_ila_0/inst/probe24_1",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "design_1_i/system_ila_0/inst/probe24_1[3]"
+                                            },
+                                            {
+                                                "name": "design_1_i/system_ila_0/inst/probe24_1[2]"
+                                            },
+                                            {
+                                                "name": "design_1_i/system_ila_0/inst/probe24_1[1]"
+                                            },
+                                            {
+                                                "name": "design_1_i/system_ila_0/inst/probe24_1[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ],
                         "native_ports": [
@@ -1391,7 +1421,7 @@
                             },
                             {
                                 "name": "probe23",
-                                "connectedBus": "backstabber_0_debug_state",
+                                "connectedBus": "backstabber_0_debug_snoop_state",
                                 "protocol": "PROBE",
                                 "port_maps": [
                                     {
@@ -1399,6 +1429,22 @@
                                         "physical_pin": {
                                             "id": 23,
                                             "name": "probe23",
+                                            "leftBit": 0,
+                                            "width": 4
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe24",
+                                "connectedBus": "backstabber_0_debug_devil_state",
+                                "protocol": "PROBE",
+                                "port_maps": [
+                                    {
+                                        "logical_port": "probe24",
+                                        "physical_pin": {
+                                            "id": 24,
+                                            "name": "probe24",
                                             "leftBit": 0,
                                             "width": 4
                                         }
@@ -1543,7 +1589,7 @@
                         "pins": [
                             {
                                 "name": "probe_out0",
-                                "id": 24,
+                                "id": 25,
                                 "type": "DATA",
                                 "direction": "OUT",
                                 "isVector": false,
