@@ -413,6 +413,7 @@
     wire                            w_cdlast;
     wire                      [3:0] w_snoop_state;
     wire                      [3:0] w_fsm_devil_state;
+    wire                            w_devil_end;
 
     assign w_snoop_state = snoop_state;
                       
@@ -536,6 +537,9 @@
     wire   w_en;
     assign w_en = w_control_reg[0];
 
+    wire start_devil;
+    assign start_devil = (acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end ? 1 : 0;
+
 
 	//main state-machine
 	always @(posedge ace_aclk)
@@ -548,7 +552,7 @@
         begin
              if(non_reply_condition || dvm_operation_last_condition)
                 begin
-                    if((acsnoop != `DVM_MESSAGE) && (w_en == 1'b1))
+                    if(start_devil)
                         snoop_state <= DEVIL_EN;
                     else
                         snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
@@ -564,9 +568,9 @@
             else
                 snoop_state <= snoop_state;
         end
-        else if (snoop_state == DEVIL_EN)
+        else if (snoop_state == DEVIL_EN) // Wait for devil to finish
         begin
-            if (w_fsm_devil_state == 7) // DEVIL_END
+            if (w_fsm_devil_state == w_devil_end) 
                 snoop_state <= IDLE;
             else
                 snoop_state <= snoop_state;
@@ -764,7 +768,8 @@
         .o_crresp(w_crresp),
         .o_crvalid(w_crvalid),
         .o_cdvalid(w_cdvalid),
-        .o_cdlast(w_cdlast)
+        .o_cdlast(w_cdlast),
+        .o_end(w_devil_end)
     );
 
 	endmodule

@@ -43,7 +43,8 @@
         output wire                        [4:0] o_crresp,
         output wire                              o_crvalid,
         output wire                              o_cdvalid,
-        output wire                              o_cdlast
+        output wire                              o_cdlast,
+        output wire                              o_end
     );
 
     reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
@@ -54,6 +55,7 @@
     reg                          r_cdlast;
     reg   [C_ACE_DATA_WIDTH-1:0] r_rdata;
     reg                   [63:0] r_counter; 
+    reg                          r_end;
 
     assign o_fsm_devil_state = fsm_devil_state;
     assign o_write_status_reg = r_status_reg;
@@ -62,6 +64,7 @@
     assign o_cdvalid = r_cdvalid;
     assign o_cdlast = r_cdlast;
     assign o_rdata = r_rdata;
+    assign o_end = r_end;
 
     `define NUM_OF_CYCLES   150 // 1 us 
 
@@ -122,21 +125,22 @@
     begin
     if(~ace_aresetn)
         begin
-        fsm_devil_state <= DEVIL_IDLE;
-        r_status_reg <= 0;
+        r_end <= 0;
+        r_cdlast <= 0;
         r_crresp <= 0;
-        r_rdata  <= 32'hffff0000;
+        r_rdata  <= 0;
         r_crvalid <= 0;
         r_cdvalid <= 0;
-        r_cdlast <= 0;
         r_counter <= 0;
+        r_status_reg <= 0;
+        fsm_devil_state <= DEVIL_IDLE;
         end 
     else
         begin
             case (fsm_devil_state)                                                                                                                                 
             DEVIL_IDLE: 
                 begin
-                    if (i_snoop_state == DEVIL_EN)
+                    if (i_snoop_state == DEVIL_EN && !r_end)
                         fsm_devil_state <= DEVIL_FILTER;     
                     else 
                         fsm_devil_state <= DEVIL_IDLE;   
@@ -145,7 +149,15 @@
                     begin
                         // Clean the osh_end bit when the user disbales OSH func
                         r_status_reg[0] <= 0;    
-                    end                              
+                    end 
+
+                    if(r_end && !w_en)
+                    begin
+                        // Clean the end bit when the user disbales the IP
+                        // Forces the user to set the end bit to 0 before using
+                        // the IP again
+                        r_end <= 0;    
+                    end                             
                 end
             DEVIL_FILTER:
                 begin
@@ -312,6 +324,7 @@
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
+                    r_end <= 1;
                     fsm_devil_state <= DEVIL_IDLE;                                                  
                 end
             default :                                                                
