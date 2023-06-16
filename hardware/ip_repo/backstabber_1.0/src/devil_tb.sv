@@ -42,7 +42,9 @@ module devil_tb();
                     DEVIL_CONTINUOS_DELAY    = 2,
                     DEVIL_RESPONSE           = 3,
                     DEVIL_DELAY              = 4,
-                    DEVIL_END                = 5;
+                    DEVIL_FILTER             = 5,
+                    DEVIL_FUNCTION           = 6,
+                    DEVIL_END                = 7;
     
     // Devil-in-the-fpga Tests
     parameter [3:0] OSH  = 0,
@@ -74,14 +76,18 @@ module devil_tb();
 
     always #1 tb_clk <= ~tb_clk;
 
+
     // Instantiation of devil-in-fpgs module
     devil_in_fpga #(
-		    .C_S_AXI_DATA_WIDTH(32),
+		.C_S_AXI_DATA_WIDTH(32),
         .C_ACE_DATA_WIDTH(128),
-        .DEVIL_EN(DEVIL_EN)
+        .C_ACE_ADDR_WIDTH(44),
+        .DEVIL_EN(10)
     ) devil_in_fpga_inst(
         .ace_aclk(tb_clk),
         .ace_aresetn(tb_reset),
+        .acsnoop(4'b0000),
+        .acaddr(1),
         .i_snoop_state(snoop_state),
         .o_fsm_devil_state(w_fsm_devil_state),
         .i_control_reg(control_reg),
@@ -98,6 +104,7 @@ module devil_tb();
         .o_cdlast(w_cdlast)
     );
 
+
     // Main process
   initial begin
 
@@ -108,7 +115,7 @@ module devil_tb();
 	    #135
 	    tb_reset = 1'b1;
 
-      // Test one shot delay
+      // (No filter) Test one shot delay
       control_reg[8:5] = OSH;
       snoop_state = DEVIL_EN;
       control_reg[4:1] = REPLY_WITH_DELAY_CDLAST; 
@@ -134,9 +141,61 @@ module devil_tb();
         wait(w_fsm_devil_state == DEVIL_CONTINUOS_DELAY); 
         control_reg[4:1] = REPLY_WITH_DELAY_CDVALID; 
       end
+      
       control_reg[17] = 1'b0; // disable Continuous Delay
+      snoop_state = IDLE; 
 
-      #100
+      #10
+      // (AC Filter) Test one shot delay
+      control_reg[8:5] = OSH;
+      snoop_state = DEVIL_EN;
+      control_reg[4:1] = REPLY_WITH_DELAY_CRVALID; 
+      control_reg[14] = 1'b1; // AC filter on
+      control_reg[16] = 1'b1; // enable One Shot Delay
+      // acsnoop_reg = 4'b0001; // mismatch value
+      acsnoop_reg = 4'b0000; // match 
+      delay_reg = 1; 
+      #1 // one clock for the registers to be asserteded
+	   wait(w_fsm_devil_state == DEVIL_END);  // wait for the END
+      control_reg[16] = 1'b0; // disable One Shot Delay
+      snoop_state = IDLE; 
+
+      #10
+      // (Addr Filter) Test one shot delay
+      control_reg[8:5] = OSH;
+      snoop_state = DEVIL_EN;
+      control_reg[4:1] = REPLY_WITH_DELAY_CRVALID; 
+      control_reg[14] = 1'b0; // AC filter off
+      control_reg[15] = 1'b1; // AC filter on
+      control_reg[16] = 1'b1; // enable One Shot Delay
+      base_addr_reg = 0; // match 
+      // base_addr_reg = 2; // mismatch 
+      addr_size_reg = 10; // match 
+      delay_reg = 1; 
+      #1 // one clock for the registers to be asserteded
+	    wait(w_fsm_devil_state == DEVIL_END);  // wait for the END
+      control_reg[16] = 1'b0; // disable One Shot Delay
+      snoop_state = IDLE; 
+
+      #10
+      // (AC + ADDR Filter) Test one shot delay
+      control_reg[8:5] = OSH;
+      snoop_state = DEVIL_EN;
+      control_reg[4:1] = REPLY_WITH_DELAY_CRVALID; 
+      control_reg[14] = 1'b1; // AC filter off
+      control_reg[15] = 1'b1; // AC filter on
+      control_reg[16] = 1'b1; // enable One Shot Delay
+      // acsnoop_reg = 4'b0001; // mismatch value
+      acsnoop_reg = 4'b0000; // match 
+      base_addr_reg = 0; // match 
+      addr_size_reg = 10; // match 
+      delay_reg = 1; 
+      #1 // one clock for the registers to be asserteded
+	    wait(w_fsm_devil_state == DEVIL_END);  // wait for the END
+      control_reg[16] = 1'b0; // disable One Shot Delay
+      snoop_state = IDLE; 
+
+      #10
 
     $display("End");
  

@@ -22,11 +22,14 @@
     module devil_in_fpga #(
         parameter integer C_S_AXI_DATA_WIDTH    = 32, 
         parameter integer C_ACE_DATA_WIDTH      = 128,
+        parameter integer C_ACE_ADDR_WIDTH      = 44,
         parameter integer DEVIL_EN              = 10
         )
         (
         input  wire                              ace_aclk,
         input  wire                              ace_aresetn,
+        input  wire                        [3:0] acsnoop,
+        input  wire       [C_ACE_ADDR_WIDTH-1:0] acaddr,
         input  wire                        [3:0] i_snoop_state,
         output wire                        [3:0] o_fsm_devil_state,
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_control_reg,
@@ -72,6 +75,17 @@
     `define REPLY_WITH_DELAY_CDVALID  4'b0010
     `define REPLY_WITH_DELAY_CDLAST   4'b0011   
 
+// Filters
+    `define NO_FILTER       2'b00
+    `define AC_FILTER       2'b01
+    `define ADDR_FILTER     2'b10
+    `define AC_ADDR_FILTER  2'b11  
+
+    wire w_ac_filter;
+    wire w_addr_filter;
+    assign w_ac_filter      = (acsnoop[3:0] == i_acsnoop_reg[3:0]) ? 1 : 0;
+    assign w_addr_filter    = (acaddr[31:0] >= i_base_addr_reg[31:0]) && (acaddr[31:0] < (i_base_addr_reg[31:0] + i_addr_size_reg[31:0])) ? 1 : 0;
+
 // Devil-in-the-fpga Control Reg parameters/bits
     wire       w_en;
     wire [3:0] w_test;
@@ -98,7 +112,9 @@
                     DEVIL_CONTINUOS_DELAY    = 2,
                     DEVIL_RESPONSE           = 3,
                     DEVIL_DELAY              = 4,
-                    DEVIL_END                = 5;
+                    DEVIL_FILTER             = 5,
+                    DEVIL_FUNCTION           = 6,
+                    DEVIL_END                = 7;
 
     reg [3:0] r_return;
 
@@ -121,33 +137,63 @@
             DEVIL_IDLE: 
                 begin
                     if (i_snoop_state == DEVIL_EN)
-                    begin
-                        case (w_func[3:0])
-                            `OSH  : 
-                            begin
-                                if (r_status_reg[0] == 0 && w_osh_en)
-                                    fsm_devil_state <= DEVIL_ONE_SHOT_DELAY; 
-                                else if(r_status_reg[0] == 1 && !w_osh_en)
-                                begin
-                                    // Clean the osh_end bit when the user disbales OSH func
-                                    r_status_reg[0] <= 0;   
-                                    fsm_devil_state <= DEVIL_IDLE; 
-                                end 
-                                else
-                                    fsm_devil_state <= DEVIL_IDLE;
-                            end
-                            `CON  : 
-                            begin
-                                if (w_con_en)
-                                    fsm_devil_state <= DEVIL_CONTINUOS_DELAY;  
-                                else
-                                    fsm_devil_state <= DEVIL_IDLE;
-                            end
-                            default : fsm_devil_state <= DEVIL_IDLE; 
-                        endcase      
-                    end
+                        fsm_devil_state <= DEVIL_FILTER;     
                     else 
-                        fsm_devil_state <= DEVIL_IDLE;                                
+                        fsm_devil_state <= DEVIL_IDLE;   
+
+                    if(r_status_reg[0] == 1 && !w_osh_en)
+                    begin
+                        // Clean the osh_end bit when the user disbales OSH func
+                        r_status_reg[0] <= 0;    
+                    end                              
+                end
+            DEVIL_FILTER:
+                begin
+                    case ({w_addr_flt, w_acf_lt})
+                        `NO_FILTER  : fsm_devil_state <= DEVIL_FUNCTION;
+                        `AC_FILTER  : 
+                        begin
+                            if(w_ac_filter)
+                                fsm_devil_state <= DEVIL_FUNCTION;  
+                            else
+                                fsm_devil_state <= DEVIL_IDLE;
+                        end
+                        `ADDR_FILTER  : 
+                        begin
+                            if(w_addr_filter)
+                                fsm_devil_state <= DEVIL_FUNCTION;  
+                            else
+                                fsm_devil_state <= DEVIL_IDLE;
+                        end
+                        `AC_ADDR_FILTER  : 
+                        begin
+                            if(w_addr_filter && w_ac_filter)
+                                fsm_devil_state <= DEVIL_FUNCTION;  
+                            else
+                                fsm_devil_state <= DEVIL_IDLE;
+                        end
+                        default : fsm_devil_state <= DEVIL_IDLE; 
+                    endcase                                                     
+                end
+            DEVIL_FUNCTION:
+                begin
+                    case (w_func[3:0])
+                        `OSH  : 
+                        begin
+                            if (r_status_reg[0] == 0 && w_osh_en)
+                                fsm_devil_state <= DEVIL_ONE_SHOT_DELAY; 
+                            else 
+                                fsm_devil_state <= DEVIL_IDLE;
+                        end
+                        `CON  : 
+                        begin
+                            if (w_con_en)
+                                fsm_devil_state <= DEVIL_CONTINUOS_DELAY;  
+                            else
+                                fsm_devil_state <= DEVIL_IDLE;
+                        end
+                        default : fsm_devil_state <= DEVIL_IDLE; 
+                    endcase                                                      
                 end
             DEVIL_ONE_SHOT_DELAY:
                 begin

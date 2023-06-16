@@ -566,7 +566,7 @@
         end
         else if (snoop_state == DEVIL_EN)
         begin
-            if (w_fsm_devil_state == 5) // DEVIL_END
+            if (w_fsm_devil_state == 7) // DEVIL_END
                 snoop_state <= IDLE;
             else
                 snoop_state <= snoop_state;
@@ -744,10 +744,13 @@
     devil_in_fpga #(
 		.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
         .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
+        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
         .DEVIL_EN(DEVIL_EN)
     ) devil_in_fpga_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
+        .acsnoop(acsnoop),
+        .acaddr(acaddr),
         .i_snoop_state(w_snoop_state),
         .o_fsm_devil_state(w_fsm_devil_state),
         .i_control_reg(w_control_reg),
