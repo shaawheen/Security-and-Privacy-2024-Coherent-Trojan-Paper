@@ -570,7 +570,7 @@
         end
         else if (snoop_state == DEVIL_EN) // Wait for devil to finish
         begin
-            if (w_fsm_devil_state == w_devil_end) 
+            if (w_devil_end) 
                 snoop_state <= IDLE;
             else
                 snoop_state <= snoop_state;
