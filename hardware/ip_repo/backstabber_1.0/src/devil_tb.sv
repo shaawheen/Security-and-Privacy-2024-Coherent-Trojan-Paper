@@ -44,7 +44,8 @@ module devil_tb();
                     DEVIL_DELAY              = 4,
                     DEVIL_FILTER             = 5,
                     DEVIL_FUNCTION           = 6,
-                    DEVIL_END                = 7;
+                    DEVIL_END                = 7,
+                    DEVIL_DUMMY_REPLY        = 8;
     
     // Devil-in-the-fpga Tests
     parameter [3:0] OSH  = 0,
@@ -73,6 +74,10 @@ module devil_tb();
     bit w_crvalid;
     bit w_cdvalid;
     bit w_cdlast;
+    bit w_devil_end;
+    bit acvalid;
+    bit crready;
+    bit w_acready;
 
     always #1 tb_clk <= ~tb_clk;
 
@@ -101,7 +106,11 @@ module devil_tb();
         .o_crresp(w_crresp),
         .o_crvalid(w_crvalid),
         .o_cdvalid(w_cdvalid),
-        .o_cdlast(w_cdlast)
+        .o_cdlast(w_cdlast),
+        .o_end(w_devil_end),
+        .i_acvalid(acvalid),
+        .i_crready(1),
+        .o_acready(w_acready)
     );
 
 
@@ -121,8 +130,10 @@ module devil_tb();
       control_reg[4:1] = REPLY_WITH_DELAY_CDLAST; 
       control_reg[16] = 1'b1; // enable One Shot Delay
       delay_reg = 1; 
+      acvalid = 1;
       #1 // one clock for the registers to be asserteded
 	    wait(w_fsm_devil_state == DEVIL_IDLE); // wait for idle state
+      acvalid = 0;
       control_reg[16] = 1'b0; // disable One Shot Delay
       snoop_state = IDLE; 
 
@@ -136,10 +147,12 @@ module devil_tb();
       delay_reg = 2;
       #1 // one clock for the registers to be asserted
       for (int i = 0; i < 5; i++) begin 
+        acvalid = 1;
         // 5 replys with delay
         wait(w_fsm_devil_state == DEVIL_RESPONSE); 
         wait(w_fsm_devil_state == DEVIL_CONTINUOS_DELAY); 
         control_reg[4:1] = REPLY_WITH_DELAY_CDVALID; 
+        acvalid = 0;
       end
       
       control_reg[17] = 1'b0; // disable Continuous Delay
@@ -155,8 +168,10 @@ module devil_tb();
       // acsnoop_reg = 4'b0001; // mismatch value
       acsnoop_reg = 4'b0000; // match 
       delay_reg = 1; 
+      acvalid = 1;
       #1 // one clock for the registers to be asserteded
-	   wait(w_fsm_devil_state == DEVIL_END);  // wait for the END
+	    wait(w_fsm_devil_state == DEVIL_END);  // wait for the END
+      acvalid = 0;
       control_reg[16] = 1'b0; // disable One Shot Delay
       snoop_state = IDLE; 
 
@@ -172,8 +187,10 @@ module devil_tb();
       // base_addr_reg = 2; // mismatch 
       addr_size_reg = 10; // match 
       delay_reg = 1; 
+      acvalid = 1;
       #1 // one clock for the registers to be asserteded
 	    wait(w_fsm_devil_state == DEVIL_END);  // wait for the END
+      acvalid = 0;
       control_reg[16] = 1'b0; // disable One Shot Delay
       snoop_state = IDLE; 
 
@@ -190,8 +207,40 @@ module devil_tb();
       base_addr_reg = 0; // match 
       addr_size_reg = 10; // match 
       delay_reg = 1; 
+      acvalid = 1;
       #1 // one clock for the registers to be asserteded
 	    wait(w_fsm_devil_state == DEVIL_END);  // wait for the END
+      acvalid = 0;
+      control_reg[16] = 1'b0; // disable One Shot Delay
+      snoop_state = IDLE; 
+
+      #10
+      // Test dummy reply, i.e., no filter or function applied
+      control_reg[8:5] = 7; // fucntion 7 does not exist, should go to dummy reply 
+      snoop_state = DEVIL_EN;
+      control_reg[4:1] = REPLY_WITH_DELAY_CDLAST; 
+      control_reg[16] = 1'b1; // enable One Shot Delay
+      delay_reg = 1; 
+      acvalid = 1;
+      #1 // one clock for the registers to be asserteded
+	    wait(w_fsm_devil_state == DEVIL_IDLE); // wait for idle state
+      acvalid = 0;
+      control_reg[16] = 1'b0; // disable One Shot Delay
+      snoop_state = IDLE; 
+
+      #10
+      // Test dummy reply, i.e., no filter or function applied
+      control_reg[8:5] = OSH;  
+      snoop_state = DEVIL_EN;
+      control_reg[4:1] = REPLY_WITH_DELAY_CDLAST; 
+      control_reg[14] = 1'b1; // AC filter on
+      control_reg[16] = 1'b1; // enable One Shot Delay
+      acsnoop_reg = 4'b0001; // mismatch value, should go to dummy reply 
+      delay_reg = 1; 
+      acvalid = 1;
+      #1 // one clock for the registers to be asserteded
+	    wait(w_fsm_devil_state == DEVIL_IDLE); // wait for idle state
+      acvalid = 0;
       control_reg[16] = 1'b0; // disable One Shot Delay
       snoop_state = IDLE; 
 

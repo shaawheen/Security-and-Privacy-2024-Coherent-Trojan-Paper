@@ -414,6 +414,7 @@
     wire                      [3:0] w_snoop_state;
     wire                      [3:0] w_fsm_devil_state;
     wire                            w_devil_end;
+    wire                            w_acready;
 
     assign w_snoop_state = snoop_state;
                       
@@ -460,7 +461,8 @@
     // assign crresp   = (snoop_state == REPLY) ? config_port_to_backstabber_liar_crresp[4 : 0] : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     assign acready  =  ~queue_full && ((snoop_state == IDLE)          ||
                        (snoop_state == DVM_SYNC_WAIT) ||
-                       (snoop_state == DVM_OP_WAIT));
+                       (snoop_state == DVM_OP_WAIT)) ||
+                       w_acready;
                        
     assign crvalid  = ((snoop_state == NON_REPLY_OR_DVM_OP_LAST) && crready) ||
                       ((w_crvalid == 1) && crready) || 
@@ -769,7 +771,11 @@
         .o_crvalid(w_crvalid),
         .o_cdvalid(w_cdvalid),
         .o_cdlast(w_cdlast),
-        .o_end(w_devil_end)
+        .o_end(w_devil_end),
+        .i_acvalid(acvalid),
+        .i_crready(crready),
+        .o_acready(w_acready)
+
     );
 
 	endmodule
