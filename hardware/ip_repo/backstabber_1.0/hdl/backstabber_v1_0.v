@@ -294,7 +294,11 @@
 		input wire                                           s01_axi_rready,
         // Debug (temporary) IO
         output wire                                    [3:0] debug_snoop_state,
-        output wire                                    [3:0] debug_devil_state
+        output wire                                    [3:0] debug_devil_state,
+        output wire                                   [63:0] debug_counter,
+        output wire                                   [31:0] debug_delay_reg,
+        output wire                                   [31:0] debug_status
+
 	);
 
 	wire                          ac_handshake;
@@ -415,6 +419,7 @@
     wire                      [3:0] w_fsm_devil_state;
     wire                            w_devil_end;
     wire                            w_acready;
+    wire                     [63:0] w_counter; // test porpuses
 
     assign w_snoop_state = snoop_state;
                       
@@ -535,6 +540,10 @@
 
     assign debug_snoop_state    = snoop_state;
     assign debug_devil_state    = w_fsm_devil_state;
+    assign debug_counter        = w_counter;
+    assign debug_delay_reg      = w_delay_reg;
+    assign debug_status         = w_write_status_reg;
+
 
     wire   w_en;
     assign w_en = w_control_reg[0];
@@ -774,7 +783,8 @@
         .o_end(w_devil_end),
         .i_acvalid(acvalid),
         .i_crready(crready),
-        .o_acready(w_acready)
+        .o_acready(w_acready), 
+        .o_counter(w_counter) // test porpuses
 
     );
 

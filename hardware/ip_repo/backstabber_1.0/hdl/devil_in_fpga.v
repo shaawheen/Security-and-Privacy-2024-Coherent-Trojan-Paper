@@ -47,7 +47,8 @@
         output wire                              o_end,
         input  wire                              i_acvalid,
         input  wire                              i_crready,
-        output wire                              o_acready
+        output wire                              o_acready, 
+        output wire                       [63:0] o_counter // test porpuses
     );
 
     reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
@@ -70,6 +71,7 @@
     assign o_rdata = r_rdata;
     assign o_end = r_end;
     assign o_acready = r_acready;
+    assign o_counter = r_counter;
 
     `define NUM_OF_CYCLES   150 // 1 us 
 

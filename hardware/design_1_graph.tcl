@@ -232,7 +232,7 @@ proc create_root_design { parentCell } {
    CONFIG.C_BRAM_CNT {0.0} \
    CONFIG.C_DATA_DEPTH {65536} \
    CONFIG.C_MON_TYPE {NATIVE} \
-   CONFIG.C_NUM_OF_PROBES {25} \
+   CONFIG.C_NUM_OF_PROBES {28} \
  ] $system_ila_0
 
   # Create instance: vio_0, and set properties
@@ -1062,6 +1062,9 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_nets backstabber_0_crvalid]
   connect_bd_net -net backstabber_0_debug_snoop_state [get_bd_pins backstabber_0/debug_snoop_state] [get_bd_pins system_ila_0/probe23]
   connect_bd_net -net backstabber_0_debug_devil_state [get_bd_pins backstabber_0/debug_devil_state] [get_bd_pins system_ila_0/probe24]
+  connect_bd_net -net backstabber_0_debug_counter [get_bd_pins backstabber_0/debug_counter] [get_bd_pins system_ila_0/probe25]
+  connect_bd_net -net backstabber_0_debug_delay_reg [get_bd_pins backstabber_0/debug_delay_reg] [get_bd_pins system_ila_0/probe26]
+  connect_bd_net -net backstabber_0_debug_status [get_bd_pins backstabber_0/debug_status] [get_bd_pins system_ila_0/probe27]
   connect_bd_net -net backstabber_0_rack [get_bd_pins backstabber_0/rack] [get_bd_pins system_ila_0/probe14] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_rack]
   connect_bd_net -net backstabber_0_rready [get_bd_pins backstabber_0/rready] [get_bd_pins system_ila_0/probe11] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_rready]
   connect_bd_net -net backstabber_0_wack [get_bd_pins backstabber_0/wack] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_wack]
