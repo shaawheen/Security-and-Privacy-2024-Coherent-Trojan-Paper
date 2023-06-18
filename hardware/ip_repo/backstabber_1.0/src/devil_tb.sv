@@ -130,6 +130,7 @@ module devil_tb();
       control_reg[4:1] = REPLY_WITH_DELAY_CDLAST; 
       control_reg[16] = 1'b1; // enable One Shot Delay
       delay_reg = 1; 
+      #10
       acvalid = 1;
       #1 // one clock for the registers to be asserteded
 	    wait(w_fsm_devil_state == DEVIL_IDLE); // wait for idle state
@@ -147,7 +148,9 @@ module devil_tb();
       delay_reg = 2;
       #1 // one clock for the registers to be asserted
       for (int i = 0; i < 5; i++) begin 
+        #10 // one clock for the registers to be asserted  
         acvalid = 1;
+        #1 // one clock for the registers to be asserted
         // 5 replys with delay
         wait(w_fsm_devil_state == DEVIL_RESPONSE); 
         wait(w_fsm_devil_state == DEVIL_CONTINUOS_DELAY); 
@@ -168,6 +171,7 @@ module devil_tb();
       // acsnoop_reg = 4'b0001; // mismatch value
       acsnoop_reg = 4'b0000; // match 
       delay_reg = 1; 
+      #10
       acvalid = 1;
       #1 // one clock for the registers to be asserteded
 	    wait(w_fsm_devil_state == DEVIL_END);  // wait for the END

@@ -60,7 +60,6 @@
     reg   [C_ACE_DATA_WIDTH-1:0] r_rdata;
     reg                   [63:0] r_counter; 
     reg                          r_end;
-    reg                          r_acready;
 
     assign o_fsm_devil_state = fsm_devil_state;
     assign o_write_status_reg = r_status_reg;
@@ -70,7 +69,7 @@
     assign o_cdlast = r_cdlast;
     assign o_rdata = r_rdata;
     assign o_end = r_end;
-    assign o_acready = r_acready;
+    assign o_acready = w_acready;
     assign o_counter = r_counter;
 
     `define NUM_OF_CYCLES   150 // 1 us 
@@ -117,6 +116,12 @@
     wire    w_osh_end;
     assign  w_osh_end = i_read_status_reg[0];
 
+// Devil-in-the-fpga snoop request handshake
+    wire handshake;
+    wire w_acready;
+    assign w_acready = (fsm_devil_state == DEVIL_IDLE) ? 1 : 0;
+    assign handshake = w_acready && i_acvalid ? 1 : 0;
+
     parameter [3:0] DEVIL_IDLE               = 0,
                     DEVIL_ONE_SHOT_DELAY     = 1,
                     DEVIL_CONTINUOS_DELAY    = 2,
@@ -140,7 +145,6 @@
         r_crvalid <= 0;
         r_cdvalid <= 0;
         r_counter <= 0;
-        r_acready <= 0;
         r_status_reg <= 0;
         fsm_devil_state <= DEVIL_IDLE;
         end 
@@ -149,7 +153,7 @@
             case (fsm_devil_state)                                                                                                                                 
             DEVIL_IDLE: 
                 begin
-                    if (i_snoop_state == DEVIL_EN && !r_end)
+                    if (i_snoop_state == DEVIL_EN && !r_end && handshake)
                         fsm_devil_state <= DEVIL_FILTER;     
                     else 
                         fsm_devil_state <= DEVIL_IDLE;   
@@ -223,10 +227,8 @@
                         r_crresp <= 0;
                         r_rdata <= 0;
                         r_crvalid <= 1;
-                        r_acready <= 1;
-                    end
-                    if(r_acready && i_acvalid) // handshake with the master
-                        fsm_devil_state  <= DEVIL_END;                           
+                        fsm_devil_state  <= DEVIL_END;
+                    end                           
                     else
                         fsm_devil_state <= fsm_devil_state;
                 end
@@ -238,13 +240,11 @@
                         r_return <= DEVIL_ONE_SHOT_DELAY;                              
                     end  
                     else if(r_status_reg[0] == 1 && i_crready)                                                             
-                    begin   
-                        r_acready <= 1;         
-                        if(r_acready && i_acvalid) // handshake with the master                                              
-                            fsm_devil_state  <= DEVIL_END;
-                        else
-                            fsm_devil_state <= fsm_devil_state;                                      
-                    end                                                                                               
+                    begin                          
+                        fsm_devil_state  <= DEVIL_END;                                
+                    end 
+                    else          
+                        fsm_devil_state <= fsm_devil_state;                                                                                  
                 end
             DEVIL_CONTINUOS_DELAY: //2
                 begin
@@ -252,21 +252,16 @@
                     begin                                                            
                         fsm_devil_state  <= DEVIL_END;                                      
                     end  
-                    else                                                       
-                    begin                  
-                        if(i_crready) 
-                        begin
-                            r_crvalid <= 0;
-                            r_cdvalid <= 0;
-                            r_cdlast <= 0;             
-                            r_acready <= 1;      
-                        end                                      
+                    else if(i_crready) 
+                    begin
+                        r_crvalid <= 0;
+                        r_cdvalid <= 0;
+                        r_cdlast <= 0;             
                         r_return <= DEVIL_CONTINUOS_DELAY;      
-                        if(r_acready && i_acvalid) // handshake with the master
-                            fsm_devil_state  <= DEVIL_RESPONSE;
-                        else
-                            fsm_devil_state <= fsm_devil_state;
+                        fsm_devil_state  <= DEVIL_RESPONSE;                                     
                     end                                                                                               
+                    else
+                        fsm_devil_state <= fsm_devil_state;
                 end
             DEVIL_RESPONSE: // 3
                 begin
@@ -275,7 +270,6 @@
                         r_status_reg[0] <= 1; 
                     end
 
-                    r_acready <= 0;           
                     r_crresp <= w_crresp[4:0];
                     r_rdata <= w_crresp[4:0]; // outputing w_crresp just to check if it is right
 
@@ -356,7 +350,6 @@
                 end
             DEVIL_END: // State to signal the End of the FSM operation
                 begin
-                    r_acready <= 0;  
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
