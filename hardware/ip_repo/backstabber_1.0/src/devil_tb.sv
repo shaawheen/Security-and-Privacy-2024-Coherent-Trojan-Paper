@@ -152,8 +152,7 @@ module devil_tb();
         acvalid = 1;
         #1 // one clock for the registers to be asserted
         // 5 replys with delay
-        wait(w_fsm_devil_state == DEVIL_RESPONSE); 
-        wait(w_fsm_devil_state == DEVIL_CONTINUOS_DELAY); 
+        wait(w_fsm_devil_state == DEVIL_IDLE); 
         control_reg[4:1] = REPLY_WITH_DELAY_CDVALID; 
         acvalid = 0;
       end

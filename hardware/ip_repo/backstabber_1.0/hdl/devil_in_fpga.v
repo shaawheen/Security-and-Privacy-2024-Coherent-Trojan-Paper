@@ -122,6 +122,9 @@
     assign w_acready = (fsm_devil_state == DEVIL_IDLE) ? 1 : 0;
     assign handshake = w_acready && i_acvalid ? 1 : 0;
 
+    wire busy;
+    assign busy = (fsm_devil_state != DEVIL_IDLE) ? 1 : 0;
+
     parameter [3:0] DEVIL_IDLE               = 0,
                     DEVIL_ONE_SHOT_DELAY     = 1,
                     DEVIL_CONTINUOS_DELAY    = 2,
@@ -129,8 +132,9 @@
                     DEVIL_DELAY              = 4,
                     DEVIL_FILTER             = 5,
                     DEVIL_FUNCTION           = 6,
-                    DEVIL_END                = 7,
-                    DEVIL_DUMMY_REPLY        = 8;
+                    DEVIL_END_OP             = 7,
+                    DEVIL_DUMMY_REPLY        = 8,
+                    DEVIL_END_REPLY          = 9;
 
     reg [3:0] r_return;
 
@@ -227,38 +231,36 @@
                         r_crresp <= 0;
                         r_rdata <= 0;
                         r_crvalid <= 1;
-                        fsm_devil_state  <= DEVIL_END;
+                        fsm_devil_state  <= DEVIL_END_REPLY;
                     end                           
                     else
                         fsm_devil_state <= fsm_devil_state;
                 end
             DEVIL_ONE_SHOT_DELAY: // 1
                 begin
-                    if (r_status_reg[0] == 0 )                                      
+                    if (r_status_reg[0] == 0 && i_crready) // just one reply with delay                                      
                     begin                                                            
                         fsm_devil_state  <= DEVIL_RESPONSE;
-                        r_return <= DEVIL_ONE_SHOT_DELAY;                              
+                        r_return <= DEVIL_END_OP;                              
                     end  
-                    else if(r_status_reg[0] == 1 && i_crready)                                                             
+                    else if(r_status_reg[0] && i_crready) // normal reply                                                         
                     begin                          
-                        fsm_devil_state  <= DEVIL_END;                                
+                        fsm_devil_state  <= DEVIL_DUMMY_REPLY;                                
                     end 
                     else          
                         fsm_devil_state <= fsm_devil_state;                                                                                  
                 end
             DEVIL_CONTINUOS_DELAY: //2
                 begin
-                    if (!w_con_en)                                      
-                    begin                                                            
-                        fsm_devil_state  <= DEVIL_END;                                      
+                      if (!w_con_en && i_crready)                                      
+                    begin                                                   // just one reply with delay            
+                        fsm_devil_state  <= DEVIL_RESPONSE;  
+                        r_return <= DEVIL_END_OP; // last reply      
                     end  
                     else if(i_crready) 
-                    begin
-                        r_crvalid <= 0;
-                        r_cdvalid <= 0;
-                        r_cdlast <= 0;             
-                        r_return <= DEVIL_CONTINUOS_DELAY;      
+                    begin         
                         fsm_devil_state  <= DEVIL_RESPONSE;                                     
+                        r_return <= DEVIL_END_REPLY;      
                     end                                                                                               
                     else
                         fsm_devil_state <= fsm_devil_state;
@@ -348,12 +350,19 @@
                         fsm_devil_state <= DEVIL_DELAY;
                     end                                
                 end
-            DEVIL_END: // State to signal the End of the FSM operation
+            DEVIL_END_OP: // State to signal the End of the FSM operation
                 begin
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
                     r_end <= 1;
+                    fsm_devil_state <= DEVIL_IDLE;                                                  
+                end
+            DEVIL_END_REPLY: // State to signal the End of a reply
+                begin
+                    r_crvalid <= 0;
+                    r_cdvalid <= 0;
+                    r_cdlast <= 0;
                     fsm_devil_state <= DEVIL_IDLE;                                                  
                 end
             default :                                                                
