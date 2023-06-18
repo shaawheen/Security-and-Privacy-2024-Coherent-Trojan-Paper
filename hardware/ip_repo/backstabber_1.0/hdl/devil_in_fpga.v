@@ -48,6 +48,7 @@
         input  wire                              i_acvalid,
         input  wire                              i_crready,
         output wire                              o_acready, 
+        output wire                              o_reply,
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -59,7 +60,8 @@
     reg                          r_cdlast;
     reg   [C_ACE_DATA_WIDTH-1:0] r_rdata;
     reg                   [63:0] r_counter; 
-    reg                          r_end;
+    reg                          r_end_op;
+    reg                          r_reply;
 
     assign o_fsm_devil_state = fsm_devil_state;
     assign o_write_status_reg = r_status_reg;
@@ -68,9 +70,11 @@
     assign o_cdvalid = r_cdvalid;
     assign o_cdlast = r_cdlast;
     assign o_rdata = r_rdata;
-    assign o_end = r_end;
+    assign o_end = r_end_op;
     assign o_acready = w_acready;
     assign o_counter = r_counter;
+    assign o_reply = r_reply;
+
 
     `define NUM_OF_CYCLES   150 // 1 us 
 
@@ -122,9 +126,6 @@
     assign w_acready = (fsm_devil_state == DEVIL_IDLE) ? 1 : 0;
     assign handshake = w_acready && i_acvalid ? 1 : 0;
 
-    wire busy;
-    assign busy = (fsm_devil_state != DEVIL_IDLE) ? 1 : 0;
-
     parameter [3:0] DEVIL_IDLE               = 0,
                     DEVIL_ONE_SHOT_DELAY     = 1,
                     DEVIL_CONTINUOS_DELAY    = 2,
@@ -142,7 +143,8 @@
     begin
     if(~ace_aresetn)
         begin
-        r_end <= 0;
+        r_reply <= 0;
+        r_end_op <= 0;
         r_cdlast <= 0;
         r_crresp <= 0;
         r_rdata  <= 0;
@@ -157,7 +159,8 @@
             case (fsm_devil_state)                                                                                                                                 
             DEVIL_IDLE: 
                 begin
-                    if (i_snoop_state == DEVIL_EN && !r_end && handshake)
+                    r_reply <= 0;
+                    if (i_snoop_state == DEVIL_EN && !r_end_op && handshake)
                         fsm_devil_state <= DEVIL_FILTER;     
                     else 
                         fsm_devil_state <= DEVIL_IDLE;   
@@ -168,12 +171,12 @@
                         r_status_reg[0] <= 0;    
                     end 
 
-                    if(r_end && !w_en)
+                    if(r_end_op && !w_en)
                     begin
                         // Clean the end bit when the user disbales the IP
                         // Forces the user to set the end bit to 0 before using
                         // the IP again
-                        r_end <= 0;    
+                        r_end_op <= 0;    
                     end                             
                 end
             DEVIL_FILTER: // 5
@@ -355,7 +358,8 @@
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
-                    r_end <= 1;
+                    r_end_op <= 1;
+                    r_reply <= 1;
                     fsm_devil_state <= DEVIL_IDLE;                                                  
                 end
             DEVIL_END_REPLY: // State to signal the End of a reply
@@ -363,6 +367,7 @@
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
+                    r_reply <= 1;
                     fsm_devil_state <= DEVIL_IDLE;                                                  
                 end
             default :                                                                

@@ -419,6 +419,7 @@
     wire                      [3:0] w_fsm_devil_state;
     wire                            w_devil_end;
     wire                            w_acready;
+    wire                            w_devil_reply;
     wire                     [63:0] w_counter; // test porpuses
 
     assign w_snoop_state = snoop_state;
@@ -581,7 +582,7 @@
         end
         else if (snoop_state == DEVIL_EN) // Wait for devil to finish
         begin
-            if (w_devil_end) // || (w_fsm_devil_state == idle)) 1 devil iteration by snoop request
+            if (!w_devil_reply) 
                 snoop_state <= IDLE;
             else
                 snoop_state <= snoop_state;
@@ -784,6 +785,7 @@
         .i_acvalid(acvalid),
         .i_crready(crready),
         .o_acready(w_acready), 
+        .o_reply(w_devil_reply),
         .o_counter(w_counter) // test porpuses
 
     );
