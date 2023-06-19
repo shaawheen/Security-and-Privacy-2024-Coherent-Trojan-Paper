@@ -52,6 +52,18 @@
         output wire                       [63:0] o_counter // test porpuses
     );
 
+    parameter [3:0] DEVIL_IDLE               = 0,
+                    DEVIL_ONE_SHOT_DELAY     = 1,
+                    DEVIL_CONTINUOS_DELAY    = 2,
+                    DEVIL_RESPONSE           = 3,
+                    DEVIL_DELAY              = 4,
+                    DEVIL_FILTER             = 5,
+                    DEVIL_FUNCTION           = 6,
+                    DEVIL_END_OP             = 7,
+                    DEVIL_DUMMY_REPLY        = 8,
+                    DEVIL_END_REPLY          = 9;
+
+
     reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
     reg                    [3:0] fsm_devil_state;        
     reg                    [4:0] r_crresp;
@@ -62,6 +74,13 @@
     reg                   [63:0] r_counter; 
     reg                          r_end_op;
     reg                          r_reply;
+    reg                    [3:0] r_return;
+
+    // Devil-in-the-fpga snoop request handshake
+    wire handshake;
+    wire w_acready;
+    assign w_acready = (fsm_devil_state == DEVIL_IDLE) ? 1 : 0;
+    assign handshake = w_acready && i_acvalid ? 1 : 0;
 
     assign o_fsm_devil_state = fsm_devil_state;
     assign o_write_status_reg = r_status_reg;
@@ -74,7 +93,6 @@
     assign o_acready = w_acready;
     assign o_counter = r_counter;
     assign o_reply = r_reply;
-
 
     `define NUM_OF_CYCLES   150 // 1 us 
 
@@ -119,25 +137,6 @@
 // Devil-in-the-fpga Control Reg parameters/bits
     wire    w_osh_end;
     assign  w_osh_end = i_read_status_reg[0];
-
-// Devil-in-the-fpga snoop request handshake
-    wire handshake;
-    wire w_acready;
-    assign w_acready = (fsm_devil_state == DEVIL_IDLE) ? 1 : 0;
-    assign handshake = w_acready && i_acvalid ? 1 : 0;
-
-    parameter [3:0] DEVIL_IDLE               = 0,
-                    DEVIL_ONE_SHOT_DELAY     = 1,
-                    DEVIL_CONTINUOS_DELAY    = 2,
-                    DEVIL_RESPONSE           = 3,
-                    DEVIL_DELAY              = 4,
-                    DEVIL_FILTER             = 5,
-                    DEVIL_FUNCTION           = 6,
-                    DEVIL_END_OP             = 7,
-                    DEVIL_DUMMY_REPLY        = 8,
-                    DEVIL_END_REPLY          = 9;
-
-    reg [3:0] r_return;
 
     always @(posedge ace_aclk)
     begin

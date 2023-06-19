@@ -402,6 +402,10 @@
 //******************************************************************************
 // Devil-in-the-fpga
 //******************************************************************************
+    `define CLEAN_INVALID   4'b1001
+    `define DVM_COMPLETE    4'b1110
+    `define DVM_MESSAGE     4'b1111
+    
 // Devil-in-the-fpga AXI-Lite
     wire [C_S01_AXI_DATA_WIDTH-1:0] w_control_reg;
     wire [C_S01_AXI_DATA_WIDTH-1:0] w_write_status_reg;
@@ -423,6 +427,13 @@
     wire                     [63:0] w_counter; // test porpuses
 
     assign w_snoop_state = snoop_state;
+
+    wire   w_en;
+    assign w_en = w_control_reg[0];
+
+    wire start_devil;
+    assign start_devil = (acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end ? 1 : 0;
+
                       
 //******************************************************************************
 //******************************************************************************
@@ -490,10 +501,6 @@
     assign arregion = 0;
     assign arsize   = 4'b100; //Size of each burst is 16B
     
-    `define CLEAN_INVALID   4'b1001
-    `define DVM_COMPLETE    4'b1110
-    `define DVM_MESSAGE     4'b1111
-    
     assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : 0; //Means arbar and ardomain have to be 0
     assign aruser   = 0;
     assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready); //acvalid & is_in_range & ace_enable;
@@ -546,11 +553,6 @@
     assign debug_status         = w_write_status_reg;
 
 
-    wire   w_en;
-    assign w_en = w_control_reg[0];
-
-    wire start_devil;
-    assign start_devil = (acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end ? 1 : 0;
 
 
 	//main state-machine
