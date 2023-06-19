@@ -465,10 +465,10 @@
     // assign crresp   = (snoop_state == REPLY) ? 5'b00001 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     assign crresp   =  w_crresp;
     // assign crresp   = (snoop_state == REPLY) ? config_port_to_backstabber_liar_crresp[4 : 0] : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
-    assign acready  =  ~queue_full && ((snoop_state == IDLE)          ||
+    assign acready  =  (~queue_full && ((snoop_state == IDLE)          ||
                        (snoop_state == DVM_SYNC_WAIT) ||
-                       (snoop_state == DVM_OP_WAIT)) ||
-                       w_acready;
+                       (snoop_state == DVM_OP_WAIT))) ||
+                       (w_acready && (snoop_state == DEVIL_EN));
                        
     assign crvalid  = ((snoop_state == NON_REPLY_OR_DVM_OP_LAST) && crready) ||
                       ((w_crvalid == 1) && crready) || 
