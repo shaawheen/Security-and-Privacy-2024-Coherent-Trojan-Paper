@@ -543,6 +543,7 @@
     assign dvm_operation_last_condition   = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 0);
     assign dvm_operation_multi_condition  = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 1);
     assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
+    assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
     assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
 
 
@@ -564,13 +565,17 @@
         end
         else if (snoop_state == IDLE)
         begin
-             if(non_reply_condition || dvm_operation_last_condition)
+            begin
+                if(start_devil)
+                    snoop_state <= DEVIL_EN;
+                else
                 begin
-                    if(start_devil)
-                        snoop_state <= DEVIL_EN;
-                    else
+                    if(non_reply_condition || dvm_operation_last_condition)
                         snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
+                    else 
+                        snoop_state <= snoop_state;
                 end
+            end
             else if (dvm_sync_multi_condition)
                 snoop_state <= DVM_SYNC_MP;
             else if (dvm_sync_last_condition)
