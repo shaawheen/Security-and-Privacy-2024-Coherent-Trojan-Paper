@@ -565,17 +565,10 @@
         end
         else if (snoop_state == IDLE)
         begin
-            begin
-                if(start_devil)
-                    snoop_state <= DEVIL_EN;
-                else
-                begin
-                    if(non_reply_condition || dvm_operation_last_condition)
-                        snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
-                    else 
-                        snoop_state <= snoop_state;
-                end
-            end
+            if(start_devil)
+                snoop_state <= DEVIL_EN;
+            else if(non_reply_condition || dvm_operation_last_condition)
+                snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
             else if (dvm_sync_multi_condition)
                 snoop_state <= DVM_SYNC_MP;
             else if (dvm_sync_last_condition)
