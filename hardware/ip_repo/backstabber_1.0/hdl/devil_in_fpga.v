@@ -288,8 +288,8 @@
                         `REPLY_WITH_DELAY_CRVALID: 
                         begin
                             // r_crvalid <= 1;
-                            r_cdvalid <= 1; 
-                            r_cdlast <= 1;
+                            // r_cdvalid <= 1; 
+                            // r_cdlast <= 1;
                             fsm_devil_state  <= DEVIL_DELAY;
                         end 
                         `REPLY_WITH_DELAY_CDVALID:  
@@ -324,7 +324,7 @@
                         case (w_test[3:0])
                             `REPLY_WITH_DELAY_CRVALID: 
                             begin
-                                r_crvalid <= 1;
+                                // r_crvalid <= 1;
                                 fsm_devil_state  <= r_return; 
                             end 
                             `REPLY_WITH_DELAY_CDVALID:  
