@@ -92,7 +92,7 @@
     assign o_end = r_end_op;
     assign o_acready = w_acready;
     assign o_counter = r_counter;
-    assign o_reply = r_reply;
+    assign o_reply = r_reply && ~r_end_op ;
 
     `define NUM_OF_CYCLES   150 // 1 us 
 
