@@ -582,7 +582,7 @@
         end
         else if (snoop_state == DEVIL_EN) // Wait for devil to finish
         begin
-            if (!w_devil_reply) 
+            if (w_devil_reply) 
                 snoop_state <= IDLE;
             else
                 snoop_state <= snoop_state;
