@@ -288,8 +288,8 @@
                         `REPLY_WITH_DELAY_CRVALID: 
                         begin
                             // r_crvalid <= 1;
-                            r_cdvalid <= 1; 
-                            r_cdlast <= 1;
+                            //r_cdvalid <= 1; 
+                            //r_cdlast <= 1;
                             fsm_devil_state  <= DEVIL_DELAY;
                         end 
                         `REPLY_WITH_DELAY_CDVALID:  
@@ -318,13 +318,13 @@
             DEVIL_DELAY: // 4
                 begin
                     // wait some cycles to respond
-                    if(r_counter == `NUM_OF_CYCLES*i_delay_reg[31:0] )
+                    if(r_counter == `NUM_OF_CYCLES*i_control_reg[31:18] )
                     begin
                         r_counter <= 0;
                         case (w_test[3:0])
                             `REPLY_WITH_DELAY_CRVALID: 
                             begin
-                                // r_crvalid <= 1;
+                                r_crvalid <= 1;
                                 fsm_devil_state  <= r_return; 
                             end 
                             `REPLY_WITH_DELAY_CDVALID:  
