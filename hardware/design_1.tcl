@@ -231,7 +231,7 @@ proc create_root_design { parentCell } {
    CONFIG.C_BRAM_CNT {0.0} \
    CONFIG.C_DATA_DEPTH {65536} \
    CONFIG.C_MON_TYPE {NATIVE} \
-   CONFIG.C_NUM_OF_PROBES {28} \
+   CONFIG.C_NUM_OF_PROBES {30} \
  ] $system_ila_0
 
   # Create instance: vio_0, and set properties
@@ -1018,7 +1018,7 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   connect_bd_intf_net -intf_net zynq_ultra_ps_e_0_M_AXI_HPM0_FPD [get_bd_intf_pins AXI_PerfectTranslator_0/S00_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_FPD]
   connect_bd_intf_net -intf_net zynq_ultra_ps_e_0_M_AXI_HPM0_LPD [get_bd_intf_pins smartconnect_0/S01_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_LPD]
 
-  # Create port connections
+    # Create port connections
   connect_bd_net -net backstabber_0_acready [get_bd_pins backstabber_0/acready] [get_bd_pins system_ila_0/probe2] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_acready]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_nets backstabber_0_acready]
   connect_bd_net -net backstabber_0_araddr [get_bd_pins backstabber_0/araddr] [get_bd_pins system_ila_0/probe5] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_araddr]
@@ -1061,9 +1061,12 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_nets backstabber_0_crvalid]
   connect_bd_net -net backstabber_0_debug_snoop_state [get_bd_pins backstabber_0/debug_snoop_state] [get_bd_pins system_ila_0/probe23]
   connect_bd_net -net backstabber_0_debug_devil_state [get_bd_pins backstabber_0/debug_devil_state] [get_bd_pins system_ila_0/probe24]
-    connect_bd_net -net backstabber_0_debug_counter [get_bd_pins backstabber_0/debug_counter] [get_bd_pins system_ila_0/probe25]
+  connect_bd_net -net backstabber_0_debug_counter [get_bd_pins backstabber_0/debug_counter] [get_bd_pins system_ila_0/probe25]
   connect_bd_net -net backstabber_0_debug_delay_reg [get_bd_pins backstabber_0/debug_delay_reg] [get_bd_pins system_ila_0/probe26]
   connect_bd_net -net backstabber_0_debug_status [get_bd_pins backstabber_0/debug_status] [get_bd_pins system_ila_0/probe27]
+  connect_bd_net -net s01_axi_wdata_0_1 [get_bd_pins backstabber_0/s01_axi_wdata] [get_bd_pins system_ila_0/probe28]
+  connect_bd_net -net s01_axi_awaddr_0_1 [get_bd_pins backstabber_0/s01_axi_awaddr] [get_bd_pins system_ila_0/probe29]
+  connect_bd_net -net s01_axi_awvalid_0_1 [get_bd_pins backstabber_0/s01_axi_awvalid] [get_bd_pins system_ila_0/probe30]
   connect_bd_net -net backstabber_0_rack [get_bd_pins backstabber_0/rack] [get_bd_pins system_ila_0/probe14] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_rack]
   connect_bd_net -net backstabber_0_rready [get_bd_pins backstabber_0/rready] [get_bd_pins system_ila_0/probe11] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_rready]
   connect_bd_net -net backstabber_0_wack [get_bd_pins backstabber_0/wack] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_wack]

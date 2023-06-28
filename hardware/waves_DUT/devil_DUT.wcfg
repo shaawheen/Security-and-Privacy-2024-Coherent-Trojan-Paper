@@ -14,15 +14,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="50.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="411.226 ns"></ZoomEndTime>
-      <Cursor1Time time="369.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="439.001 ns"></ZoomEndTime>
+      <Cursor1Time time="337.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="329"></NameColumnWidth>
+      <NameColumnWidth column_width="325"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="7" />
+   <WVObjectSize size="12" />
    <wvobject type="array" fp_name="/devil_tb/mst_agent_verbosity">
       <obj_property name="ElementShortName">mst_agent_verbosity[31:0]</obj_property>
       <obj_property name="ObjectShortName">mst_agent_verbosity[31:0]</obj_property>
@@ -81,5 +81,25 @@
       <obj_property name="ElementShortName">s01_axi</obj_property>
       <obj_property name="ObjectShortName">s01_axi</obj_property>
       <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_snoop_state">
+      <obj_property name="ElementShortName">debug_snoop_state[3:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_snoop_state[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_devil_state">
+      <obj_property name="ElementShortName">debug_devil_state[3:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_devil_state[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_counter">
+      <obj_property name="ElementShortName">debug_counter[63:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_counter[63:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_delay_reg">
+      <obj_property name="ElementShortName">debug_delay_reg[31:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_delay_reg[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_status">
+      <obj_property name="ElementShortName">debug_status[31:0]</obj_property>
+      <obj_property name="ObjectShortName">debug_status[31:0]</obj_property>
    </wvobject>
 </wave_config>
