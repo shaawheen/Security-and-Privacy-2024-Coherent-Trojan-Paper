@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="devil_tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="axi_vip_pkg" />
+            <top_module name="devil_tb" />
+            <top_module name="glbl" />
+            <top_module name="std" />
+            <top_module name="xil_common_vip_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="50.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="411.226 ns"></ZoomEndTime>
+      <Cursor1Time time="369.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="329"></NameColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="7" />
+   <wvobject type="array" fp_name="/devil_tb/mst_agent_verbosity">
+      <obj_property name="ElementShortName">mst_agent_verbosity[31:0]</obj_property>
+      <obj_property name="ObjectShortName">mst_agent_verbosity[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/prot">
+      <obj_property name="ElementShortName">prot[2:0]</obj_property>
+      <obj_property name="ObjectShortName">prot[2:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/resp">
+      <obj_property name="ElementShortName">resp[1:0]</obj_property>
+      <obj_property name="ObjectShortName">resp[1:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/devil_tb/tb_reset">
+      <obj_property name="ElementShortName">tb_reset</obj_property>
+      <obj_property name="ObjectShortName">tb_reset</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/devil_tb/tb_clk">
+      <obj_property name="ElementShortName">tb_clk</obj_property>
+      <obj_property name="ObjectShortName">tb_clk</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group43">
+      <obj_property name="label">Backstabber</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_snoop_state">
+         <obj_property name="ElementShortName">debug_snoop_state[3:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_snoop_state[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_devil_state">
+         <obj_property name="ElementShortName">debug_devil_state[3:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_devil_state[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_counter">
+         <obj_property name="ElementShortName">debug_counter[63:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_counter[63:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_delay_reg">
+         <obj_property name="ElementShortName">debug_delay_reg[31:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_delay_reg[31:0]</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_status">
+         <obj_property name="ElementShortName">debug_status[31:0]</obj_property>
+         <obj_property name="ObjectShortName">debug_status[31:0]</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="protoinst" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/s01_axi">
+      <obj_property name="children_use_element_short_name">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_ENUM_TRANSACTION</obj_property>
+      <obj_property name="EnumTransactionColorTable">0=blank 1=#D399FF 2=pink</obj_property>
+      <obj_property name="EnumTransactionValueTable">0=blank;1=Read;2=Write;3=Read/Write</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="CustomSignalColor">turquoise</obj_property>
+      <obj_property name="Render_Data">/devil_tb/DUT/design_1_i/backstabber_0/s01_axi.readWriteSummary</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      <obj_property name="CellHeight">36</obj_property>
+      <obj_property name="ElementShortName">s01_axi</obj_property>
+      <obj_property name="ObjectShortName">s01_axi</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+</wave_config>

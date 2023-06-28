@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="/home/cris/Documents/0_Projects/MancusoCollab/ILA_waves/ILA_waves.hw/hw_1/wave/hw_ila_data_1/hw_ila_data_1.wdb" id="1">
+         <top_modules>
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0"></ZoomStartTime>
+      <ZoomEndTime time="65,537"></ZoomEndTime>
+      <Cursor1Time time="0"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="333"></NameColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="5" />
+   <wave_markers>
+   </wave_markers>
+   <wvobject type="group" fp_name="group227">
+      <obj_property name="label">AC</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe0_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe0_1[43:0]</obj_property>
+         <obj_property name="ObjectShortName">probe0_1[43:0]</obj_property>
+         <obj_property name="label">zynq_ultra_ps_e_0_sacefpd_acaddr</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe1_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe1_1[2:0]</obj_property>
+         <obj_property name="ObjectShortName">probe1_1[2:0]</obj_property>
+         <obj_property name="label">zynq_ultra_ps_e_0_sacefpd_acprot</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe3_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe3_1[3:0]</obj_property>
+         <obj_property name="ObjectShortName">probe3_1[3:0]</obj_property>
+         <obj_property name="label">zynq_ultra_ps_e_0_sacefpd_acsnoop</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="design_1_i/system_ila_0/inst/probe2_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe2_1</obj_property>
+         <obj_property name="ObjectShortName">probe2_1</obj_property>
+         <obj_property name="label">backstabber_0_acready</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+         <obj_property name="CustomSignalColor">#FFD700</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="design_1_i/system_ila_0/inst/probe4_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe4_1</obj_property>
+         <obj_property name="ObjectShortName">probe4_1</obj_property>
+         <obj_property name="label">zynq_ultra_ps_e_0_sacefpd_acvalid</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="group" fp_name="group221">
+      <obj_property name="label">CR</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe16_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe16_1[4:0]</obj_property>
+         <obj_property name="ObjectShortName">probe16_1[4:0]</obj_property>
+         <obj_property name="label">backstabber_0_crresp</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+         <obj_property name="CustomSignalColor">#FFD700</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="design_1_i/system_ila_0/inst/probe17_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe17_1</obj_property>
+         <obj_property name="ObjectShortName">probe17_1</obj_property>
+         <obj_property name="label">backstabber_0_crvalid</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+         <obj_property name="CustomSignalColor">#FFD700</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="design_1_i/system_ila_0/inst/probe15_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe15_1</obj_property>
+         <obj_property name="ObjectShortName">probe15_1</obj_property>
+         <obj_property name="label">zynq_ultra_ps_e_0_sacefpd_crready</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+         <obj_property name="CustomSignalColor">#00FF00</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="logic" fp_name="design_1_i/system_ila_0/inst/probe19_1">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe19_1</obj_property>
+      <obj_property name="ObjectShortName">probe19_1</obj_property>
+      <obj_property name="label">backstabber_0_cdlast</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="design_1_i/system_ila_0/inst/probe21_1">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe21_1</obj_property>
+      <obj_property name="ObjectShortName">probe21_1</obj_property>
+      <obj_property name="label">backstabber_0_cdvalid</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <obj_property name="LABELRADIX">true</obj_property>
+      <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      <obj_property name="CustomSignalColor">#FFD700</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group235">
+      <obj_property name="label">Debug</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe25_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe25_1[63:0]</obj_property>
+         <obj_property name="ObjectShortName">probe25_1[63:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="label">backstabber_0_debug_counter</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe26_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe26_1[31:0]</obj_property>
+         <obj_property name="ObjectShortName">probe26_1[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="label">backstabber_0_debug_delay_reg</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe24_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe24_1[3:0]</obj_property>
+         <obj_property name="ObjectShortName">probe24_1[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="label">backstabber_0_debug_devil_state</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe23_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe23_1[3:0]</obj_property>
+         <obj_property name="ObjectShortName">probe23_1[3:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="label">backstabber_0_debug_snoop_state</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      </wvobject>
+      <wvobject type="array" fp_name="design_1_i/system_ila_0/inst/probe27_1">
+         <obj_property name="DisplayName">label</obj_property>
+         <obj_property name="ElementShortName">design_1_i/system_ila_0/inst/probe27_1[31:0]</obj_property>
+         <obj_property name="ObjectShortName">probe27_1[31:0]</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+         <obj_property name="label">backstabber_0_debug_status</obj_property>
+         <obj_property name="LABELRADIX">true</obj_property>
+         <obj_property name="WaveformStyle">STYLE_DIGITAL</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>
