@@ -30,7 +30,25 @@ import design_1_axi_vip_0_0_pkg::*;
 `define ACSNOOP         32'h0C
 `define BASE_ADDR       32'h10
 `define MEM_SIZE        32'h14
-       
+
+// Control Reg bits
+`define EN_pos      0
+`define TEST_pos    1
+    `define TEST_FUZZ       0
+    `define TEST_DELAY_CR   1
+    `define TEST_DELAY_CD   2
+    `define TEST_DELAY_CL   3
+`define FUNC_pos    5
+    `define FUNC_OSH        0
+    `define FUNC_CON        1
+`define CRRESP_pos  9
+`define ACFLT_pos   14
+`define ADDRFLT_pos 15
+`define OSHEN_pos   16
+`define CONEN_pos   17
+`define DELAY_pos   18
+
+
 module devil_tb();
     xil_axi_uint                mst_agent_verbosity = XIL_AXI_VERBOSITY_NONE;
     design_1_axi_vip_0_0_mst_t  mst_agent;
@@ -38,18 +56,52 @@ module devil_tb();
     xil_axi_resp_t  resp;
     bit tb_reset;
     bit tb_clk;
-
+    bit [31:0] ctrl;
+    bit [43:0]acaddr;
+    bit [3:0]acsnoop;
+    bit acvalid;
+    bit crvalid;
+    bit crready;
+    bit [4:0] dummy_counter;
     design_1_wrapper DUT
         (.clk_100MHz(tb_clk),
-            .reset(tb_reset));
+         .reset(tb_reset),
+         .crvalid_0(crvalid),
+         .acaddr_0(0),
+         .acsnoop_0(0),
+         .acvalid_0(1),
+         .crready_0(1)
+        );
 
     initial begin
         tb_reset <= 1'b1;
+        dummy_counter <= 0;
         repeat (16) @(negedge tb_clk);
         tb_reset <= 1'b0;
     end
 
     always #1 tb_clk <= ~tb_clk;
+
+    // test handshake 
+    // always @(posedge tb_clk) begin
+    //     if(tb_reset)
+    //         acvalid <= 1'b0;
+    //     else begin
+    //         if (dummy_counter == 0) begin
+    //             acvalid <= ~acvalid;
+    //             dummy_counter <= 0;
+    //         end
+    //         else 
+    //             dummy_counter <= dummy_counter + 1;
+    //     end
+    // end
+
+    // always @(crvalid) begin
+    // if (crvalid)
+    //     crready <= 1'b1;
+    // else if (! crvalid)
+    //     crready <= 1'b0;
+    // end
 
     // Main process
     initial begin
@@ -63,18 +115,42 @@ module devil_tb();
     // start the agents
     mst_agent.start_master();
 
-    test_regs();
+    osh_cr_devil();  
+    osh_cr_devil();  
+    // con_cr_devil();
+    // dummy_cr_devil();
 
     $display("END Simulation");
     $finish;
     end 
 
-    task test_regs();
+    task osh_cr_devil();
         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,32'h1,resp); 
+        ctrl = (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_OSH << `FUNC_pos) | (1 << `OSHEN_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,ctrl,resp); 
         #10ns;
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DELAY,prot,32'h10,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp); 
+    endtask :osh_cr_devil
+
+    task con_cr_devil();
+        //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
+        ctrl = (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,ctrl,resp); 
+        #10000ns;
+        ctrl = (1 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,ctrl,resp); 
         #100ns;
-    endtask :test_regs
+    endtask :con_cr_devil
+
+    task dummy_cr_devil();
+        //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
+        ctrl = (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (5 << `FUNC_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,ctrl,resp); 
+        #100ns;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp); 
+        #100ns;
+    endtask :dummy_cr_devil
+
+
 
 endmodule

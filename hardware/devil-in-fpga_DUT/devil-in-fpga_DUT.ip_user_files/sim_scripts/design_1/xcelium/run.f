@@ -15,19 +15,6 @@
 -makelib xcelium_lib/xpm \
   "/tools/Xilinx/Vivado/2022.1/data/ip/xpm/xpm_VCOMP.vhd" \
 -endlib
--makelib xcelium_lib/xil_defaultlib \
-  "../../../bd/design_1/ipshared/cb91/hdl/devil_in_fpga.v" \
-  "../../../bd/design_1/ipshared/cb91/hdl/fuzzing_ACE_v1_0_S01_AXI.v" \
--endlib
--makelib xcelium_lib/xil_defaultlib -sv \
-  "../../../bd/design_1/ipshared/cb91/hdl/ConfigurationPort.sv" \
-  "../../../bd/design_1/ipshared/cb91/hdl/HPSPBRAM.sv" \
-  "../../../bd/design_1/ipshared/cb91/hdl/queue.sv" \
--endlib
--makelib xcelium_lib/xil_defaultlib \
-  "../../../bd/design_1/ipshared/cb91/hdl/backstabber_v1_0.v" \
-  "../../../bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v" \
--endlib
 -makelib xcelium_lib/axi_infrastructure_v1_1_0 \
   "../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/ec67/hdl/axi_infrastructure_v1_1_vl_rfs.v" \
 -endlib
@@ -54,6 +41,17 @@
   "../../../bd/design_1/ip/design_1_proc_sys_reset_0_0/sim/design_1_proc_sys_reset_0_0.vhd" \
 -endlib
 -makelib xcelium_lib/xil_defaultlib \
+  "../../../bd/design_1/ipshared/6e1d/hdl/devil_in_fpga.v" \
+  "../../../bd/design_1/ipshared/6e1d/hdl/fuzzing_ACE_v1_0_S01_AXI.v" \
+-endlib
+-makelib xcelium_lib/xil_defaultlib -sv \
+  "../../../bd/design_1/ipshared/6e1d/hdl/ConfigurationPort.sv" \
+  "../../../bd/design_1/ipshared/6e1d/hdl/HPSPBRAM.sv" \
+  "../../../bd/design_1/ipshared/6e1d/hdl/queue.sv" \
+-endlib
+-makelib xcelium_lib/xil_defaultlib \
+  "../../../bd/design_1/ipshared/6e1d/hdl/backstabber_v1_0.v" \
+  "../../../bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v" \
   "../../../bd/design_1/sim/design_1.v" \
 -endlib
 -makelib xcelium_lib/xil_defaultlib \

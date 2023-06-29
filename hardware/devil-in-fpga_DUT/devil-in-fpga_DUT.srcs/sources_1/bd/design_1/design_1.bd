@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xC3FF26D47D52E8B7",
+      "boundary_crc": "0xAA6F8F1AD2DD3AF1",
       "device": "xczu9eg-ffvb1156-2-e",
       "gen_directory": "../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1",
       "name": "design_1",
@@ -11,10 +11,10 @@
       "validated": "true"
     },
     "design_tree": {
-      "backstabber_0": "",
       "axi_vip_0": "",
       "clk_wiz_0": "",
-      "proc_sys_reset_0": ""
+      "proc_sys_reset_0": "",
+      "backstabber_0": ""
     },
     "interface_ports": {
       "s00_axi_0": {
@@ -390,50 +390,28 @@
             "value": "ACTIVE_HIGH"
           }
         }
+      },
+      "acsnoop_0": {
+        "direction": "I",
+        "left": "3",
+        "right": "0"
+      },
+      "acvalid_0": {
+        "direction": "I"
+      },
+      "acaddr_0": {
+        "direction": "I",
+        "left": "43",
+        "right": "0"
+      },
+      "crvalid_0": {
+        "direction": "O"
+      },
+      "crready_0": {
+        "direction": "I"
       }
     },
     "components": {
-      "backstabber_0": {
-        "vlnv": "user.org:user:backstabber:1.0",
-        "xci_name": "design_1_backstabber_0_0",
-        "xci_path": "ip/design_1_backstabber_0_0/design_1_backstabber_0_0.xci",
-        "inst_hier_path": "backstabber_0",
-        "interface_ports": {
-          "config_axi": {
-            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
-            "mode": "Slave",
-            "memory_map_ref": "config_axi"
-          },
-          "m00_axi": {
-            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
-            "mode": "Master",
-            "address_space_ref": "m00_axi",
-            "base_address": {
-              "minimum": "0x00000000",
-              "maximum": "0x00FFFFFFFFFF",
-              "width": "40"
-            }
-          },
-          "s00_axi": {
-            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
-            "mode": "Slave",
-            "memory_map_ref": "s00_axi"
-          },
-          "s01_axi": {
-            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
-            "mode": "Slave",
-            "memory_map_ref": "s01_axi"
-          }
-        },
-        "addressing": {
-          "address_spaces": {
-            "m00_axi": {
-              "range": "1T",
-              "width": "40"
-            }
-          }
-        }
-      },
       "axi_vip_0": {
         "vlnv": "xilinx.com:ip:axi_vip:1.1",
         "xci_name": "design_1_axi_vip_0_0",
@@ -500,6 +478,47 @@
         "xci_name": "design_1_proc_sys_reset_0_0",
         "xci_path": "ip/design_1_proc_sys_reset_0_0/design_1_proc_sys_reset_0_0.xci",
         "inst_hier_path": "proc_sys_reset_0"
+      },
+      "backstabber_0": {
+        "vlnv": "user.org:user:backstabber:1.0",
+        "xci_name": "design_1_backstabber_0_0",
+        "xci_path": "ip/design_1_backstabber_0_0/design_1_backstabber_0_0.xci",
+        "inst_hier_path": "backstabber_0",
+        "interface_ports": {
+          "config_axi": {
+            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+            "mode": "Slave",
+            "memory_map_ref": "config_axi"
+          },
+          "m00_axi": {
+            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+            "mode": "Master",
+            "address_space_ref": "m00_axi",
+            "base_address": {
+              "minimum": "0x00000000",
+              "maximum": "0x00FFFFFFFFFF",
+              "width": "40"
+            }
+          },
+          "s00_axi": {
+            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+            "mode": "Slave",
+            "memory_map_ref": "s00_axi"
+          },
+          "s01_axi": {
+            "vlnv": "xilinx.com:interface:aximm_rtl:1.0",
+            "mode": "Slave",
+            "memory_map_ref": "s01_axi"
+          }
+        },
+        "addressing": {
+          "address_spaces": {
+            "m00_axi": {
+              "range": "1T",
+              "width": "40"
+            }
+          }
+        }
       }
     },
     "interface_nets": {
@@ -529,6 +548,30 @@
       }
     },
     "nets": {
+      "acaddr_0_1": {
+        "ports": [
+          "acaddr_0",
+          "backstabber_0/acaddr"
+        ]
+      },
+      "acsnoop_0_1": {
+        "ports": [
+          "acsnoop_0",
+          "backstabber_0/acsnoop"
+        ]
+      },
+      "acvalid_0_1": {
+        "ports": [
+          "acvalid_0",
+          "backstabber_0/acvalid"
+        ]
+      },
+      "backstabber_0_crvalid": {
+        "ports": [
+          "backstabber_0/crvalid",
+          "crvalid_0"
+        ]
+      },
       "clk_100MHz_1": {
         "ports": [
           "clk_100MHz",
@@ -545,12 +588,18 @@
         "ports": [
           "clk_wiz_0/clk_out1",
           "axi_vip_0/aclk",
-          "backstabber_0/s01_axi_aclk",
           "proc_sys_reset_0/slowest_sync_clk",
+          "backstabber_0/config_axi_aclk",
           "backstabber_0/ace_aclk",
           "backstabber_0/m00_axi_aclk",
           "backstabber_0/s00_axi_aclk",
-          "backstabber_0/config_axi_aclk"
+          "backstabber_0/s01_axi_aclk"
+        ]
+      },
+      "crready_0_1": {
+        "ports": [
+          "crready_0",
+          "backstabber_0/crready"
         ]
       },
       "reset_1": {
@@ -564,11 +613,11 @@
         "ports": [
           "proc_sys_reset_0/peripheral_aresetn",
           "axi_vip_0/aresetn",
-          "backstabber_0/s01_axi_aresetn",
+          "backstabber_0/config_axi_aresetn",
           "backstabber_0/ace_aresetn",
           "backstabber_0/m00_axi_aresetn",
           "backstabber_0/s00_axi_aresetn",
-          "backstabber_0/config_axi_aresetn"
+          "backstabber_0/s01_axi_aresetn"
         ]
       }
     },

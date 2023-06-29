@@ -14,15 +14,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="439.001 ns"></ZoomEndTime>
-      <Cursor1Time time="337.000 ns"></Cursor1Time>
+      <ZoomStartTime time="287.350 ns"></ZoomStartTime>
+      <ZoomEndTime time="364.863 ns"></ZoomEndTime>
+      <Cursor1Time time="324.272 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="325"></NameColumnWidth>
+      <NameColumnWidth column_width="305"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="12" />
+   <WVObjectSize size="13" />
    <wvobject type="array" fp_name="/devil_tb/mst_agent_verbosity">
       <obj_property name="ElementShortName">mst_agent_verbosity[31:0]</obj_property>
       <obj_property name="ObjectShortName">mst_agent_verbosity[31:0]</obj_property>
@@ -46,7 +46,6 @@
    <wvobject type="group" fp_name="group43">
       <obj_property name="label">Backstabber</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_snoop_state">
          <obj_property name="ElementShortName">debug_snoop_state[3:0]</obj_property>
          <obj_property name="ObjectShortName">debug_snoop_state[3:0]</obj_property>
@@ -80,7 +79,6 @@
       <obj_property name="CellHeight">36</obj_property>
       <obj_property name="ElementShortName">s01_axi</obj_property>
       <obj_property name="ObjectShortName">s01_axi</obj_property>
-      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_snoop_state">
       <obj_property name="ElementShortName">debug_snoop_state[3:0]</obj_property>
@@ -90,16 +88,35 @@
       <obj_property name="ElementShortName">debug_devil_state[3:0]</obj_property>
       <obj_property name="ObjectShortName">debug_devil_state[3:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_counter">
-      <obj_property name="ElementShortName">debug_counter[63:0]</obj_property>
-      <obj_property name="ObjectShortName">debug_counter[63:0]</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_delay_reg">
-      <obj_property name="ElementShortName">debug_delay_reg[31:0]</obj_property>
-      <obj_property name="ObjectShortName">debug_delay_reg[31:0]</obj_property>
-   </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_status">
       <obj_property name="ElementShortName">debug_status[31:0]</obj_property>
       <obj_property name="ObjectShortName">debug_status[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/crvalid">
+      <obj_property name="ElementShortName">crvalid</obj_property>
+      <obj_property name="ObjectShortName">crvalid</obj_property>
+   </wvobject>
+   <wvobject type="group" fp_name="group482">
+      <obj_property name="label">SNOOP</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/acsnoop">
+         <obj_property name="ElementShortName">acsnoop[3:0]</obj_property>
+         <obj_property name="ObjectShortName">acsnoop[3:0]</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/acready">
+         <obj_property name="ElementShortName">acready</obj_property>
+         <obj_property name="ObjectShortName">acready</obj_property>
+         <obj_property name="CustomSignalColor">#D2691E</obj_property>
+         <obj_property name="UseCustomSignalColor">true</obj_property>
+      </wvobject>
+      <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/acvalid">
+         <obj_property name="ElementShortName">acvalid</obj_property>
+         <obj_property name="ObjectShortName">acvalid</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/crready">
+      <obj_property name="ElementShortName">crready</obj_property>
+      <obj_property name="ObjectShortName">crready</obj_property>
    </wvobject>
 </wave_config>

@@ -1,7 +1,7 @@
 //Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2022.1 (lin64) Build 3526262 Mon Apr 18 15:47:01 MDT 2022
-//Date        : Wed Jun 28 13:04:17 2023
+//Date        : Thu Jun 29 15:33:27 2023
 //Host        : cris running 64-bit Linux Mint 20.3
 //Command     : generate_target design_1_wrapper.bd
 //Design      : design_1_wrapper
@@ -10,7 +10,10 @@
 `timescale 1 ps / 1 ps
 
 module design_1_wrapper
-   (clk_100MHz,
+   (acaddr_0,
+    acsnoop_0,
+    acvalid_0,
+    clk_100MHz,
     config_axi_0_araddr,
     config_axi_0_arburst,
     config_axi_0_arcache,
@@ -52,6 +55,8 @@ module design_1_wrapper
     config_axi_0_wready,
     config_axi_0_wstrb,
     config_axi_0_wvalid,
+    crready_0,
+    crvalid_0,
     m00_axi_0_araddr,
     m00_axi_0_arburst,
     m00_axi_0_arcache,
@@ -137,6 +142,9 @@ module design_1_wrapper
     s00_axi_0_wstrb,
     s00_axi_0_wuser,
     s00_axi_0_wvalid);
+  input [43:0]acaddr_0;
+  input [3:0]acsnoop_0;
+  input acvalid_0;
   input clk_100MHz;
   input [39:0]config_axi_0_araddr;
   input [1:0]config_axi_0_arburst;
@@ -179,6 +187,8 @@ module design_1_wrapper
   output config_axi_0_wready;
   input [15:0]config_axi_0_wstrb;
   input config_axi_0_wvalid;
+  input crready_0;
+  output crvalid_0;
   output [39:0]m00_axi_0_araddr;
   output [1:0]m00_axi_0_arburst;
   output [3:0]m00_axi_0_arcache;
@@ -265,6 +275,9 @@ module design_1_wrapper
   input [0:0]s00_axi_0_wuser;
   input s00_axi_0_wvalid;
 
+  wire [43:0]acaddr_0;
+  wire [3:0]acsnoop_0;
+  wire acvalid_0;
   wire clk_100MHz;
   wire [39:0]config_axi_0_araddr;
   wire [1:0]config_axi_0_arburst;
@@ -307,6 +320,8 @@ module design_1_wrapper
   wire config_axi_0_wready;
   wire [15:0]config_axi_0_wstrb;
   wire config_axi_0_wvalid;
+  wire crready_0;
+  wire crvalid_0;
   wire [39:0]m00_axi_0_araddr;
   wire [1:0]m00_axi_0_arburst;
   wire [3:0]m00_axi_0_arcache;
@@ -394,7 +409,10 @@ module design_1_wrapper
   wire s00_axi_0_wvalid;
 
   design_1 design_1_i
-       (.clk_100MHz(clk_100MHz),
+       (.acaddr_0(acaddr_0),
+        .acsnoop_0(acsnoop_0),
+        .acvalid_0(acvalid_0),
+        .clk_100MHz(clk_100MHz),
         .config_axi_0_araddr(config_axi_0_araddr),
         .config_axi_0_arburst(config_axi_0_arburst),
         .config_axi_0_arcache(config_axi_0_arcache),
@@ -436,6 +454,8 @@ module design_1_wrapper
         .config_axi_0_wready(config_axi_0_wready),
         .config_axi_0_wstrb(config_axi_0_wstrb),
         .config_axi_0_wvalid(config_axi_0_wvalid),
+        .crready_0(crready_0),
+        .crvalid_0(crvalid_0),
         .m00_axi_0_araddr(m00_axi_0_araddr),
         .m00_axi_0_arburst(m00_axi_0_arburst),
         .m00_axi_0_arcache(m00_axi_0_arcache),

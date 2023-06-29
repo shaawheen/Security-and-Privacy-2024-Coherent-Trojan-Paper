@@ -1,0 +1,28 @@
+#-----------------------------------------------------------
+# Vivado v2022.1 (64-bit)
+# SW Build 3526262 on Mon Apr 18 15:47:01 MDT 2022
+# IP Build 3524634 on Mon Apr 18 20:55:01 MDT 2022
+# Start of session at: Thu Jun 29 15:33:32 2023
+# Process ID: 271631
+# Current directory: /home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.runs/design_1_backstabber_0_0_synth_1
+# Command line: vivado -log design_1_backstabber_0_0.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source design_1_backstabber_0_0.tcl
+# Log file: /home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.runs/design_1_backstabber_0_0_synth_1/design_1_backstabber_0_0.vds
+# Journal file: /home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.runs/design_1_backstabber_0_0_synth_1/vivado.jou
+# Running On: cris, OS: Linux, CPU Frequency: 3405.058 MHz, CPU Physical cores: 4, Host memory: 16628 MB
+#-----------------------------------------------------------
+source design_1_backstabber_0_0.tcl -notrace
+create_project: Time (s): cpu = 00:00:07 ; elapsed = 00:00:05 . Memory (MB): peak = 2598.641 ; gain = 5.961 ; free physical = 3828 ; free virtual = 11747
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/ip_repo'.
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2022.1/data/ip'.
+Command: synth_design -top design_1_backstabber_0_0 -part xczu9eg-ffvb1156-2-e -incremental_mode off -mode out_of_context
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xczu9eg'
+WARNING: [Common 17-348] Failed to get the license for feature 'Synthesis' and/or device 'xczu9eg'. Explanation: A license feature for Synthesis was found but is expired.
+Resolution: Check the status of your licenses in the Vivado License Manager. For debug help search Xilinx Support for "Licensing FAQ". 
+3 Infos, 1 Warnings, 0 Critical Warnings and 1 Errors encountered.
+synth_design failed
+ERROR: [Common 17-345] A valid license was not found for feature 'Synthesis' and/or device 'xczu9eg'. Please run the Vivado License Manager for assistance in determining
+which features and devices are licensed for your system.
+Resolution: Check the status of your licenses in the Vivado License Manager. For debug help search Xilinx Support for "Licensing FAQ". If you are using a license server, verify that the license server is up and running a version of the xilinx daemon that is compatible with the version of Xilinx software that you are using. Note: Vivado 2021.1 and later versions require upgrading your license server tools to the Flex 11.17.2.0 versions. Please confirm with your license admin that the correct version of the license server tools are installed.
+INFO: [Common 17-206] Exiting Vivado at Thu Jun 29 15:33:46 2023...

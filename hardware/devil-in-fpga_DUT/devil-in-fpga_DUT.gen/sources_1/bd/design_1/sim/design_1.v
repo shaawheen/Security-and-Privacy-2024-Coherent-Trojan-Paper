@@ -1,7 +1,7 @@
 //Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2022.1 (lin64) Build 3526262 Mon Apr 18 15:47:01 MDT 2022
-//Date        : Wed Jun 28 13:04:17 2023
+//Date        : Thu Jun 29 15:33:26 2023
 //Host        : cris running 64-bit Linux Mint 20.3
 //Command     : generate_target design_1.bd
 //Design      : design_1
@@ -11,7 +11,10 @@
 
 (* CORE_GENERATION_INFO = "design_1,IP_Integrator,{x_ipVendor=xilinx.com,x_ipLibrary=BlockDiagram,x_ipName=design_1,x_ipVersion=1.00.a,x_ipLanguage=VERILOG,numBlks=4,numReposBlks=4,numNonXlnxBlks=1,numHierBlks=0,maxHierDepth=0,numSysgenBlks=0,numHlsBlks=0,numHdlrefBlks=0,numPkgbdBlks=0,bdsource=USER,da_board_cnt=6,da_clkrst_cnt=2,synth_mode=OOC_per_IP}" *) (* HW_HANDOFF = "design_1.hwdef" *) 
 module design_1
-   (clk_100MHz,
+   (acaddr_0,
+    acsnoop_0,
+    acvalid_0,
+    clk_100MHz,
     config_axi_0_araddr,
     config_axi_0_arburst,
     config_axi_0_arcache,
@@ -53,6 +56,8 @@ module design_1
     config_axi_0_wready,
     config_axi_0_wstrb,
     config_axi_0_wvalid,
+    crready_0,
+    crvalid_0,
     m00_axi_0_araddr,
     m00_axi_0_arburst,
     m00_axi_0_arcache,
@@ -138,6 +143,9 @@ module design_1
     s00_axi_0_wstrb,
     s00_axi_0_wuser,
     s00_axi_0_wvalid);
+  input [43:0]acaddr_0;
+  input [3:0]acsnoop_0;
+  input acvalid_0;
   (* X_INTERFACE_INFO = "xilinx.com:signal:clock:1.0 CLK.CLK_100MHZ CLK" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME CLK.CLK_100MHZ, CLK_DOMAIN design_1_clk_100MHz, FREQ_HZ 100000000, FREQ_TOLERANCE_HZ 0, INSERT_VIP 0, PHASE 0.0" *) input clk_100MHz;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 config_axi_0 ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME config_axi_0, ADDR_WIDTH 40, ARUSER_WIDTH 1, AWUSER_WIDTH 1, BUSER_WIDTH 0, DATA_WIDTH 128, FREQ_HZ 100000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 1, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 16, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 2, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 2, NUM_WRITE_THREADS 1, PHASE 0.0, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 0, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 0" *) input [39:0]config_axi_0_araddr;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 config_axi_0 ARBURST" *) input [1:0]config_axi_0_arburst;
@@ -180,6 +188,8 @@ module design_1
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 config_axi_0 WREADY" *) output config_axi_0_wready;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 config_axi_0 WSTRB" *) input [15:0]config_axi_0_wstrb;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 config_axi_0 WVALID" *) input config_axi_0_wvalid;
+  input crready_0;
+  output crvalid_0;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m00_axi_0 ARADDR" *) (* X_INTERFACE_PARAMETER = "XIL_INTERFACENAME m00_axi_0, ADDR_WIDTH 40, ARUSER_WIDTH 1, AWUSER_WIDTH 1, BUSER_WIDTH 1, DATA_WIDTH 128, FREQ_HZ 100000000, HAS_BRESP 1, HAS_BURST 1, HAS_CACHE 1, HAS_LOCK 1, HAS_PROT 1, HAS_QOS 1, HAS_REGION 0, HAS_RRESP 1, HAS_WSTRB 1, ID_WIDTH 16, INSERT_VIP 0, MAX_BURST_LENGTH 256, NUM_READ_OUTSTANDING 2, NUM_READ_THREADS 1, NUM_WRITE_OUTSTANDING 2, NUM_WRITE_THREADS 1, PHASE 0.0, PROTOCOL AXI4, READ_WRITE_MODE READ_WRITE, RUSER_BITS_PER_BYTE 0, RUSER_WIDTH 1, SUPPORTS_NARROW_BURST 1, WUSER_BITS_PER_BYTE 0, WUSER_WIDTH 1" *) output [39:0]m00_axi_0_araddr;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m00_axi_0 ARBURST" *) output [1:0]m00_axi_0_arburst;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 m00_axi_0 ARCACHE" *) output [3:0]m00_axi_0_arcache;
@@ -266,6 +276,9 @@ module design_1
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s00_axi_0 WUSER" *) input [0:0]s00_axi_0_wuser;
   (* X_INTERFACE_INFO = "xilinx.com:interface:aximm:1.0 s00_axi_0 WVALID" *) input s00_axi_0_wvalid;
 
+  wire [43:0]acaddr_0_1;
+  wire [3:0]acsnoop_0_1;
+  wire acvalid_0_1;
   wire [31:0]axi_vip_0_M_AXI_ARADDR;
   wire [2:0]axi_vip_0_M_AXI_ARPROT;
   wire axi_vip_0_M_AXI_ARREADY;
@@ -285,6 +298,7 @@ module design_1
   wire axi_vip_0_M_AXI_WREADY;
   wire [3:0]axi_vip_0_M_AXI_WSTRB;
   wire axi_vip_0_M_AXI_WVALID;
+  wire backstabber_0_crvalid;
   wire [39:0]backstabber_0_m00_axi_ARADDR;
   wire [1:0]backstabber_0_m00_axi_ARBURST;
   wire [3:0]backstabber_0_m00_axi_ARCACHE;
@@ -371,6 +385,7 @@ module design_1
   wire config_axi_0_1_WREADY;
   wire [15:0]config_axi_0_1_WSTRB;
   wire config_axi_0_1_WVALID;
+  wire crready_0_1;
   wire reset_1;
   wire [0:0]rst_clk_wiz_100M_peripheral_aresetn;
   wire [39:0]s00_axi_0_1_ARADDR;
@@ -416,6 +431,9 @@ module design_1
   wire [0:0]s00_axi_0_1_WUSER;
   wire s00_axi_0_1_WVALID;
 
+  assign acaddr_0_1 = acaddr_0[43:0];
+  assign acsnoop_0_1 = acsnoop_0[3:0];
+  assign acvalid_0_1 = acvalid_0;
   assign backstabber_0_m00_axi_ARREADY = m00_axi_0_arready;
   assign backstabber_0_m00_axi_AWREADY = m00_axi_0_awready;
   assign backstabber_0_m00_axi_BID = m00_axi_0_bid[15:0];
@@ -471,6 +489,8 @@ module design_1
   assign config_axi_0_rresp[1:0] = config_axi_0_1_RRESP;
   assign config_axi_0_rvalid = config_axi_0_1_RVALID;
   assign config_axi_0_wready = config_axi_0_1_WREADY;
+  assign crready_0_1 = crready_0;
+  assign crvalid_0 = backstabber_0_crvalid;
   assign m00_axi_0_araddr[39:0] = backstabber_0_m00_axi_ARADDR;
   assign m00_axi_0_arburst[1:0] = backstabber_0_m00_axi_ARBURST;
   assign m00_axi_0_arcache[3:0] = backstabber_0_m00_axi_ARCACHE;
@@ -566,12 +586,12 @@ module design_1
         .m_axi_wstrb(axi_vip_0_M_AXI_WSTRB),
         .m_axi_wvalid(axi_vip_0_M_AXI_WVALID));
   design_1_backstabber_0_0 backstabber_0
-       (.acaddr({1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0,1'b0}),
+       (.acaddr(acaddr_0_1),
         .ace_aclk(clk_wiz_clk_out1),
         .ace_aresetn(rst_clk_wiz_100M_peripheral_aresetn),
         .acprot({1'b0,1'b0,1'b0}),
-        .acsnoop({1'b0,1'b0,1'b0,1'b0}),
-        .acvalid(1'b0),
+        .acsnoop(acsnoop_0_1),
+        .acvalid(acvalid_0_1),
         .arready(1'b0),
         .awready(1'b0),
         .bid({1'b0,1'b0,1'b0,1'b0,1'b0,1'b0}),
@@ -622,7 +642,8 @@ module design_1
         .config_axi_wready(config_axi_0_1_WREADY),
         .config_axi_wstrb(config_axi_0_1_WSTRB),
         .config_axi_wvalid(config_axi_0_1_WVALID),
-        .crready(1'b0),
+        .crready(crready_0_1),
+        .crvalid(backstabber_0_crvalid),
         .m00_axi_aclk(clk_wiz_clk_out1),
         .m00_axi_araddr(backstabber_0_m00_axi_ARADDR),
         .m00_axi_arburst(backstabber_0_m00_axi_ARBURST),
