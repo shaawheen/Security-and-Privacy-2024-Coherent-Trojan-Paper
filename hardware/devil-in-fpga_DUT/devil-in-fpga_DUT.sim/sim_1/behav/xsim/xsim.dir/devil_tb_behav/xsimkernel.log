@@ -1,4 +1,7 @@
-Running: xsim.dir/devil_tb_behav/xsimk -simmode gui -wdb devil_tb_behav.wdb -simrunnum 0 -socket 33211
+Running: xsim.dir/devil_tb_behav/xsimk -simmode gui -wdb devil_tb_behav.wdb -simrunnum 0 -socket 50519
 Design successfully loaded
-Design Loading Memory Usage: 34768 KB (Peak: 34776 KB)
-Design Loading CPU Usage: 50 ms
+Design Loading Memory Usage: 34776 KB (Peak: 34784 KB)
+Design Loading CPU Usage: 40 ms
+Simulation completed
+Simulation Memory Usage: 134592 KB (Peak: 174044 KB)
+Simulation CPU Usage: 130 ms

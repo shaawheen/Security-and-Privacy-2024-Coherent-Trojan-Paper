@@ -5,16 +5,16 @@ sv xil_defaultlib --include "/tools/Xilinx/Vivado/2022.1/data/xilinx_vip/include
 verilog xil_defaultlib --include "/tools/Xilinx/Vivado/2022.1/data/xilinx_vip/include" --include "../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/4e49" \
 "../../../bd/design_1/ip/design_1_clk_wiz_0_0/design_1_clk_wiz_0_0_clk_wiz.v" \
 "../../../bd/design_1/ip/design_1_clk_wiz_0_0/design_1_clk_wiz_0_0.v" \
-"../../../bd/design_1/ipshared/6e1d/hdl/devil_in_fpga.v" \
-"../../../bd/design_1/ipshared/6e1d/hdl/fuzzing_ACE_v1_0_S01_AXI.v" \
+"../../../bd/design_1/ipshared/a275/hdl/devil_in_fpga.v" \
+"../../../bd/design_1/ipshared/a275/hdl/fuzzing_ACE_v1_0_S01_AXI.v" \
 
 sv xil_defaultlib --include "/tools/Xilinx/Vivado/2022.1/data/xilinx_vip/include" --include "../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/4e49" \
-"../../../bd/design_1/ipshared/6e1d/hdl/ConfigurationPort.sv" \
-"../../../bd/design_1/ipshared/6e1d/hdl/HPSPBRAM.sv" \
-"../../../bd/design_1/ipshared/6e1d/hdl/queue.sv" \
+"../../../bd/design_1/ipshared/a275/hdl/ConfigurationPort.sv" \
+"../../../bd/design_1/ipshared/a275/hdl/HPSPBRAM.sv" \
+"../../../bd/design_1/ipshared/a275/hdl/queue.sv" \
 
 verilog xil_defaultlib --include "/tools/Xilinx/Vivado/2022.1/data/xilinx_vip/include" --include "../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/ec67/hdl" --include "../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/4e49" \
-"../../../bd/design_1/ipshared/6e1d/hdl/backstabber_v1_0.v" \
+"../../../bd/design_1/ipshared/a275/hdl/backstabber_v1_0.v" \
 "../../../bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v" \
 "../../../bd/design_1/sim/design_1.v" \
 

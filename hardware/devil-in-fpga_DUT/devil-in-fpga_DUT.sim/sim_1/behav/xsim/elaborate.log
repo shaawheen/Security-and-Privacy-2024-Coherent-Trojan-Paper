@@ -4,22 +4,20 @@ Running: /tools/Xilinx/Vivado/2022.1/bin/unwrapped/lnx64.o/xelab --incr --debug 
 Using 8 slave threads.
 Starting static elaboration
 Pass Through NonSizing Optimizer
-WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 44 for port 'acaddr_0' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.srcs/sim_1/new/devil_tb.sv:70]
-WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 4 for port 'acsnoop_0' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.srcs/sim_1/new/devil_tb.sv:71]
-WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 1 for port 'acvalid_0' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.srcs/sim_1/new/devil_tb.sv:72]
-WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 1 for port 'crready_0' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.srcs/sim_1/new/devil_tb.sv:73]
+WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 1 for port 'acvalid_0' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.srcs/sim_1/new/devil_tb.sv:76]
+WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 1 for port 'crready_0' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.srcs/sim_1/new/devil_tb.sv:77]
 WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 2 for port 'm00_axi_awuser' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v:838]
 WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 2 for port 'm00_axi_wuser' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v:844]
 WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 2 for port 'm00_axi_buser' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v:849]
 WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 2 for port 'm00_axi_aruser' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v:861]
 WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 2 for port 'm00_axi_ruser' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v:868]
-WARNING: [VRFC 10-3091] actual bit length 9 differs from formal bit length 8 for port 'addra' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/6e1d/hdl/queue.sv:30]
-WARNING: [VRFC 10-3091] actual bit length 9 differs from formal bit length 8 for port 'addrb' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/6e1d/hdl/queue.sv:31]
-WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 1 for port 'enb' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/6e1d/hdl/queue.sv:35]
-WARNING: [VRFC 10-5021] port 'config_axi_0_araddr' is not connected on this instance [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.srcs/sim_1/new/devil_tb.sv:66]
+WARNING: [VRFC 10-3091] actual bit length 9 differs from formal bit length 8 for port 'addra' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/a275/hdl/queue.sv:30]
+WARNING: [VRFC 10-3091] actual bit length 9 differs from formal bit length 8 for port 'addrb' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/a275/hdl/queue.sv:31]
+WARNING: [VRFC 10-3091] actual bit length 32 differs from formal bit length 1 for port 'enb' [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/a275/hdl/queue.sv:35]
+WARNING: [VRFC 10-5021] port 'config_axi_0_araddr' is not connected on this instance [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.srcs/sim_1/new/devil_tb.sv:70]
 WARNING: [VRFC 10-5021] port 'mb_reset' is not connected on this instance [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/sim/design_1.v:768]
-WARNING: [VRFC 10-5021] port 'higher_threshold' is not connected on this instance [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/6e1d/hdl/backstabber_v1_0.v:656]
-WARNING: [VRFC 10-3705] select index 16 into 'byte_ram' is out of bounds [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/6e1d/hdl/ConfigurationPort.sv:489]
+WARNING: [VRFC 10-5021] port 'higher_threshold' is not connected on this instance [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/a275/hdl/backstabber_v1_0.v:656]
+WARNING: [VRFC 10-3705] select index 16 into 'byte_ram' is out of bounds [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/a275/hdl/ConfigurationPort.sv:489]
 Completed static elaboration
 Starting simulation data flow analysis
 Completed simulation data flow analysis
@@ -45,7 +43,7 @@ Compiling module axi_vip_v1_1_12.axi_vip_v1_1_12_top(C_AXI_PROTOC...
 Compiling module xil_defaultlib.design_1_axi_vip_0_0
 Compiling module xil_defaultlib.HPSPBRAM(RAM_WIDTH=44,RAM_DEPTH=...
 Compiling module xil_defaultlib.Queue(DATA_SIZE=44,QUEUE_LENGTH=...
-WARNING: [VRFC 10-3705] select index 16 into 'byte_ram' is out of bounds [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/6e1d/hdl/ConfigurationPort.sv:489]
+WARNING: [VRFC 10-3705] select index 16 into 'byte_ram' is out of bounds [/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/devil-in-fpga_DUT/devil-in-fpga_DUT.ip_user_files/bd/design_1/ipshared/a275/hdl/ConfigurationPort.sv:489]
 Compiling module xil_defaultlib.ConfigurationPort(C_S_AXI_ID_WID...
 Compiling module xil_defaultlib.fuzzing_ACE_v1_0_S01_AXI_default
 Compiling module xil_defaultlib.devil_in_fpga

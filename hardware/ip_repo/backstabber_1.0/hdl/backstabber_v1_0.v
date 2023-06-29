@@ -482,7 +482,7 @@
                        (w_acready && (snoop_state == DEVIL_EN));
                        
     assign crvalid  = ((snoop_state == NON_REPLY_OR_DVM_OP_LAST) && crready) ||
-                      ((w_crvalid == 1) && crready) || 
+                      ((w_crvalid == 1) && (snoop_state == DEVIL_EN) && crready) || 
                       ((snoop_state == DVM_SYNC_MP) && crready) ||
                       ((snoop_state == DVM_OP_MP) && crready) ||
                       ((snoop_state == DVM_SYNC_LAST) && crready && arready) ||
@@ -542,7 +542,6 @@
     assign non_reply_condition            = ac_handshake && (acsnoop != `DVM_MESSAGE) && ~lying_condition;
     assign dvm_operation_last_condition   = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 0);
     assign dvm_operation_multi_condition  = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 1);
-    assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
     assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
     assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
 

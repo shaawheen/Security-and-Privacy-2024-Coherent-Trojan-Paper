@@ -60,16 +60,16 @@ vcom -work xil_defaultlib -93 \
 "../../../bd/design_1/ip/design_1_proc_sys_reset_0_0/sim/design_1_proc_sys_reset_0_0.vhd" \
 
 vlog -work xil_defaultlib  -v2k5 "+incdir+../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/ec67/hdl" "+incdir+../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/4e49" "+incdir+/tools/Xilinx/Vivado/2022.1/data/xilinx_vip/include" \
-"../../../bd/design_1/ipshared/6e1d/hdl/devil_in_fpga.v" \
-"../../../bd/design_1/ipshared/6e1d/hdl/fuzzing_ACE_v1_0_S01_AXI.v" \
+"../../../bd/design_1/ipshared/a275/hdl/devil_in_fpga.v" \
+"../../../bd/design_1/ipshared/a275/hdl/fuzzing_ACE_v1_0_S01_AXI.v" \
 
 vlog -work xil_defaultlib  -sv2k12 "+incdir+../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/ec67/hdl" "+incdir+../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/4e49" "+incdir+/tools/Xilinx/Vivado/2022.1/data/xilinx_vip/include" \
-"../../../bd/design_1/ipshared/6e1d/hdl/ConfigurationPort.sv" \
-"../../../bd/design_1/ipshared/6e1d/hdl/HPSPBRAM.sv" \
-"../../../bd/design_1/ipshared/6e1d/hdl/queue.sv" \
+"../../../bd/design_1/ipshared/a275/hdl/ConfigurationPort.sv" \
+"../../../bd/design_1/ipshared/a275/hdl/HPSPBRAM.sv" \
+"../../../bd/design_1/ipshared/a275/hdl/queue.sv" \
 
 vlog -work xil_defaultlib  -v2k5 "+incdir+../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/ec67/hdl" "+incdir+../../../../devil-in-fpga_DUT.gen/sources_1/bd/design_1/ipshared/4e49" "+incdir+/tools/Xilinx/Vivado/2022.1/data/xilinx_vip/include" \
-"../../../bd/design_1/ipshared/6e1d/hdl/backstabber_v1_0.v" \
+"../../../bd/design_1/ipshared/a275/hdl/backstabber_v1_0.v" \
 "../../../bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v" \
 "../../../bd/design_1/sim/design_1.v" \
 

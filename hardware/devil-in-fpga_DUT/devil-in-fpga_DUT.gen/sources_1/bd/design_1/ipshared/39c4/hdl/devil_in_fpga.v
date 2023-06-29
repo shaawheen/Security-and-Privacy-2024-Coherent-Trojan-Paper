@@ -96,6 +96,10 @@
 
     `define NUM_OF_CYCLES   150 // 1 us 
 
+// snoop states
+    `define DVM_COMPLETE    4'b1110
+    `define DVM_MESSAGE     4'b1111
+
 // Devil-in-the-fpga Functions
     `define OSH    4'b0000 
     `define CON    4'b0001 
@@ -180,31 +184,35 @@
                 end
             DEVIL_FILTER: // 5
                 begin
-                    case ({w_addr_flt, w_acf_lt})
-                        `NO_FILTER  : fsm_devil_state <= DEVIL_FUNCTION;
-                        `AC_FILTER  : 
-                        begin
-                            if(w_ac_filter)
-                                fsm_devil_state <= DEVIL_FUNCTION;  
-                            else
-                                fsm_devil_state <= DEVIL_DUMMY_REPLY;
-                        end
-                        `ADDR_FILTER  : 
-                        begin
-                            if(w_addr_filter)
-                                fsm_devil_state <= DEVIL_FUNCTION;  
-                            else
-                                fsm_devil_state <= DEVIL_DUMMY_REPLY;
-                        end
-                        `AC_ADDR_FILTER  : 
-                        begin
-                            if(w_addr_filter && w_ac_filter)
-                                fsm_devil_state <= DEVIL_FUNCTION;  
-                            else
-                                fsm_devil_state <= DEVIL_DUMMY_REPLY;
-                        end
-                        default : fsm_devil_state <= DEVIL_DUMMY_REPLY; 
-                    endcase                                                     
+                    if((acsnoop == `DVM_MESSAGE)||(acsnoop == `DVM_COMPLETE)) begin
+                        case ({w_addr_flt, w_acf_lt})
+                            `NO_FILTER  : fsm_devil_state <= DEVIL_FUNCTION;
+                            `AC_FILTER  : 
+                            begin
+                                if(w_ac_filter)
+                                    fsm_devil_state <= DEVIL_FUNCTION;  
+                                else
+                                    fsm_devil_state <= DEVIL_DUMMY_REPLY;
+                            end
+                            `ADDR_FILTER  : 
+                            begin
+                                if(w_addr_filter)
+                                    fsm_devil_state <= DEVIL_FUNCTION;  
+                                else
+                                    fsm_devil_state <= DEVIL_DUMMY_REPLY;
+                            end
+                            `AC_ADDR_FILTER  : 
+                            begin
+                                if(w_addr_filter && w_ac_filter)
+                                    fsm_devil_state <= DEVIL_FUNCTION;  
+                                else
+                                    fsm_devil_state <= DEVIL_DUMMY_REPLY;
+                            end
+                            default : fsm_devil_state <= DEVIL_DUMMY_REPLY; 
+                        endcase   
+                    end 
+                    else
+                        fsm_devil_state <= DEVIL_END_REPLY;                                                  
                 end
             DEVIL_FUNCTION: // 6
                 begin

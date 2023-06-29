@@ -56,19 +56,23 @@ module devil_tb();
     xil_axi_resp_t  resp;
     bit tb_reset;
     bit tb_clk;
-    bit [31:0] ctrl;
+    bit [31:0] reg_ctrl;
+    bit [31:0] reg_acsnoop;
+    bit [31:0] reg_addr;
+    bit [31:0] reg_size;
     bit [43:0]acaddr;
     bit [3:0]acsnoop;
     bit acvalid;
     bit crvalid;
     bit crready;
     bit [4:0] dummy_counter;
+
     design_1_wrapper DUT
         (.clk_100MHz(tb_clk),
          .reset(tb_reset),
          .crvalid_0(crvalid),
-         .acaddr_0(0),
-         .acsnoop_0(0),
+         .acaddr_0(acaddr),
+         .acsnoop_0(acsnoop),
          .acvalid_0(1),
          .crready_0(1)
         );
@@ -76,6 +80,7 @@ module devil_tb();
     initial begin
         tb_reset <= 1'b1;
         dummy_counter <= 0;
+        acsnoop <= 0;
         repeat (16) @(negedge tb_clk);
         tb_reset <= 1'b0;
     end
@@ -115,10 +120,13 @@ module devil_tb();
     // start the agents
     mst_agent.start_master();
 
-    osh_cr_devil();  
-    osh_cr_devil();  
-    // con_cr_devil();
+    // osh_cr_devil();  
+    // osh_cr_devil();  
+    con_cr_devil();
     // dummy_cr_devil();
+    // ac_filter_cr_devil();
+    // addr_filter_cr_devil();
+    // ac_addr_filter_cr_devil();
 
     $display("END Simulation");
     $finish;
@@ -126,31 +134,125 @@ module devil_tb();
 
     task osh_cr_devil();
         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
-        ctrl = (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_OSH << `FUNC_pos) | (1 << `OSHEN_pos) | (1 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,ctrl,resp); 
+        reg_ctrl =  (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
+                (`FUNC_OSH << `FUNC_pos) | (1 << `OSHEN_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+       
         #10ns;
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp); 
     endtask :osh_cr_devil
 
     task con_cr_devil();
         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
-        ctrl = (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (1 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,ctrl,resp); 
+        reg_ctrl =  (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
+                (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+
+        #100ns;
+        acsnoop = 4'b1111;
+
+        #100ns;
+        acsnoop = 0;
+        
         #10000ns;
-        ctrl = (1 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (0 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,ctrl,resp); 
+        reg_ctrl =  (1 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
+                (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
         #100ns;
     endtask :con_cr_devil
 
     task dummy_cr_devil();
         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
-        ctrl = (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (5 << `FUNC_pos) | (1 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,ctrl,resp); 
+        reg_ctrl =  (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
+                (5 << `FUNC_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        
         #100ns;
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp); 
         #100ns;
     endtask :dummy_cr_devil
 
+    task ac_filter_cr_devil();
+         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
+        reg_ctrl =  (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (1<<`ACFLT_pos) |
+                (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        
+        #100ns;
+        reg_acsnoop = 1;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ACSNOOP,prot,reg_acsnoop,resp); 
+        
+        #10000ns;
+        reg_ctrl =  (1 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (1<<`ACFLT_pos) |
+                (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+    endtask :ac_filter_cr_devil
+
+    task addr_filter_cr_devil();
+         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
+        reg_addr = 32'h00000010;
+        reg_size = 32'h100;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`MEM_SIZE,prot,reg_size,resp); 
+       
+        reg_ctrl =  (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (1<<`ADDRFLT_pos) |
+                (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+       
+        #10ns;
+        reg_addr = 32'h00000000;
+        reg_size = 32'h100;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp); 
+        
+        #10ns; // match
+        reg_addr = 32'h00000010;
+        reg_size = 32'h100;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp);
+       
+        #10000ns;
+        reg_ctrl =  (1 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | (1<<`ADDRFLT_pos) |
+                (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+    endtask :addr_filter_cr_devil
+
+    task ac_addr_filter_cr_devil();
+         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
+        reg_addr = 32'h00000010;
+        reg_size = 32'h100;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`MEM_SIZE,prot,reg_size,resp); 
+
+        reg_acsnoop = 1;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ACSNOOP,prot,reg_acsnoop,resp); 
+
+        reg_ctrl =  (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
+                    (1 <<`ADDRFLT_pos) | (1 <<`ACFLT_pos) |
+                    (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        
+        #10ns;
+        reg_addr = 32'h00000000;
+        reg_size = 32'h100;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp); 
+        
+        #10ns; // match
+        reg_acsnoop = 0;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ACSNOOP,prot,reg_acsnoop,resp); 
+      
+       #10ns;
+        reg_addr = 32'h00000010;
+        reg_size = 32'h100;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp);
+       
+        #10000ns;
+        reg_ctrl =  (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
+                    (1 <<`ADDRFLT_pos) | (1 <<`ACFLT_pos) |
+                    (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+    endtask :ac_addr_filter_cr_devil
 
 
 endmodule
