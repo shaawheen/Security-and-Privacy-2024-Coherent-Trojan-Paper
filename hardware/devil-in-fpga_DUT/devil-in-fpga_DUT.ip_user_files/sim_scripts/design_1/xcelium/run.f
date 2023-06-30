@@ -41,16 +41,16 @@
   "../../../bd/design_1/ip/design_1_proc_sys_reset_0_0/sim/design_1_proc_sys_reset_0_0.vhd" \
 -endlib
 -makelib xcelium_lib/xil_defaultlib \
-  "../../../bd/design_1/ipshared/a275/hdl/devil_in_fpga.v" \
-  "../../../bd/design_1/ipshared/a275/hdl/fuzzing_ACE_v1_0_S01_AXI.v" \
+  "../../../bd/design_1/ipshared/dfcd/hdl/devil_in_fpga.v" \
+  "../../../bd/design_1/ipshared/dfcd/hdl/fuzzing_ACE_v1_0_S01_AXI.v" \
 -endlib
 -makelib xcelium_lib/xil_defaultlib -sv \
-  "../../../bd/design_1/ipshared/a275/hdl/ConfigurationPort.sv" \
-  "../../../bd/design_1/ipshared/a275/hdl/HPSPBRAM.sv" \
-  "../../../bd/design_1/ipshared/a275/hdl/queue.sv" \
+  "../../../bd/design_1/ipshared/dfcd/hdl/ConfigurationPort.sv" \
+  "../../../bd/design_1/ipshared/dfcd/hdl/HPSPBRAM.sv" \
+  "../../../bd/design_1/ipshared/dfcd/hdl/queue.sv" \
 -endlib
 -makelib xcelium_lib/xil_defaultlib \
-  "../../../bd/design_1/ipshared/a275/hdl/backstabber_v1_0.v" \
+  "../../../bd/design_1/ipshared/dfcd/hdl/backstabber_v1_0.v" \
   "../../../bd/design_1/ip/design_1_backstabber_0_0/sim/design_1_backstabber_0_0.v" \
   "../../../bd/design_1/sim/design_1.v" \
 -endlib

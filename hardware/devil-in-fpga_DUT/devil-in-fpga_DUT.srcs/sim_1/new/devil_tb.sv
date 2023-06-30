@@ -73,7 +73,7 @@ module devil_tb();
          .crvalid_0(crvalid),
          .acaddr_0(acaddr),
          .acsnoop_0(acsnoop),
-         .acvalid_0(1),
+         .acvalid_0(acvalid),
          .crready_0(1)
         );
 
@@ -88,18 +88,18 @@ module devil_tb();
     always #1 tb_clk <= ~tb_clk;
 
     // test handshake 
-    // always @(posedge tb_clk) begin
-    //     if(tb_reset)
-    //         acvalid <= 1'b0;
-    //     else begin
-    //         if (dummy_counter == 0) begin
-    //             acvalid <= ~acvalid;
-    //             dummy_counter <= 0;
-    //         end
-    //         else 
-    //             dummy_counter <= dummy_counter + 1;
-    //     end
-    // end
+    always @(posedge tb_clk) begin
+        if(tb_reset)
+            acvalid <= 1'b0;
+        else begin
+            if (dummy_counter == 0) begin
+                acvalid <= ~acvalid;
+                dummy_counter <= 0;
+            end
+            else 
+                dummy_counter <= dummy_counter + 1;
+        end
+    end
 
     // always @(crvalid) begin
     // if (crvalid)
@@ -134,11 +134,11 @@ module devil_tb();
 
     task osh_cr_devil();
         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
-        reg_ctrl =  (0 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
+        reg_ctrl =  (1 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
                 (`FUNC_OSH << `FUNC_pos) | (1 << `OSHEN_pos) | (1 << `EN_pos);
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-       
-        #10ns;
+
+        #1000ns;
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp); 
     endtask :osh_cr_devil
 
@@ -148,7 +148,7 @@ module devil_tb();
                 (`FUNC_CON << `FUNC_pos) | (1 << `CONEN_pos) | (1 << `EN_pos);
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
 
-        #100ns;
+        #98ns;
         acsnoop = 4'b1111;
 
         #100ns;

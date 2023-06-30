@@ -476,10 +476,9 @@
     // assign crresp   = (snoop_state == REPLY) ? 5'b00001 : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
     assign crresp   =  w_crresp;
     // assign crresp   = (snoop_state == REPLY) ? config_port_to_backstabber_liar_crresp[4 : 0] : 0; //if in a reply state, pass_data & pass_dirty & was_unique;
-    assign acready  =  (~queue_full && !start_devil && ((snoop_state == IDLE)          ||
+    assign acready  =  (~queue_full && ((snoop_state == IDLE) ||
                        (snoop_state == DVM_SYNC_WAIT) ||
-                       (snoop_state == DVM_OP_WAIT))) ||
-                       (w_acready && (snoop_state == DEVIL_EN));
+                       (snoop_state == DVM_OP_WAIT))) ;
                        
     assign crvalid  = ((snoop_state == NON_REPLY_OR_DVM_OP_LAST) && crready) ||
                       ((w_crvalid == 1) && (snoop_state == DEVIL_EN) && crready) || 
@@ -543,7 +542,6 @@
     assign dvm_operation_last_condition   = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 0);
     assign dvm_operation_multi_condition  = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] != 4'b1100) && (acaddr[0] == 1);
     assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
-    assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
     assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
 
 
@@ -553,8 +551,9 @@
     assign debug_delay_reg      = w_delay_reg;
     assign debug_status         = w_write_status_reg;
 
-
-
+    reg r_trigger;
+    wire w_trigger ;
+    assign w_trigger         = r_trigger;
 
 	//main state-machine
 	always @(posedge ace_aclk)
@@ -562,11 +561,15 @@
         if(~ace_aresetn)
         begin
             snoop_state <= IDLE;
+            r_devil_state <= 0; // DEVIL_IDLE
         end
         else if (snoop_state == IDLE)
         begin
-            if(start_devil)
+            if((acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && ac_handshake) 
+            begin
                 snoop_state <= DEVIL_EN;
+                r_trigger <= 1; 
+            end
             else if(non_reply_condition || dvm_operation_last_condition)
                 snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
             else if (dvm_sync_multi_condition)
@@ -577,11 +580,14 @@
                 snoop_state <= DVM_OP_MP;
             else if (reply_condition && ~queue_full)
                 snoop_state <= REPLY;
-            else
+            else begin
                 snoop_state <= snoop_state;
+                r_devil_state <= r_devil_state; 
+            end
         end
         else if (snoop_state == DEVIL_EN) // Wait for devil to finish
         begin
+            r_trigger <= 0; // Clean trigger
             if (w_devil_reply) 
                 snoop_state <= IDLE;
             else
@@ -782,9 +788,8 @@
         .o_cdvalid(w_cdvalid),
         .o_cdlast(w_cdlast),
         .o_end(w_devil_end),
-        .i_acvalid(acvalid),
+        .i_trigger(w_trigger),
         .i_crready(crready),
-        .o_acready(w_acready), 
         .o_reply(w_devil_reply),
         .o_counter(w_counter) // test porpuses
 

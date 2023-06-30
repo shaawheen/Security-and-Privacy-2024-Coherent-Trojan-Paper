@@ -9,7 +9,7 @@
     ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 
 source design_1_backstabber_0_0.tcl -notrace
-create_project: Time (s): cpu = 00:00:06 ; elapsed = 00:00:05 . Memory (MB): peak = 2598.641 ; gain = 5.961 ; free physical = 3756 ; free virtual = 10968
+create_project: Time (s): cpu = 00:00:07 ; elapsed = 00:00:06 . Memory (MB): peak = 2601.609 ; gain = 8.930 ; free physical = 3669 ; free virtual = 8989
 INFO: [IP_Flow 19-234] Refreshing IP repositories
 INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/ip_repo'.
 INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2022.1/data/ip'.
@@ -23,4 +23,4 @@ synth_design failed
 ERROR: [Common 17-345] A valid license was not found for feature 'Synthesis' and/or device 'xczu9eg'. Please run the Vivado License Manager for assistance in determining
 which features and devices are licensed for your system.
 Resolution: Check the status of your licenses in the Vivado License Manager. For debug help search Xilinx Support for "Licensing FAQ". If you are using a license server, verify that the license server is up and running a version of the xilinx daemon that is compatible with the version of Xilinx software that you are using. Note: Vivado 2021.1 and later versions require upgrading your license server tools to the Flex 11.17.2.0 versions. Please confirm with your license admin that the correct version of the license server tools are installed.
-INFO: [Common 17-206] Exiting Vivado at Thu Jun 29 18:33:13 2023...
+INFO: [Common 17-206] Exiting Vivado at Fri Jun 30 08:52:54 2023...

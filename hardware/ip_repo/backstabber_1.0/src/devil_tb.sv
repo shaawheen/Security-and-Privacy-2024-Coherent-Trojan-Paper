@@ -108,9 +108,7 @@ module devil_tb();
         .o_cdvalid(w_cdvalid),
         .o_cdlast(w_cdlast),
         .o_end(w_devil_end),
-        .i_acvalid(acvalid),
-        .i_crready(1),
-        .o_acready(w_acready)
+        .i_crready(1)
     );
 
 
