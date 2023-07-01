@@ -1,3 +1,4 @@
+
 /** 
  * Bao, a Lightweight Static Partitioning Hypervisor 
  *
@@ -51,8 +52,34 @@ char* strnchr(const char* s, size_t n, char c) {
     }
     return NULL;
 }
-int *ptr_sh = (int*)0x80010000;
-int delay = 0;
+
+// Control Reg bits
+#define EN_pos      0
+#define TEST_pos    1
+    #define TEST_FUZZ       0
+    #define TEST_DELAY_CR   1
+    #define TEST_DELAY_CD   2
+    #define TEST_DELAY_CL   3
+#define FUNC_pos    5
+    #define FUNC_OSH        0
+    #define FUNC_CON        1
+#define CRRESP_pos  9
+#define ACFLT_pos   14
+#define ADDRFLT_pos 15
+#define OSHEN_pos   16
+#define CONEN_pos   17
+#define DELAY_pos   18
+
+// Status Reg bits
+#define OSH_END_pos 0
+
+unsigned int *ctrl       = (unsigned int*)0x80010000+0x00;
+unsigned int *status     = (unsigned int*)0x80010000+0x04;
+unsigned int *delay      = (unsigned int*)0x80010000+0x08;
+unsigned int *acsnoop    = (unsigned int*)0x80010000+0x0C;
+unsigned int *base_addr  = (unsigned int*)0x80010000+0x10;
+unsigned int *mem_size   = (unsigned int*)0x80010000+0x14;
+
 void shmem_handler() {
 
     spin_lock(&print_lock);
@@ -64,23 +91,48 @@ void shmem_handler() {
         *end = '\0';
     }
     sprintf(shmem_buff, "%d", irq_count);
-    // 0b0011111010000100000 -> 1ms
-    // 0b00100111000100000100000 -> 10ms
-    // 0b110000110101000000100000 -> 100ms
-    // if(irq_count < 3)
-     
-    // Enable [30] | Delay [29:7] | Signal to delay [6:5] | CRRESP [4:0]  
-    // *ptr_sh =  (0b1 << 30) | (delay << 7) | ( 0b01 << 5 ) | 0b10000;;
-    
-    // irq_count++;
+
+    printf("ctrl      %d: %d\n", irq_count, *ctrl); 
+    printf("status    %d: %d\n", irq_count, *status); 
+    printf("delay     %d: %d\n", irq_count, *delay); 
+    printf("acsnoop   %d: %d\n", irq_count, *acsnoop); 
+    printf("base_addr %d: %d\n", irq_count, *base_addr); 
+    printf("mem_size  %d: %d\n", irq_count, *mem_size); 
+    *delay = *delay + 1; // 1us
+    *ctrl |= (1 << EN_pos); // Enable IP
+    *ctrl |= (TEST_DELAY_CR << TEST_pos);
+    // *ctrl |= (FUNC_OSH << FUNC_pos); // One-shot Delay
+    // *ctrl |= (FUNC_CON << FUNC_pos); // One-shot Delay
+    *ctrl |= (1 << OSHEN_pos); // Enable One-shot Delay
+    //*ctrl |= (1 << CONEN_pos); // Enable One-shot Delay
+    // *ctrl |= (1 << ACFLT_pos); // Address Filter
+    // *acsnoop = 7;
+
+
+    printf("ctrl      %d: %d\n", irq_count, *ctrl); 
+    printf("status    %d: %d\n", irq_count, *status); 
+    printf("delay     %d: %d\n", irq_count, *delay); 
+    printf("acsnoop   %d: %d\n", irq_count, *acsnoop); 
+    printf("base_addr %d: %d\n", irq_count, *base_addr); 
+    printf("mem_size  %d: %d\n", irq_count, *mem_size); 
+    // while(!*status);
+    for (int i = 0; i < 100000; i++);
+    *ctrl &= ~(1 << OSHEN_pos); // Disable One-shot Delay
+    // *ctrl &= ~(1 << CONEN_pos); // Disable One-shot Delay
+    *ctrl &= ~(1 << EN_pos); // Disable IP
+
+    irq_count++;
+
+    printf("END\n"); 
+
     // printf("sh: %d\n", delay);
     // delay = delay+100;
     //  while (1)
-    {
-        *ptr_sh =  (0b1 << 30) | (delay << 7) | ( 0b01 << 5 ) | 0b00000;;
-        printf("sh: %d\n", delay);
-        delay = delay+100;
-    }
+    // {
+    //     *ptr_sh =  (0b1 << 30) | (delay << 7) | ( 0b01 << 5 ) | 0b00000;;
+    //     printf("sh: %d\n", delay);
+    //     delay = delay+100;
+    // }
 }
 
 void shmem_init() {
@@ -105,14 +157,52 @@ void timer_handler(){
     timer_set(TIMER_INTERVAL);
 }
 
+void osh_cr_delay(){
+    *ctrl |= (8191 << DELAY_pos); // max delay 8191, só tenho 13 bits para o delay
+    *ctrl |= (TEST_DELAY_CR << TEST_pos);
+    *ctrl |= (FUNC_OSH << FUNC_pos); // One-shot Delay
+    *ctrl |= (1 << OSHEN_pos); // Enable One-shot Delay
+    *ctrl |= (1 << EN_pos); // Enable IP
+     printf("ctrl      %d: %d\n", irq_count, *ctrl); 
+    printf("status    %d: %d\n", irq_count, *status); 
+    printf("delay     %d: %d\n", irq_count, *delay); 
+    printf("acsnoop   %d: %d\n", irq_count, *acsnoop); 
+    printf("base_addr %d: %d\n", irq_count, *base_addr); 
+    printf("mem_size  %d: %d\n", irq_count, *mem_size); 
+    for (unsigned int i = 0; i < 1000000000; i++);
+    __asm volatile("nop");
+     printf("ctrl      %d: %d\n", irq_count, *ctrl); 
+    printf("status    %d: %d\n", irq_count, *status); 
+    printf("delay     %d: %d\n", irq_count, *delay); 
+    printf("acsnoop   %d: %d\n", irq_count, *acsnoop); 
+    printf("base_addr %d: %d\n", irq_count, *base_addr); 
+    printf("mem_size  %d: %d\n", irq_count, *mem_size); 
+    // *ctrl &= ~(1 << OSHEN_pos); // Disable One-shot Delay
+    // // *ctrl &= ~(1 << CONEN_pos); // Disable One-shot Delay
+    // *ctrl &= ~(1 << EN_pos); // Disable IP
+}
+
+
+void con_cr_delay(){
+    *ctrl |= (1 << DELAY_pos);
+    *ctrl |= (TEST_DELAY_CR << TEST_pos);
+    *ctrl |= (FUNC_CON << FUNC_pos); // One-shot Delay
+    *ctrl |= (1 << CONEN_pos); // Enable CON Delay
+    *ctrl |= (1 << EN_pos); // Enable IP
+    // for (size_t i = 0; i < 10000000; i++);        
+    // // while(!*status); // reg status not working
+    // *ctrl &= ~(1 << CONEN_pos); // Disable One-shot Delay
+    // *ctrl &= ~(1 << EN_pos); // Disable IP
+}
+
 void main(void){
 
     static volatile bool master_done = false;
-    // int *ptr = (int*)0x80001000;
+    int beat = 0;
     
     if(cpu_is_master()){
         spin_lock(&print_lock);
-        printf("Bao bare-metal test guest\n");
+        printf("Malicious Baremetal Guest\n");
         spin_unlock(&print_lock);
 
         irq_set_handler(TIMER_IRQ_ID, timer_handler);
@@ -124,12 +214,21 @@ void main(void){
         shmem_init();
 
         master_done = true;
-        printf("IPC\n");
-        sprintf(shmem_buff, "%d", irq_count);
+        // printf("IPC\n");
+        // sprintf(shmem_buff, "%d", irq_count);
         irq_count++;
+
+        osh_cr_delay();
     }
 
     while(!master_done);
 
-    while(1) wfi();    
+    while(1){
+        printf("cpu%d: Heart Beat %d \n", get_cpuid(), beat++);
+        asm volatile("dc ivac, %0" : : "r" (0x80010004));
+        printf("status    %d: %d\n", irq_count, *status); 
+        for (size_t i = 0; i < 100000000; i++);        
+    }
+
+    // while(1) wfi();    
 }

@@ -159,11 +159,7 @@
             DEVIL_IDLE: 
                 begin
                     r_reply <= 0;
-                    // if(acsnoop != `DVM_MESSAGE) && w_en && !r_end_op && handshake 
-                    // if (i_snoop_state == DEVIL_EN && !r_end_op && i_acvalid)
-                    //     fsm_devil_state <= DEVIL_FILTER;     
-                    // else 
-                    //     fsm_devil_state <= DEVIL_IDLE; 
+                    
                     if(i_trigger)
                         fsm_devil_state <= DEVIL_FILTER;     
                     else 
@@ -331,7 +327,7 @@
             DEVIL_DELAY: // 4
                 begin
                     // wait some cycles to respond
-                    if(r_counter == `NUM_OF_CYCLES*i_control_reg[31:18] )
+                    if(r_counter == ( i_control_reg[31:18] == 0 ? 0 :`NUM_OF_CYCLES << (i_control_reg[31:18]-1)) )
                     begin
                         r_counter <= 0;
                         case (w_test[3:0])

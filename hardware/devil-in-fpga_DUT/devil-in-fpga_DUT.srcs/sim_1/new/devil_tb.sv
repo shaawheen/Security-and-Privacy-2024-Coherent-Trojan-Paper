@@ -121,8 +121,8 @@ module devil_tb();
     mst_agent.start_master();
 
     // osh_cr_devil();  
-    // osh_cr_devil();  
-    con_cr_devil();
+    osh_cr_devil();  
+    // con_cr_devil();
     // dummy_cr_devil();
     // ac_filter_cr_devil();
     // addr_filter_cr_devil();
