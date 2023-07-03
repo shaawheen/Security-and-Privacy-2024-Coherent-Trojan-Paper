@@ -94,7 +94,8 @@
     assign o_counter = r_counter;
     assign o_reply = r_reply;
 
-    `define NUM_OF_CYCLES   150 // 1 us 
+    `define NUM_OF_CYCLES   1 // 7 ns  -> 1/150Mhz
+    // `define NUM_OF_CYCLES   150 // 1 us 
 
 // Devil-in-the-fpga Functions
     `define OSH    4'b0000 
