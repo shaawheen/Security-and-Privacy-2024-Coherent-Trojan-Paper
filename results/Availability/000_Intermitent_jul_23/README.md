@@ -16,7 +16,7 @@ This test was conducted to see preliminary results on the Attack Use Case agains
 In this first test, the Linux is controlling the devil-in-the-fpga IP. There is a shared memory between malicious VM and Linux, used to increase the delay every time the RT-bench is executed. 
 
 ## Setup
-- Commit: ==HASH==
+- Commit: [8d1c8f4b7bb0e0df9a4284935744720fb5164489](https://github.com/ESCristiano/devil-in-the-fpga/tree/8d1c8f4b7bb0e0df9a4284935744720fb5164489)
 - Attack Scenario: Attack Cross-VMs  (baremetal against linux over bao)
 - Base delay: `7ns`
 - Each delay increment produces a new delay the following way: `7ns * (1<<delay)`
