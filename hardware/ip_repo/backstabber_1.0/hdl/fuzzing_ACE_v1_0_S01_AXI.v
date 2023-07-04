@@ -79,7 +79,13 @@
 		// Read ready. This signal indicates that the master can
     		// accept the read data and response information.
 		input wire  S_AXI_RREADY, 
-		output wire [C_S_AXI_DATA_WIDTH-1 : 0] reg_0
+		output wire [C_S_AXI_DATA_WIDTH-1 : 0] o_control_reg,
+		input  wire [C_S_AXI_DATA_WIDTH-1 : 0] i_status_reg,
+		input  wire [C_S_AXI_DATA_WIDTH-1 : 0] o_status_reg,
+		output wire [C_S_AXI_DATA_WIDTH-1 : 0] o_delay_reg,
+		output wire [C_S_AXI_DATA_WIDTH-1 : 0] o_acsnoop_reg,
+		output wire [C_S_AXI_DATA_WIDTH-1 : 0] o_base_addr_reg,
+		output wire [C_S_AXI_DATA_WIDTH-1 : 0] o_addr_size_reg
 	);
 
 	// AXI4LITE signals
@@ -175,7 +181,12 @@
 	integer	 byte_index;
 	reg	 aw_en;
 
-	assign reg_0 = slv_reg0;
+	assign o_control_reg 	= slv_reg0;
+	assign o_status_reg 	= slv_reg1;
+	assign o_delay_reg 		= slv_reg2;
+	assign o_acsnoop_reg 	= slv_reg3;
+	assign o_base_addr_reg 	= slv_reg4;
+	assign o_addr_size_reg 	= slv_reg5;
 
 	// I/O Connections assignments
 
@@ -974,7 +985,7 @@
 	      // Address decoding for reading registers
 	      case ( axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
 	        6'h00   : reg_data_out <= slv_reg0;
-	        6'h01   : reg_data_out <= slv_reg0;
+	        6'h01   : reg_data_out <= i_status_reg;
 	        6'h02   : reg_data_out <= slv_reg2;
 	        6'h03   : reg_data_out <= slv_reg3;
 	        6'h04   : reg_data_out <= slv_reg4;

@@ -1,4 +1,3 @@
-
 ################################################################
 # This is a generated script based on design: design_1
 #
@@ -232,7 +231,7 @@ proc create_root_design { parentCell } {
    CONFIG.C_BRAM_CNT {0.0} \
    CONFIG.C_DATA_DEPTH {65536} \
    CONFIG.C_MON_TYPE {NATIVE} \
-   CONFIG.C_NUM_OF_PROBES {24} \
+   CONFIG.C_NUM_OF_PROBES {30} \
  ] $system_ila_0
 
   # Create instance: vio_0, and set properties
@@ -1019,7 +1018,7 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   connect_bd_intf_net -intf_net zynq_ultra_ps_e_0_M_AXI_HPM0_FPD [get_bd_intf_pins AXI_PerfectTranslator_0/S00_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_FPD]
   connect_bd_intf_net -intf_net zynq_ultra_ps_e_0_M_AXI_HPM0_LPD [get_bd_intf_pins smartconnect_0/S01_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_LPD]
 
-  # Create port connections
+    # Create port connections
   connect_bd_net -net backstabber_0_acready [get_bd_pins backstabber_0/acready] [get_bd_pins system_ila_0/probe2] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_acready]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_nets backstabber_0_acready]
   connect_bd_net -net backstabber_0_araddr [get_bd_pins backstabber_0/araddr] [get_bd_pins system_ila_0/probe5] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_araddr]
@@ -1060,7 +1059,11 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_nets backstabber_0_crresp]
   connect_bd_net -net backstabber_0_crvalid [get_bd_pins backstabber_0/crvalid] [get_bd_pins system_ila_0/probe17] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_crvalid]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_nets backstabber_0_crvalid]
-  connect_bd_net -net backstabber_0_debug_state [get_bd_pins backstabber_0/debug_state] [get_bd_pins system_ila_0/probe23]
+  connect_bd_net -net backstabber_0_debug_snoop_state [get_bd_pins backstabber_0/debug_snoop_state] [get_bd_pins system_ila_0/probe23]
+  connect_bd_net -net backstabber_0_debug_devil_state [get_bd_pins backstabber_0/debug_devil_state] [get_bd_pins system_ila_0/probe24]
+  connect_bd_net -net backstabber_0_debug_counter [get_bd_pins backstabber_0/debug_counter] [get_bd_pins system_ila_0/probe25]
+  connect_bd_net -net backstabber_0_debug_delay_reg [get_bd_pins backstabber_0/debug_delay_reg] [get_bd_pins system_ila_0/probe26]
+  connect_bd_net -net backstabber_0_debug_status [get_bd_pins backstabber_0/debug_status] [get_bd_pins system_ila_0/probe27]
   connect_bd_net -net backstabber_0_rack [get_bd_pins backstabber_0/rack] [get_bd_pins system_ila_0/probe14] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_rack]
   connect_bd_net -net backstabber_0_rready [get_bd_pins backstabber_0/rready] [get_bd_pins system_ila_0/probe11] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_rready]
   connect_bd_net -net backstabber_0_wack [get_bd_pins backstabber_0/wack] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_wack]
@@ -1160,7 +1163,6 @@ preplace netloc backstabber_0_cdlast 1 2 3 N 1490 2280 2360 3030
 preplace netloc backstabber_0_cdvalid 1 2 3 N 1510 2250 2370 3000
 preplace netloc backstabber_0_crresp 1 2 3 N 1430 2320 2340 3010
 preplace netloc backstabber_0_crvalid 1 2 3 N 1450 2380 2300 3020
-preplace netloc backstabber_0_debug_state 1 2 2 1330 2320 2440
 preplace netloc backstabber_0_rack 1 2 3 N 2150 2470 2320 2980
 preplace netloc backstabber_0_rready 1 2 3 N 2170 2210 2350 N
 preplace netloc backstabber_0_wack 1 2 3 N 2190 2220 2380 2960
@@ -1220,16 +1222,6 @@ puts "MAIN FLOW---------------------------------------------------"
 create_root_design ""
 
 ##################################################################
-# Remove Extra Probe Line
-##################################################################
-puts "Remove Extra Probe Line-------------------------------------"
-
-startgroup
-set_property -dict [list CONFIG.C_NUM_OF_PROBES {24}] [get_bd_cells system_ila_0]
-delete_bd_objs [get_bd_nets backstabber_0_debug_reply_state]
-endgroup
-
-##################################################################
 # Wrap Design 
 ##################################################################
 make_wrapper -files [get_files $script_folder/backstabbing_devil/project_1.srcs/sources_1/bd/design_1/design_1.bd] -top
@@ -1265,6 +1257,13 @@ reset_run design_1_vio_0_0_synth_1
 reset_run design_1_zynq_ultra_ps_e_0_0_synth_1
 launch_runs impl_1 -to_step write_bitstream -jobs 8
 
+##################################################################
+# Configure Library Propriety for the Simulation Files
+##################################################################
+# To Configure Library Propriety for the Simulation Files"
+# Open backstabber IP and issue the following cmds:"
+# set_property library xil_defaultlib [get_files $script_folder/ip_repo/backstabber_1.0/src/devil_tb.sv]"
+# set_property library xil_defaultlib [get_files $script_folder/ip_repo/backstabber_1.0/hdl/devil_in_fpga.v]"
 
 get_property PROGRESS [get_runs impl_1]
 
