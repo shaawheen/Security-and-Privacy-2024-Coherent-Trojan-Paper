@@ -1,0 +1,773 @@
+[    0.000000] Booting Linux on physical CPU 0x0000000000 [0x410fd034]
+[    0.000000] Linux version 6.1.0 (diogo@diogo) (aarch64-buildroot-linux-gnu-gcc.br_real (Buildroot 2022.11) 11.3.0,3
+[    0.000000] efi: UEFI not found.
+[    0.000000] [Firmware Bug]: Kernel image misaligned at boot, please fix your bootloader!
+[    0.000000] earlycon: cdns0 at MMIO 0x00000000ff010000 (options '115200n8')
+[    0.000000] printk: bootconsole [cdns0] enabled
+[    0.000000] NUMA: No NUMA configuration found
+[    0.000000] NUMA: Faking a node at [mem 0x0000000000000000-0x000000003fffffff]
+[    0.000000] NUMA: NODE_DATA [mem 0x3fdf6a00-0x3fdf8fff]
+[    0.000000] Zone ranges:
+[    0.000000]   DMA      [mem 0x0000000000000000-0x000000003fffffff]
+[    0.000000]   DMA32    empty
+[    0.000000]   Normal   empty
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000000000000-0x000000003fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x000000003fffffff]
+[    0.000000] cma: Reserved 32 MiB at 0x000000003cc00000
+[    0.000000] psci: probing for conduit method from DT.
+[    0.000000] psci: PSCIv0.2 detected in firmware.
+[    0.000000] psci: Using standard PSCI v0.2 function IDs
+[    0.000000] psci: Trusted OS migration not required
+[    0.000000] percpu: Embedded 20 pages/cpu s44840 r8192 d28888 u81920
+[    0.000000] Detected VIPT I-cache on CPU0
+[    0.000000] CPU features: kernel page table isolation forced ON by KASLR
+[    0.000000] CPU features: detected: Kernel page table isolation (KPTI)
+[    0.000000] CPU features: detected: ARM erratum 845719
+[    0.000000] alternatives: applying boot alternatives
+[    0.000000] Fallback order for Node 0: 0 
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 258048
+[    0.000000] Policy zone: DMA
+[    0.000000] Kernel command line: earlycon console=ttyPS0,115200n8 clk_ignore_unused ip=192.168.42.15 carrier_timeo0
+[    0.000000] Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 65536 (order: 7, 524288 bytes, linear)
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] Memory: 945992K/1048576K available (16256K kernel code, 3706K rwdata, 8852K rodata, 20096K init, 609K )
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] rcu: Preemptible hierarchical RCU implementation.
+[    0.000000] rcu:     RCU event tracing is enabled.
+[    0.000000] rcu:     RCU restricting CPUs from NR_CPUS=256 to nr_cpu_ids=1.
+[    0.000000]  Trampoline variant of Tasks RCU enabled.
+[    0.000000]  Tracing variant of Tasks RCU enabled.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=1
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] Root IRQ handler: gic_handle_irq
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] arch_timer: cp15 timer(s) running at 99.99MHz (virt).
+[    0.000000] clocksource: arch_sys_counter: mask: 0x1ffffffffffffff max_cycles: 0x170f8de2d3, max_idle_ns: 44079520s
+[    0.000000] sched_clock: 57 bits at 100MHz, resolution 10ns, wraps every 4398046511101ns
+[    0.008258] Console: colour dummy device 80x25
+[    0.012547] Calibrating delay loop (skipped), value calculated using timer frequency.. 199.98 BogoMIPS (lpj=399960)
+[    0.022897] pid_max: default: 32768 minimum: 301
+[    0.027540] LSM: Security Framework initializing
+[    0.032163] Mount-cache hash table entries: 2048 (order: 2, 16384 bytes, linear)
+[    0.039463] Mountpoint-cache hash table entries: 2048 (order: 2, 16384 bytes, linear)
+[    0.048042] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[    0.053830] cblist_init_generic: Setting adjustable number of callback queues.
+[    0.060536] cblist_init_generic: Setting shift to 0 and lim to 1.
+[    0.066652] cblist_init_generic: Setting shift to 0 and lim to 1.
+[    0.072819] rcu: Hierarchical SRCU implementation.
+[    0.077441] rcu:     Max phase no-delay instances is 1000.
+[    0.082971] EFI services will not be available.
+[    0.087234] smp: Bringing up secondary CPUs ...
+[    0.091667] smp: Brought up 1 node, 1 CPU
+[    0.095637] SMP: Total of 1 processors activated.
+[    0.100327] CPU features: detected: 32-bit EL0 Support
+[    0.105440] CPU features: detected: 32-bit EL1 Support
+[    0.110559] CPU features: detected: CRC32 instructions
+[    0.115723] CPU: All CPU(s) started at EL1
+[    0.119761] alternatives: applying system-wide alternatives
+[    0.126694] devtmpfs: initialized
+[    0.130078] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    0.138320] futex hash table entries: 256 (order: 2, 16384 bytes, linear)
+[    0.145800] pinctrl core: initialized pinctrl subsystem
+[    0.151173] DMI not present or invalid.
+[    0.154643] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.160776] DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
+[    0.167114] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+[    0.174835] DMA: preallocated 128 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+[    0.182644] audit: initializing netlink subsys (disabled)
+[    0.188663] thermal_sys: Registered thermal governor 'step_wise'
+[    0.188669] thermal_sys: Registered thermal governor 'power_allocator'
+[    0.193979] audit: type=2000 audit(0.124:1): state=initialized audit_enabled=0 res=1
+[    0.208238] cpuidle: using governor menu
+[    0.212231] hw-breakpoint: found 6 breakpoint and 4 watchpoint registers.
+[    0.218883] ASID allocator initialised with 32768 entries
+[    0.225351] Serial: AMBA PL011 UART driver
+[    0.229717] ff010000.serial: ttyPS0 at MMIO 0xff010000 (irq = 14, base_baud = 6250000) is a xuartps
+[    0.242960] printk: console [ttyPS0] enabled
+[    0.242960] printk: console [ttyPS0] enabled
+[    0.247261] printk: bootconsole [cdns0] disabled
+[    0.247261] printk: bootconsole [cdns0] disabled
+[    0.257093] KASLR enabled
+[    0.271279] HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+[    0.278087] HugeTLB: 16380 KiB vmemmap can be freed for a 1.00 GiB page
+[    0.284753] HugeTLB: registered 32.0 MiB page size, pre-allocated 0 pages
+[    0.291535] HugeTLB: 508 KiB vmemmap can be freed for a 32.0 MiB page
+[    0.297966] HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+[    0.304744] HugeTLB: 28 KiB vmemmap can be freed for a 2.00 MiB page
+[    0.311091] HugeTLB: registered 64.0 KiB page size, pre-allocated 0 pages
+[    0.317870] HugeTLB: 0 KiB vmemmap can be freed for a 64.0 KiB page
+[    0.325224] ACPI: Interpreter disabled.
+[    0.329833] iommu: Default domain type: Translated 
+[    0.334712] iommu: DMA domain TLB invalidation policy: strict mode 
+[    0.341174] SCSI subsystem initialized
+[    0.345182] usbcore: registered new interface driver usbfs
+[    0.350701] usbcore: registered new interface driver hub
+[    0.356025] usbcore: registered new device driver usb
+[    0.361361] pps_core: LinuxPPS API ver. 1 registered
+[    0.366320] pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+[    0.375452] PTP clock support registered
+[    0.379422] EDAC MC: Ver: 3.0.0
+[    0.383209] FPGA manager framework
+[    0.386681] Advanced Linux Sound Architecture Driver Initialized.
+[    0.393384] vgaarb: loaded
+[    0.396307] clocksource: Switched to clocksource arch_sys_counter
+[    0.402575] VFS: Disk quotas dquot_6.6.0
+[    0.406524] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+[    0.413521] pnp: PnP ACPI: disabled
+[    0.422098] NET: Registered PF_INET protocol family
+[    0.427171] IP idents hash table entries: 16384 (order: 5, 131072 bytes, linear)
+[    0.435512] tcp_listen_portaddr_hash hash table entries: 512 (order: 1, 8192 bytes, linear)
+[    0.443901] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.451653] TCP established hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.459449] TCP bind hash table entries: 8192 (order: 6, 262144 bytes, linear)
+[    0.466875] TCP: Hash tables configured (established 8192 bind 8192)
+[    0.473309] UDP hash table entries: 512 (order: 2, 16384 bytes, linear)
+[    0.479942] UDP-Lite hash table entries: 512 (order: 2, 16384 bytes, linear)
+[    0.487070] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.492960] RPC: Registered named UNIX socket transport module.
+[    0.498896] RPC: Registered udp transport module.
+[    0.503591] RPC: Registered tcp transport module.
+[    0.508286] RPC: Registered tcp NFSv4.1 backchannel transport module.
+[    0.514722] PCI: CLS 0 bytes, default 64
+[    0.524548] kvm [1]: HYP mode not available
+[    0.532969] Initialise system trusted keyrings
+[    0.544493] workingset: timestamp_bits=42 max_order=18 bucket_order=0
+[    0.566031] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+[    0.580927] NFS: Registering the id_resolver key type
+[    0.592352] Key type id_resolver registered
+[    0.600314] Key type id_legacy registered
+[    0.608456] nfs4filelayout_init: NFSv4 File Layout Driver Registering...
+[    0.620340] nfs4flexfilelayout_init: NFSv4 Flexfile Layout Driver Registering...
+[    0.636540] 9p: Installing v9fs 9p2000 file system support
+[    0.715198] Key type asymmetric registered
+[    0.724350] Asymmetric key parser 'x509' registered
+[    0.736433] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 244)
+[    0.748345] io scheduler mq-deadline registered
+[    0.760381] io scheduler kyber registered
+[    0.777503] EINJ: ACPI disabled.
+[    0.803693] Serial: 8250/16550 driver, 4 ports, IRQ sharing enabled
+[    0.818272] SuperH (H)SCI(F) driver initialized
+[    0.828610] msm_serial: driver initialized
+[    0.837108] cacheinfo: Unable to detect cache hierarchy for CPU 0
+[    0.852024] loop: module loaded
+[    0.861030] megasas: 07.719.03.00-rc1
+[    0.872147] tun: Universal TUN/TAP device driver, 1.6
+[    1.351082] macb ff0e0000.ethernet eth0: Cadence GEM rev 0x50070106 at 0xff0e0000 irq 15 (9a:97:4c:0c:c0:15)
+[    1.361227] thunder_xcv, ver 1.0
+[    1.364507] thunder_bgx, ver 1.0
+[    1.367746] nicpf, ver 1.0
+[    1.371141] hns3: Hisilicon Ethernet Network Driver for Hip08 Family - version
+[    1.378384] hns3: Copyright (c) 2017 Huawei Corporation.
+[    1.383745] hclge is initializing
+[    1.387069] e1000: Intel(R) PRO/1000 Network Driver
+[    1.391938] e1000: Copyright (c) 1999-2006 Intel Corporation.
+[    1.397707] e1000e: Intel(R) PRO/1000 Network Driver
+[    1.402668] e1000e: Copyright(c) 1999 - 2015 Intel Corporation.
+[    1.408614] igb: Intel(R) Gigabit Ethernet Network Driver
+[    1.414005] igb: Copyright (c) 2007-2014 Intel Corporation.
+[    1.419593] igbvf: Intel(R) Gigabit Virtual Function Network Driver
+[    1.425854] igbvf: Copyright (c) 2009 - 2012 Intel Corporation.
+[    1.431925] sky2: driver version 1.30
+[    1.436139] VFIO - User Level meta-driver version: 0.3
+[    1.442861] usbcore: registered new interface driver usb-storage
+[    1.450279] i2c_dev: i2c /dev entries driver
+[    1.458039] sdhci: Secure Digital Host Controller Interface driver
+[    1.464217] sdhci: Copyright(c) Pierre Ossman
+[    1.468888] Synopsys Designware Multimedia Card Interface Driver
+[    1.475349] sdhci-pltfm: SDHCI platform and OF driver helper
+[    1.481832] ledtrig-cpu: registered to indicate activity on CPUs
+[    1.489200] usbcore: registered new interface driver usbhid
+[    1.494774] usbhid: USB HID core driver
+[    1.502095] NET: Registered PF_PACKET protocol family
+[    1.507276] 9pnet: Installing 9P2000 support
+[    1.511598] Key type dns_resolver registered
+[    1.516132] registered taskstats version 1
+[    1.520241] Loading compiled-in X.509 certificates
+[    1.531396] macb ff0e0000.ethernet eth0: PHY [ff0e0000.ethernet-ffffffff:0c] driver [TI DP83867] (irq=POLL)
+[    1.541169] macb ff0e0000.ethernet eth0: configuring for phy/rgmii-id link mode
+[    1.549371] pps pps0: new PPS source ptp0
+[    1.553484] macb ff0e0000.ethernet: gem-ptp-timer ptp clock registered.
+[    1.576323] IP-Config: Guessing netmask 255.255.255.0
+[    1.581372] IP-Config: Complete:
+[    1.584592]      device=eth0, hwaddr=9a:97:4c:0c:c0:15, ipaddr=192.168.42.15, mask=255.255.255.0, gw=255.255.255.25
+[    1.595113]      host=192.168.42.15, domain=, nis-domain=(none)
+[    1.601024]      bootserver=255.255.255.255, rootserver=255.255.255.255, rootpath=
+[    1.601133] clk: Not disabling unused clocks
+[    1.612974] ALSA device list:
+[    1.615934]   No soundcards found.
+[    1.628421] Freeing unused kernel memory: 20096K
+[    1.633147] Run /init as init process
+Starting syslogd: OK
+Starting klogd: OK
+Running sysctl: OK
+Starting network: ip: RTNETLINK answers: File exists
+FAIL
+Starting dropbear sshd: [    1.774943] NET: Registered PF_INET6 protocol family
+[    1.780936] Segment Routing with IPv6
+[    1.784653] In-situ OAM (IOAM) with IPv6
+OK
+
+Welcome to Buildroot
+buildroot login: [    4.620681] macb ff0e0000.ethernet eth0: unable to generate target frequency: 25000000 Hz
+[    4.630636] macb ff0e0000.ethernet eth0: Link is Up - 100Mbps/Full - flow control off
+[    4.638494] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+[    6.584315] random: crng init done
+root
+Password: 
+Login incorrect
+buildroot login: root
+Password: 
+# ls
+3_run.sh  latency
+# ./3_run.sh 
+opt:109
+opt:115
+opt:105
+Failed to read the number from the file
+delay: 1
+time: 605376
+opt:109
+opt:115
+opt:105
+delay: 1
+time: 608318
+opt:109
+opt:115
+opt:105
+delay: 2
+time: 665107
+opt:109
+opt:115
+opt:105
+delay: 3
+time: 784817
+opt:109
+opt:115
+opt:105
+delay: 4
+time: 1039389
+opt:109
+opt:115
+opt:105
+delay: 5
+time: 1477158
+opt:109
+opt:115
+opt:105
+delay: 6
+time: 2403678
+opt:109
+opt:115
+opt:105
+delay: 7
+time: 4394634
+opt:109
+opt:115
+opt:105
+delay: 8
+time: 7937443
+opt:109
+opt:115
+opt:105
+delay: 9
+time: 15473925
+opt:109
+opt:115
+opt:105
+delay: 10
+time: 30745247
+opt:109
+opt:115
+opt:105
+delay: 11
+time: 62338371
+opt:109
+opt:115
+opt:105
+delay: 12
+time: 122415826
+opt:109
+opt:115
+opt:105
+delay: 13
+time: 253791062
+opt:109
+opt:115
+opt:105
+delay: 14
+time: 500232783
+opt:109
+opt:115
+opt:105
+delay: 15
+time: 1007083789
+opt:109
+opt:115
+opt:105
+delay: 16
+time: 1993930184
+opt:109
+opt:115
+opt:105
+delay: 17
+[   75.907515] hrtimer: interrupt took 15742133 ns
+time: 4386646405
+opt:109
+opt:115
+opt:105
+delay: 18
+time: 8697269639
+opt:109
+opt:115
+opt:105
+delay: 19
+time: 16792490053
+opt:109
+opt:115
+opt:105
+delay: 20
+time: 35196524483
+opt:109
+opt:115
+opt:105
+delay: 21
+time: 71750925329
+opt:109
+opt:115
+opt:105
+delay: 22
+time: 145868894786
+opt:109
+opt:115
+opt:105
+delay: 23
+[ 3016.397043] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[ 3027.644754]  (detected by 0, t=5276 jiffies, g=441, q=0 ncpus=1)
+[ 3028.825272] rcu: All QSes seen, last rcu_preempt kthread activity 1280 (4295645930-4295644650), jiffies_till_next_0
+[ 3030.012216] rcu: rcu_preempt kthread starved for 1280 jiffies! g441 f0x2 RCU_GP_CLEANUP(7) ->state=0x0 ->cpu=0
+[ 3030.483626] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[ 3030.702476] rcu: RCU grace-period kthread stack dump:
+[ 3031.168937] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x00000008
+[ 3032.898682] Call trace:
+[ 3033.362533]  __switch_to+0xe4/0x160
+[ 3038.483585]  __schedule+0x288/0x710
+[ 3038.780693]  preempt_schedule+0x4c/0x70
+[ 3038.910358]  _raw_spin_unlock_irq+0x34/0x50
+[ 3040.382687]  rcu_gp_cleanup+0x10c/0x430
+[ 3042.777511]  rcu_gp_kthread+0x130/0x170
+[ 3042.949123]  kthread+0x10c/0x110
+[ 3044.210757]  ret_from_fork+0x10/0x20
+[ 3045.766374] rcu: Stack dump where RCU GP kthread last ran:
+[ 3047.072210] CPU: 0 PID: 170 Comm: kworker/u2:2 Not tainted 6.1.0 #2
+[ 3049.972830] Workqueue:  0x0 (events_power_efficient)
+[ 3051.697626] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[ 3052.165995] pc : _raw_spin_unlock_irq+0x10/0x50
+[ 3052.673882] lr : pool_mayday_timeout+0x78/0x130
+[ 3054.104612] sp : ffff800008003e20
+[ 3054.275702] x29: ffff800008003e20 x28: 0000000000000000 x27: ffff800008128010
+[ 3054.450624] x26: ffff80000acd79c0 x25: ffff00003fdd0028 x24: ffff800008003ef0
+[ 3054.541649] x23: ffff00000340a000 x22: ffff80000b07ce78 x21: ffff00000340a028
+[ 3054.716569] x20: ffff00000340a078 x19: ffff00000340a020 x18: 0000000000000000
+[ 3054.849542] x17: ffff8000356d3000 x16: ffff800008004000 x15: 0000000000004000
+[ 3055.024464] x14: 0419bc53d81b5705 x13: 0000000000000001 x12: 0000000000000050
+[ 3055.157435] x11: ffff8000356d3000 x10: 0000000000000001 x9 : ffff00003fdd0070
+[ 3055.248463] x8 : 0000000000000001 x7 : ffff800008003ef8 x6 : 000000000000000b
+[ 3055.465328] x5 : 0000000000000000 x4 : 0000000000000000 x3 : ffff00000340c188
+[ 3055.556356] x2 : ffff000003409a00 x1 : 0000000000000000 x0 : 00000000000000e0
+[ 3055.689322] Call trace:
+[ 3055.901491]  _raw_spin_unlock_irq+0x10/0x50
+[ 3055.989557]  call_timer_fn.constprop.0+0x24/0x80
+[ 3058.385157]  __run_timers.part.0+0x1f0/0x240
+[ 3058.557210]  run_timer_softirq+0x3c/0x80
+[ 3058.854756]  __do_softirq+0x12c/0x2ac
+[ 3059.110086]  ____do_softirq+0x10/0x20
+[ 3059.281524]  call_on_irq_stack+0x2c/0x5c
+[ 3059.327385]  do_softirq_own_stack+0x1c/0x30
+[ 3059.499345]  __irq_exit_rcu+0xcc/0x100
+[ 3061.936021]  irq_exit_rcu+0x10/0x20
+[ 3062.065341]  el1_interrupt+0x38/0x70
+[ 3062.320592]  el1h_64_irq_handler+0x18/0x30
+[ 3062.408573]  el1h_64_irq+0x64/0x68
+[ 3062.537805]  _raw_spin_unlock_irqrestore+0xc/0x50
+[ 3062.710285]  mod_timer+0x14/0x20
+[ 3062.881289]  worker_thread+0x348/0x450
+[ 3063.052814]  kthread+0x10c/0x110
+[ 3063.349657]  ret_from_fork+0x10/0x20
+[ 3077.699788] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[ 3077.957552]  (detected by 0, t=21031 jiffies, g=441, q=0 ncpus=1)
+[ 3078.089475] rcu: All QSes seen, last rcu_preempt kthread activity 17035 (4295661685-4295644650), jiffies_till_next0
+[ 3078.395614] rcu: rcu_preempt kthread starved for 17035 jiffies! g441 f0x2 RCU_GP_CLEANUP(7) ->state=0x0 ->cpu=0
+[ 3078.489584] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[ 3078.624546] rcu: RCU grace-period kthread stack dump:
+[ 3078.797373] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x00000008
+[ 3078.975072] Call trace:
+[ 3079.103349]  __switch_to+0xe4/0x160
+[ 3079.274613]  __schedule+0x288/0x710
+[ 3079.320040]  preempt_schedule+0x4c/0x70
+[ 3079.491652]  _raw_spin_unlock_irq+0x34/0x50
+[ 3079.579719]  rcu_gp_cleanup+0x10c/0x430
+[ 3079.625493]  rcu_gp_kthread+0x130/0x170
+[ 3079.797105]  kthread+0x10c/0x110
+[ 3079.842272]  ret_from_fork+0x10/0x20
+[ 3080.055574] rcu: Stack dump where RCU GP kthread last ran:
+[ 3080.228833] CPU: 0 PID: 112 Comm: klogd Not tainted 6.1.0 #2
+[ 3080.360320] pstate: 40000000 (nZcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[ 3080.535057] pc : 0000ffff8f8f48f0
+[ 3080.622257] lr : 0000ffff8f8b583c
+[ 3080.667501] sp : 0000ffffd86cd260
+[ 3080.838592] x29: 0000ffffd86cd270 x28: 0000000000000000 x27: 0000aaaadd866490
+[ 3080.929620] x26: 0000aaaadd866490 x25: 0000aaaadd8668cc x24: 0000aaaadd866490
+[ 3081.062586] x23: 0000aaaadd865000 x22: 0000ffff8f7f0760 x21: 0000000000000003
+[ 3081.195558] x20: 0000ffff8f94b000 x19: 0000ffff8f94b7a0 x18: 0000000000000001
+[ 3081.328532] x17: 0000ffff8f8b5d00 x16: 0000000000000000 x15: 0000ffff8f94aa78
+[ 3081.503451] x14: 0000000000000001 x13: 736e203333313234 x12: 373531206b6f6f74
+[ 3081.594470] x11: ffffffffffffffff x10: 000000000000000a x9 : 1999999999999999
+[ 3081.685498] x8 : 0000000000000000 x7 : 0000ffff8f8fa65c x6 : 0000000000000000
+[ 3081.902363] x5 : 000000000000000a x4 : 000000000000000e x3 : 0000000000000000
+[ 3081.993382] x2 : 0000ffff8f94b7a0 x1 : 0000000000000001 x0 : 0000000000000000
+time: 321181726486
+opt:109
+opt:115
+opt:105
+delay: 24
+[ 9176.389415] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[ 9197.620654]  (detected by 0, t=5285 jiffies, g=721, q=0 ncpus=1)
+[ 9199.891798] rcu: All QSes seen, last rcu_preempt kthread activity 776 (4297185812-4297185036), jiffies_till_next_f0
+[ 9202.253173] rcu: rcu_preempt kthread starved for 776 jiffies! g721 f0x2 RCU_GP_CLEANUP(7) ->state=0x0 ->cpu=0
+[ 9202.934226] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[ 9203.362813] rcu: RCU grace-period kthread stack dump:
+[ 9204.458481] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x00000008
+[ 9207.488590] Call trace:
+[ 9208.581650]  __switch_to+0xe4/0x160
+[ 9217.897425]  __schedule+0x288/0x710
+[ 9218.404267]  preempt_schedule+0x4c/0x70
+[ 9218.911455]  _raw_spin_unlock_irq+0x34/0x50
+[ 9221.768049]  rcu_gp_cleanup+0x10c/0x430
+[ 9226.386080]  rcu_gp_kthread+0x130/0x170
+[ 9227.061060]  kthread+0x10c/0x110
+[ 9229.245531]  ret_from_fork+0x10/0x20
+[ 9232.353194] rcu: Stack dump where RCU GP kthread last ran:
+[ 9235.127183] CPU: 0 PID: 179 Comm: kworker/u2:1 Not tainted 6.1.0 #2
+[ 9236.895223] Workqueue: events_power_efficient phy_state_machine
+[ 9244.451640] pstate: 40000005 (nZcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[ 9245.129744] pc : _raw_spin_unlock_irqrestore+0x14/0x50
+[ 9246.225499] lr : hrtimer_start_range_ns+0x16c/0x360
+[ 9252.522455] sp : ffff80000b243b70
+[ 9252.693544] x29: ffff80000b243b70 x28: ffff00003fdd2540 x27: 0000000000000040
+[ 9253.204039] x26: 0000000000000000 x25: ffff80000ad67080 x24: 0000000000000000
+[ 9253.462851] x23: ffff00003fdd2500 x22: ffff00003fdd2500 x21: 0000000000000001
+[ 9253.637770] x20: ffff00003fdd2540 x19: ffff80000b243c00 x18: 0000000000000000
+[ 9254.064374] x17: ffff8000356d3000 x16: ffff800008004000 x15: 0000000000000000
+[ 9254.239294] x14: 00000000000003c2 x13: 0000000000000001 x12: 0000000000000000
+[ 9254.414213] x11: 0000000000000000 x10: 0000000000000a40 x9 : ffff000006d19384
+[ 9254.756917] x8 : ffff80000b243c40 x7 : ffff8000356d3000 x6 : 000000d630402340
+[ 9255.015728] x5 : 01ffffffffffffff x4 : 0000000000ccc790 x3 : ffff80000b243b00
+[ 9255.274542] x2 : 0000000000000000 x1 : ffff0000035d8ec0 x0 : 0000000100000001
+[ 9255.533351] Call trace:
+[ 9255.619682]  _raw_spin_unlock_irqrestore+0x14/0x50
+[ 9256.295618]  schedule_hrtimeout_range_clock+0x98/0x150
+[ 9256.720216]  schedule_hrtimeout_range+0x14/0x20
+[ 9256.892532]  usleep_range_state+0x64/0xa0
+[ 9257.148209]  macb_mdio_wait_for_idle+0x54/0xa0
+[ 9259.585580]  macb_mdio_read+0x78/0x180
+[ 9260.176576]  mdiobus_read+0x40/0x80
+[ 9263.535834]  dp83867_read_status+0x24/0xa0
+[ 9265.385597]  phy_check_link_status+0x48/0xc0
+[ 9265.725436]  phy_state_machine+0x184/0x270
+[ 9265.813416]  process_one_work+0x1cc/0x320
+[ 9268.418145]  worker_thread+0x14c/0x450
+[ 9268.757463]  kthread+0x10c/0x110
+[ 9269.264044]  ret_from_fork+0x10/0x20
+[ 9274.552971] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[ 9274.978521]  (detected by 0, t=30309 jiffies, g=721, q=0 ncpus=1)
+[ 9275.152389] rcu: All QSes seen, last rcu_preempt kthread activity 25800 (4297210836-4297185036), jiffies_till_next0
+[ 9275.584367] rcu: rcu_preempt kthread starved for 25800 jiffies! g721 f0x2 RCU_GP_CLEANUP(7) ->state=0x0 ->cpu=0
+[ 9275.846120] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[ 9276.106920] rcu: RCU grace-period kthread stack dump:
+[ 9276.447531] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x00000008
+[ 9276.709120] Call trace:
+[ 9276.963238]  __switch_to+0xe4/0x160
+[ 9277.134509]  __schedule+0x288/0x710
+[ 9277.305774]  preempt_schedule+0x4c/0x70
+[ 9277.645178]  _raw_spin_unlock_irq+0x34/0x50
+[ 9277.733246]  rcu_gp_cleanup+0x10c/0x430
+[ 9277.904858]  rcu_gp_kthread+0x130/0x170
+[ 9278.244262]  kthread+0x10c/0x110
+[ 9278.415267]  ret_from_fork+0x10/0x20
+[ 9278.754408] rcu: Stack dump where RCU GP kthread last ran:
+[ 9279.011565] CPU: 0 PID: 179 Comm: kworker/u2:1 Not tainted 6.1.0 #2
+[ 9279.269502] Workqueue: events_power_efficient phy_state_machine
+[ 9279.694888] pstate: 40000005 (nZcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[ 9279.869624] pc : _raw_spin_unlock_irqrestore+0x14/0x50
+[ 9280.042548] lr : hrtimer_start_range_ns+0x16c/0x360
+[ 9280.382994] sp : ffff80000b243b70
+[ 9280.470193] x29: ffff80000b243b70 x28: ffff00003fdd2540 x27: 0000000000000040
+[ 9280.812899] x26: 0000000000000000 x25: ffff80000ad67080 x24: 0000000000000000
+[ 9281.071708] x23: ffff00003fdd2500 x22: ffff00003fdd2500 x21: 0000000000000001
+[ 9281.246627] x20: ffff00003fdd2540 x19: ffff80000b243c00 x18: 0000000000000000
+[ 9281.589330] x17: ffff8000356d3000 x16: ffff800008004000 x15: 0000000000000000
+[ 9281.848142] x14: 00000000000003c2 x13: 0000000000000001 x12: 0000000000000000
+[ 9282.023061] x11: 0000000000000000 x10: 0000000000000a40 x9 : ffff000006d19384
+[ 9282.365765] x8 : ffff80000b243c40 x7 : ffff8000356d3000 x6 : 000000d630402340
+[ 9282.540684] x5 : 01ffffffffffffff x4 : 0000000000ccc790 x3 : ffff80000b243b00
+[ 9282.883390] x2 : 0000000000000000 x1 : ffff0000035d8ec0 x0 : 0000000100000001
+[ 9283.226093] Call trace:
+[ 9283.312422]  _raw_spin_unlock_irqrestore+0x14/0x50
+[ 9283.904466]  schedule_hrtimeout_range_clock+0x98/0x150
+[ 9284.077389]  schedule_hrtimeout_range+0x14/0x20
+[ 9284.249704]  usleep_range_state+0x64/0xa0
+[ 9284.505381]  macb_mdio_wait_for_idle+0x54/0xa0
+[ 9284.677601]  macb_mdio_read+0x78/0x180
+[ 9284.933021]  mdiobus_read+0x40/0x80
+[ 9285.104292]  dp83867_read_status+0x24/0xa0
+[ 9285.360056]  phy_check_link_status+0x48/0xc0
+[ 9285.699895]  phy_state_machine+0x184/0x270
+[ 9285.787876]  process_one_work+0x1cc/0x320
+[ 9285.959661]  worker_thread+0x14c/0x450
+[ 9286.215078]  kthread+0x10c/0x110
+[ 9286.553867]  ret_from_fork+0x10/0x20
+[ 9337.398918] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[ 9338.160049]  (detected by 0, t=46083 jiffies, g=721, q=0 ncpus=1)
+[ 9338.333922] rcu: All QSes seen, last rcu_preempt kthread activity 41574 (4297226610-4297185036), jiffies_till_next0
+[ 9338.849794] rcu: rcu_preempt kthread starved for 41574 jiffies! g721 f0x2 RCU_GP_CLEANUP(7) ->state=0x0 ->cpu=0
+[ 9339.111554] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[ 9339.288461] rcu: RCU grace-period kthread stack dump:
+[ 9339.629073] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x00000008
+[ 9340.058446] Call trace:
+[ 9340.228672]  __switch_to+0xe4/0x160
+[ 9340.735513]  __schedule+0x288/0x710
+[ 9340.906784]  preempt_schedule+0x4c/0x70
+[ 9341.162287]  _raw_spin_unlock_irq+0x34/0x50
+[ 9341.334247]  rcu_gp_cleanup+0x10c/0x430
+[ 9341.589751]  rcu_gp_kthread+0x130/0x170
+[ 9341.845255]  kthread+0x10c/0x110
+[ 9342.016259]  ret_from_fork+0x10/0x20
+[ 9342.355403] rcu: Stack dump where RCU GP kthread last ran:
+[ 9342.696451] CPU: 0 PID: 112 Comm: klogd Not tainted 6.1.0 #2
+[ 9343.037679] pstate: 60000000 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[ 9343.464097] pc : 0000ffff8f8757d0
+[ 9343.551297] lr : 0000ffff8f842988
+[ 9343.722388] sp : 0000ffffd86ccb20
+[ 9343.977371] x29: 0000ffffd86ccb50 x28: 0000ffffd86cd130 x27: 0000ffffd86cd358
+[ 9344.152291] x26: 0000000000000000 x25: 0000ffffd86cd8b0 x24: 0000000000000000
+[ 9344.494997] x23: 0000aaaadd855cf4 x22: 00000000fbad8001 x21: 0000ffff8f7f0760
+[ 9344.753805] x20: 0000000000000000 x19: 00000000ffffffd8 x18: 0000000000000001
+[ 9344.928725] x17: 0000000000000000 x16: 0000000000000000 x15: 0000ffff8f94aa78
+[ 9345.271428] x14: 0000000000000001 x13: 0000000000002463 x12: 0000000000000000
+[ 9345.530239] x11: 0000ffff8f843f68 x10: 0000000000000001 x9 : 0000ffff8f90b7a0
+[ 9345.705159] x8 : 0000000000000035 x7 : 00000000ffffffff x6 : 000000000000000a
+[ 9346.047862] x5 : 00000000ffffffff x4 : 0000000000000000 x3 : 0000000000000000
+[ 9346.222782] x2 : 0000aaaadd855cf0 x1 : 0000000000000025 x0 : 0000aaaadd855cf4
+[ 9400.427258] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[ 9400.768918]  (detected by 0, t=61840 jiffies, g=721, q=0 ncpus=1)
+[ 9401.026678] rcu: All QSes seen, last rcu_preempt kthread activity 57331 (4297242367-4297185036), jiffies_till_next0
+[ 9401.458656] rcu: rcu_preempt kthread starved for 57331 jiffies! g721 f0x2 RCU_GP_CLEANUP(7) ->state=0x0 ->cpu=0
+[ 9401.720410] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[ 9401.981209] rcu: RCU grace-period kthread stack dump:
+[ 9402.237929] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x00000008
+[ 9402.499518] Call trace:
+[ 9402.753636]  __switch_to+0xe4/0x160
+[ 9402.924906]  __schedule+0x288/0x710
+[ 9403.096171]  preempt_schedule+0x4c/0x70
+[ 9403.351675]  _raw_spin_unlock_irq+0x34/0x50
+[ 9403.523634]  rcu_gp_cleanup+0x10c/0x430
+[ 9403.779147]  rcu_gp_kthread+0x130/0x170
+[ 9404.034651]  kthread+0x10c/0x110
+[ 9404.289547]  ret_from_fork+0x10/0x20
+[ 9404.544794] rcu: Stack dump where RCU GP kthread last ran:
+[ 9404.885839] CPU: 0 PID: 108 Comm: syslogd Not tainted 6.1.0 #2
+[ 9405.143346] pstate: 60000000 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[ 9405.485875] pc : 0000aaaac594127c
+[ 9405.573074] lr : 0000aaaac5982d14
+[ 9405.744165] sp : 0000ffffed8e4120
+[ 9405.999149] x29: 0000ffffed8e42a0 x28: 0000aaaac59f8000 x27: 0000ffffed8e4430
+[ 9406.257960] x26: 0000000000000000 x25: 0000aaaac59f8000 x24: 0000aaaafe2b63e0
+[ 9406.516774] x23: 0000aaaac59f8000 x22: 0000000000000000 x21: 0000aaaafe2b633f
+[ 9406.775583] x20: 000000000000005f x19: 0000ffffed8e4200 x18: 0000000000000001
+[ 9406.950502] x17: 0000ffff843332ec x16: 0000aaaac59f7ca0 x15: 2031782030613762
+[ 9407.377106] x14: 3439663866666666 x13: 3030303030303030 x12: 3030303030303030
+[ 9407.552026] x11: 203a203078203130 x10: 3030303030303030 x9 : 30303030203a2032
+[ 9407.726945] x8 : 000000000000003f x7 : 000000000007a1a0 x6 : 000000007fffffff
+[ 9408.069648] x5 : 0000ffff843e9070 x4 : 0000000000000000 x3 : 498231b218305200
+[ 9408.328460] x2 : 000000000000000a x1 : 0000ffff8440fb30 x0 : 0000aaaafe2b62e1
+[ 9885.510382] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[ 9885.935931] rcu:     Tasks blocked on level-0 rcu_node (CPUs 0-0): P25/1:b..l
+[ 9887.956272]  (detected by 0, t=5287 jiffies, g=933, q=14 ncpus=1)
+[ 9889.052982] task:khugepaged      state:R  running task     stack:0     pid:25    ppid:2      flags:0x00000008
+[ 9889.482357] Call trace:
+[ 9889.568688]  __switch_to+0xe4/0x160
+[ 9890.746691]  __schedule+0x288/0x710
+[ 9890.917956]  preempt_schedule_irq+0x44/0xd0
+[ 9891.089918]  el1_interrupt+0x4c/0x70
+[ 9891.596852]  el1h_64_irq_handler+0x18/0x30
+[ 9891.768724]  el1h_64_irq+0x64/0x68
+[ 9892.359370]  __flush_work.isra.0+0x50/0x310
+[ 9892.531330]  flush_work+0x10/0x20
+[ 9892.702421]  __lru_add_drain_all+0x190/0x240
+[ 9896.817508]  lru_add_drain_all+0x14/0x20
+[ 9896.989207]  khugepaged+0x8c/0x760
+[ 9899.341638]  kthread+0x10c/0x110
+[ 9899.512648]  ret_from_fork+0x10/0x20
+[ 9948.611905] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[ 9948.953566] rcu:     Tasks blocked on level-0 rcu_node (CPUs 0-0): P25/1:b..l
+[ 9949.212117]  (detected by 0, t=21062 jiffies, g=933, q=24 ncpus=1)
+[ 9949.386073] task:khugepaged      state:R  running task     stack:0     pid:25    ppid:2      flags:0x00000008
+[ 9949.815454] Call trace:
+[ 9949.985677]  __switch_to+0xe4/0x160
+[ 9950.156945]  __schedule+0x288/0x710
+[ 9950.412108]  preempt_schedule+0x4c/0x70
+[ 9950.499828]  _raw_spin_unlock_irq+0x34/0x50
+[ 9950.839579]  __flush_work.isra.0+0x2c8/0x310
+[ 9951.011626]  flush_work+0x10/0x20
+[ 9951.182717]  __lru_add_drain_all+0x190/0x240
+[ 9951.774231]  lru_add_drain_all+0x14/0x20
+[ 9952.113723]  khugepaged+0x8c/0x760
+[ 9952.368795]  kthread+0x10c/0x110
+[ 9952.539806]  ret_from_fork+0x10/0x20
+time: 648342090229
+opt:109
+opt:115
+opt:105
+delay: 25
+[12974.968604] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[13018.264258]  (detected by 0, t=5411 jiffies, g=1129, q=2 ncpus=1)
+[13023.471796] rcu: All QSes seen, last rcu_preempt kthread activity 5411 (4298134786-4298129375), jiffies_till_next_0
+[13028.014514] rcu: rcu_preempt kthread starved for 5411 jiffies! g1129 f0x0 RCU_GP_ONOFF(3) ->state=0x0 ->cpu=0
+[13029.702302] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[13030.718153] rcu: RCU grace-period kthread stack dump:
+[13032.568866] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x00000008
+[13040.129271] Call trace:
+[13042.814005]  dump_backtrace.part.0+0xdc/0xf0
+[13068.657775]  show_stack+0x18/0x40
+[13069.332240]  sched_show_task+0x164/0x190
+[13073.698665]  rcu_check_gp_kthread_starvation+0xd8/0x140
+[13080.079857]  rcu_sched_clock_irq+0xd04/0xde0
+[13088.137986]  update_process_times+0x68/0xb0
+[13099.551812]  tick_sched_handle+0x34/0x60
+[13105.763914]  tick_sched_timer+0x4c/0xb0
+[13105.935526]  __hrtimer_run_queues+0x138/0x1e0
+[13106.778820]  hrtimer_interrupt+0xe8/0x250
+[13107.286182]  arch_timer_handler_virt+0x34/0x50
+[13112.324280]  handle_percpu_devid_irq+0x84/0x130
+[13115.852367]  generic_handle_domain_irq+0x2c/0x50
+[13122.065160]  gic_handle_irq+0x44/0xd0
+[13133.142889]  call_on_irq_stack+0x2c/0x5c
+[13133.985744]  do_interrupt_handler+0x80/0x90
+[13134.661072]  el1_interrupt+0x34/0x70
+[13136.510314]  el1h_64_irq_handler+0x18/0x30
+[13137.856708]  el1h_64_irq+0x64/0x68
+[13138.531255]  rcu_gp_init+0x1d8/0x510
+[13140.044920]  rcu_gp_kthread+0x11c/0x170
+[13140.216532]  kthread+0x10c/0x110
+[13144.917835]  ret_from_fork+0x10/0x20
+[13146.095928] rcu: Stack dump where RCU GP kthread last ran:
+[13151.470648] CPU: 0 PID: 14 Comm: rcu_preempt Not tainted 6.1.0 #2
+[13155.000293] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[13156.517346] pc : rcu_gp_init+0x1d8/0x510
+[13157.192412] lr : rcu_gp_init+0x1c8/0x510
+[13158.035268] sp : ffff80000b143d90
+[13158.374147] x29: ffff80000b143d90 x28: ffff80000ad66c00 x27: 0000000000000000
+[13159.388010] x26: 0000000000000007 x25: ffff80000b143e58 x24: ffff80000ad65f80
+[13159.898507] x23: ffff80000ad64008 x22: ffff80000acd9bbc x21: 0000000000000000
+[13160.241210] x20: ffff80000ad63f80 x19: ffff80000ad63f80 x18: 0000000000000000
+[13160.919499] x17: ffff8000356d3000 x16: ffff800008004000 x15: 000005c0fffffa3f
+[13161.429994] x14: 00000000000001d1 x13: 00000000000001d1 x12: 0000000000000000
+[13161.772698] x11: 0000000000002941 x10: 0000000000000a40 x9 : ffff80000b143ce0
+[13162.450986] x8 : ffff0000034bd460 x7 : ffff00003fdd6cc0 x6 : 0000000000000000
+[13162.793689] x5 : 00000000410fd030 x4 : 0000000000000000 x3 : ffff80000ad63f80
+[13163.471974] x2 : 0000000000000001 x1 : 0000000000000000 x0 : ffff80000ad66c00
+[13164.150262] Call trace:
+[13164.320480]  rcu_gp_init+0x1d8/0x510
+[13165.330777]  rcu_gp_kthread+0x11c/0x170
+[13165.502389]  kthread+0x10c/0x110
+[13165.841186]  ret_from_fork+0x10/0x20
+[13176.079891] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[13176.757127]  (detected by 0, t=56738 jiffies, g=1129, q=2 ncpus=1)
+[13177.266663] rcu: All QSes seen, last rcu_preempt kthread activity 56738 (4298186113-4298129375), jiffies_till_next0
+[13178.285904] rcu: rcu_preempt kthread starved for 56738 jiffies! g1129 f0x2 RCU_GP_ONOFF(3) ->state=0x0 ->cpu=0
+[13178.799256] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[13179.479532] rcu: RCU grace-period kthread stack dump:
+[13179.820143] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x0000000a
+[13180.333417] Call trace:
+[13180.839216]  dump_backtrace.part.0+0xdc/0xf0
+[13182.018000]  show_stack+0x18/0x40
+[13182.524673]  sched_show_task+0x164/0x190
+[13182.864159]  rcu_check_gp_kthread_starvation+0xd8/0x140
+[13183.540529]  rcu_sched_clock_irq+0xd04/0xde0
+[13184.215944]  update_process_times+0x68/0xb0
+[13184.723488]  tick_sched_handle+0x34/0x60
+[13185.062979]  tick_sched_timer+0x4c/0xb0
+[13186.073536]  __hrtimer_run_queues+0x138/0x1e0
+[13186.413462]  hrtimer_interrupt+0xe8/0x250
+[13186.920829]  arch_timer_handler_virt+0x34/0x50
+[13187.596421]  handle_percpu_devid_irq+0x84/0x130
+[13188.104304]  generic_handle_domain_irq+0x2c/0x50
+[13189.115642]  gic_handle_irq+0x44/0xd0
+[13189.790449]  call_on_irq_stack+0x2c/0x5c
+[13190.129941]  do_interrupt_handler+0x80/0x90
+[13190.805269]  el1_interrupt+0x34/0x70
+[13190.976621]  el1h_64_irq_handler+0x18/0x30
+[13191.484075]  el1h_64_irq+0x64/0x68
+[13191.990832]  rcu_gp_init+0x1d8/0x510
+[13192.162184]  rcu_gp_kthread+0x11c/0x170
+[13192.837165]  kthread+0x10c/0x110
+[13193.511538]  ret_from_fork+0x10/0x20
+[13193.850679] rcu: Stack dump where RCU GP kthread last ran:
+[13194.527304] CPU: 0 PID: 14 Comm: rcu_preempt Not tainted 6.1.0 #2
+[13194.868965] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[13195.379284] pc : rcu_gp_init+0x1d8/0x510
+[13195.886562] lr : rcu_gp_init+0x1c8/0x510
+[13196.226054] sp : ffff80000b143d90
+[13196.732721] x29: ffff80000b143d90 x28: ffff80000ad66c00 x27: 0000000000000000
+[13197.075425] x26: 0000000000000007 x25: ffff80000b143e58 x24: ffff80000ad65f80
+[13197.585920] x23: ffff80000ad64008 x22: ffff80000acd9bbc x21: 0000000000000000
+[13198.264209] x20: ffff80000ad63f80 x19: ffff80000ad63f80 x18: 0000000000000000
+[13198.606912] x17: ffff8000356d3000 x16: ffff800008004000 x15: 000005c0fffffa3f
+[13199.117404] x14: 00000000000001d1 x13: 00000000000001d1 x12: 0000000000000000
+[13199.795687] x11: 0000000000002941 x10: 0000000000000a40 x9 : ffff80000b143ce0
+[13200.138391] x8 : ffff0000034bd460 x7 : ffff00003fdd6cc0 x6 : 0000000000000000
+[13200.816670] x5 : 00000000410fd030 x4 : 0000000000000000 x3 : ffff80000ad63f80
+[13201.159374] x2 : 0000000000000001 x1 : 0000000000000000 x0 : ffff80000ad66c00
+[13201.669869] Call trace:
+[13202.175669]  rcu_gp_init+0x1d8/0x510
+[13202.514813]  rcu_gp_kthread+0x11c/0x170
+[13202.854214]  kthread+0x10c/0x110
+[13203.360798]  ret_from_fork+0x10/0x20
+[13238.432684] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+[13239.948862]  (detected by 0, t=72494 jiffies, g=1129, q=2 ncpus=1)
+[13240.458399] rcu: All QSes seen, last rcu_preempt kthread activity 72494 (4298201869-4298129375), jiffies_till_next0
+[13240.974268] rcu: rcu_preempt kthread starved for 72494 jiffies! g1129 f0x2 RCU_GP_ONOFF(3) ->state=0x0 ->cpu=0
+[13241.823196] rcu:     Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+[13242.167887] rcu: RCU grace-period kthread stack dump:
+[13242.676288] task:rcu_preempt     state:R  running task     stack:0     pid:14    ppid:2      flags:0x00000008
+[13243.525138] Call trace:
+[13243.695355]  __switch_to+0xe4/0x160
+[13250.074812]  __schedule+0x288/0x710
+[13250.413869]  preempt_schedule_irq+0x44/0xd0
+[13250.585829]  el1_interrupt+0x4c/0x70
+[13251.260549]  el1h_64_irq_handler+0x18/0x30
+[13251.600214]  el1h_64_irq+0x64/0x68
+[13252.442550]  rcu_gp_init+0x1d8/0x510
+[13253.620634]  rcu_gp_kthread+0x11c/0x170
+[13253.960039]  kthread+0x10c/0x110
+[13254.466619]  ret_from_fork+0x10/0x20
+[13254.805764] rcu: Stack dump where RCU GP kthread last ran:
+[13255.146809] CPU: 0 PID: 112 Comm: klogd Not tainted 6.1.0 #2
+[13255.991396] pstate: 00000000 (nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[13256.333926] pc : 0000aaaadd7f0478
+[13256.672806] lr : 0000aaaadd7f0404
+[13257.179477] sp : 0000ffffd86cd8b0
+[13257.350568] x29: 0000ffffd86cd9b0 x28: 0000000000000000 x27: 0000aaaadd86670e
+[13258.196640] x26: 0000aaaadd866490 x25: 0000aaaadd8668cc x24: 0000aaaadd866490
+[13258.539344] x23: 0000aaaadd865000 x22: 0000aaaadd866000 x21: 0000aaaadd855000
+[13258.882047] x20: 0000000000000000 x19: 0000aaaadd866490 x18: 0000000000000001
+[13259.560335] x17: 0000ffff8f8ba680 x16: 0000aaaadd8656f0 x15: 0000ffff8f94aa78
+[13260.070831] x14: 0000000000000001 x13: 303278302f303178 x12: 302b6b726f665f6d
+[13260.581323] x11: 6f72665f74657220 x10: 205d363038393335 x9 : 78302b6b726f665f
+[13261.091822] x8 : 0000000000000074 x7 : 20205d3630383933 x6 : 352e32353939205b
+[13261.434526] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 0000000000000000
+[13262.280598] x2 : 00000000000003ff x1 : 0000aaaadd866490 x0 : 00000000000003fb
