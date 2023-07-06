@@ -2,11 +2,11 @@
 
 if [ -d ./devil-in-fpga ]
     then  
-        echo $'\e[1;31m Deleting backstabbing_devil directory...\e[0m'
+        echo $'\e[1;31m Deleting devil-in-fpga directory...\e[0m'
         rm -r devil-in-fpga
 fi
 
-rm . *.jou *.log
+rm *.jou *.log
 
 # Open project in graphical mode
 if [ "$1" == "graph" ]; then
