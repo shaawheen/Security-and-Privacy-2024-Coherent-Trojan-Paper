@@ -79,7 +79,7 @@ struct config config = {
                     {   /* PL */
                         .pa = 0x80000000,
                         .va = 0x80000000,
-                        .size = 0x20000
+                        .size = 0x30000
                     },
                 },
 
@@ -143,7 +143,7 @@ struct config config = {
                     {   /* PL */
                         .pa = 0x80000000,
                         .va = 0x80000000,
-                        .size = 0x20000
+                        .size = 0x30000
                     },
                 },
 

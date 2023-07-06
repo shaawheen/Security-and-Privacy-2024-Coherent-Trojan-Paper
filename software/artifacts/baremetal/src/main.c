@@ -73,16 +73,23 @@ char* strnchr(const char* s, size_t n, char c) {
 // Status Reg bits
 #define OSH_END_pos 0
 
-unsigned int *ctrl       = (unsigned int*)0x80010000+0x00;
-unsigned int *status     = (unsigned int*)0x80010000+0x04;
-unsigned int *delay      = (unsigned int*)0x80010000+0x08;
-unsigned int *acsnoop    = (unsigned int*)0x80010000+0x0C;
-unsigned int *base_addr  = (unsigned int*)0x80010000+0x10;
-unsigned int *mem_size   = (unsigned int*)0x80010000+0x14;
+unsigned int *ctrl       = (unsigned int*)(0x80020000+0x00);
+unsigned int *status     = (unsigned int*)(0x80020000+0x04);
+unsigned int *p_delay    = (unsigned int*)(0x80020000+0x08);
+unsigned int *acsnoop    = (unsigned int*)(0x80020000+0x0C);
+unsigned int *base_addr  = (unsigned int*)(0x80020000+0x10);
+unsigned int *mem_size   = (unsigned int*)(0x80020000+0x14);
 
 
 void osh_cr_delay(int delay){
-    *ctrl |= (delay << DELAY_pos); // max delay 8191, só tenho 13 bits para o delay
+    // *ctrl |= (delay << DELAY_pos); // max delay 8191, só tenho 13 bits para o delay
+    printf(" ctrl = 0%x\n", ctrl);
+    printf(" status = 0%x\n", status);
+    printf(" p_delay = 0%x\n", p_delay);
+    printf(" acsnoop = 0%x\n", acsnoop);
+    printf(" base_addr = 0%x\n", base_addr);
+    printf(" mem_size = 0%x\n", mem_size);
+    *p_delay = delay;
     *ctrl |= (TEST_DELAY_CR << TEST_pos);
     *ctrl |= (FUNC_OSH << FUNC_pos); // One-shot Delay
     *ctrl |= (1 << OSHEN_pos); // Enable One-shot Delay
@@ -181,7 +188,7 @@ void main(void){
         // spin_unlock(&print_lock);
         // sprintf(shmem_buff, "%d", irq_count);
         // irq_count++;
-        // osh_cr_delay();
+        osh_cr_delay(4);
     }
 
     while(!master_done);

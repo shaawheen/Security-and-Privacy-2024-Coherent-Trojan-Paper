@@ -6,6 +6,8 @@ if [ -d ./devil-in-fpga ]
         rm -r devil-in-fpga
 fi
 
+rm . *.jou *.log
+
 # Open project in graphical mode
 if [ "$1" == "graph" ]; then
     vivado -source build_graph.tcl
