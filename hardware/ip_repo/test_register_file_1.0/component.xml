@@ -1089,8 +1089,8 @@
         <xilinx:taxonomy>AXI_Peripheral</xilinx:taxonomy>
       </xilinx:taxonomies>
       <xilinx:displayName>test_register_file_v1.0</xilinx:displayName>
-      <xilinx:coreRevision>3</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2023-07-06T11:02:57Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>4</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2023-07-06T13:45:47Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2022.1</xilinx:xilinxVersion>

@@ -44,6 +44,9 @@ module devil_register_file #(
   output o_control_CONEN,
   output o_status_OSH_END,
   input i_status_OSH_END_hw_set,
+  output o_status_BUSY,
+  input i_status_BUSY_hw_set,
+  input i_status_BUSY_hw_clear,
   output [31:0] o_delay_data,
   output [3:0] o_acsnoop_type,
   output [31:0] o_base_addr_Data,
@@ -375,7 +378,7 @@ module devil_register_file #(
     wire [31:0] w_bit_field_write_data;
     wire [31:0] w_bit_field_read_data;
     wire [31:0] w_bit_field_value;
-    `rggen_tie_off_unused_signals(32, 32'h00000001, w_bit_field_read_data, w_bit_field_value)
+    `rggen_tie_off_unused_signals(32, 32'h00000003, w_bit_field_read_data, w_bit_field_value)
     rggen_default_register #(
       .READABLE       (1),
       .WRITABLE       (1),
@@ -408,7 +411,7 @@ module devil_register_file #(
         .WIDTH              (1),
         .INITIAL_VALUE      (1'h0),
         .SW_READ_ACTION     (`RGGEN_READ_DEFAULT),
-        .SW_WRITE_ACTION    (`RGGEN_WRITE_CLEAR),
+        .SW_WRITE_ACTION    (`RGGEN_WRITE_1_CLEAR),
         .SW_WRITE_ONCE      (0),
         .STORAGE            (1),
         .EXTERNAL_READ_DATA (0),
@@ -432,6 +435,38 @@ module devil_register_file #(
         .i_value            ({1{1'b0}}),
         .i_mask             ({1{1'b1}}),
         .o_value            (o_status_OSH_END),
+        .o_value_unmasked   ()
+      );
+    end
+    if (1) begin : g_BUSY
+      rggen_bit_field #(
+        .WIDTH              (1),
+        .INITIAL_VALUE      (1'h0),
+        .SW_READ_ACTION     (`RGGEN_READ_DEFAULT),
+        .SW_WRITE_ACTION    (`RGGEN_WRITE_NONE),
+        .SW_WRITE_ONCE      (0),
+        .STORAGE            (1),
+        .EXTERNAL_READ_DATA (0),
+        .TRIGGER            (0)
+      ) u_bit_field (
+        .i_clk              (i_clk),
+        .i_rst_n            (i_rst_n),
+        .i_sw_valid         (w_bit_field_valid),
+        .i_sw_read_mask     (w_bit_field_read_mask[1+:1]),
+        .i_sw_write_enable  (1'b1),
+        .i_sw_write_mask    (w_bit_field_write_mask[1+:1]),
+        .i_sw_write_data    (w_bit_field_write_data[1+:1]),
+        .o_sw_read_data     (w_bit_field_read_data[1+:1]),
+        .o_sw_value         (w_bit_field_value[1+:1]),
+        .o_write_trigger    (),
+        .o_read_trigger     (),
+        .i_hw_write_enable  (1'b0),
+        .i_hw_write_data    ({1{1'b0}}),
+        .i_hw_set           (i_status_BUSY_hw_set),
+        .i_hw_clear         (i_status_BUSY_hw_clear),
+        .i_value            ({1{1'b0}}),
+        .i_mask             ({1{1'b1}}),
+        .o_value            (o_status_BUSY),
         .o_value_unmasked   ()
       );
     end
