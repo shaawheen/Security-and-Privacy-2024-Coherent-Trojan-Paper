@@ -1,3 +1,125 @@
+
+################################################################
+# This is a generated script based on design: design_1
+#
+# Though there are limitations about the generated script,
+# the main purpose of this utility is to make learning
+# IP Integrator Tcl commands easier.
+################################################################
+
+namespace eval _tcl {
+proc get_script_folder {} {
+   set script_path [file normalize [info script]]
+   set script_folder [file dirname $script_path]
+   return $script_folder
+}
+}
+variable script_folder
+set script_folder [_tcl::get_script_folder]
+
+################################################################
+# Check if script is running in correct Vivado version.
+################################################################
+set scripts_vivado_version 2022.1
+set current_vivado_version [version -short]
+
+if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
+   puts ""
+   catch {common::send_gid_msg -ssname BD::TCL -id 2041 -severity "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
+
+   return 1
+}
+
+################################################################
+# START
+################################################################
+
+# To test this script, run the following commands from Vivado Tcl console:
+# source design_1_script.tcl
+
+# If there is no project opened, this script will create a
+# project, but make sure you do not have an existing project
+# <./myproj/project_1.xpr> in the current working folder.
+
+set list_projs [get_projects -quiet]
+if { $list_projs eq "" } {
+   create_project project_1 myproj -part xczu9eg-ffvb1156-2-e
+}
+
+
+# CHANGE DESIGN NAME HERE
+variable design_name
+set design_name design_1
+
+# If you do not already have an existing IP Integrator design open,
+# you can create a design using the following command:
+#    create_bd_design $design_name
+
+# Creating design if needed
+set errMsg ""
+set nRet 0
+
+set cur_design [current_bd_design -quiet]
+set list_cells [get_bd_cells -quiet]
+
+if { ${design_name} eq "" } {
+   # USE CASES:
+   #    1) Design_name not set
+
+   set errMsg "Please set the variable <design_name> to a non-empty value."
+   set nRet 1
+
+} elseif { ${cur_design} ne "" && ${list_cells} eq "" } {
+   # USE CASES:
+   #    2): Current design opened AND is empty AND names same.
+   #    3): Current design opened AND is empty AND names diff; design_name NOT in project.
+   #    4): Current design opened AND is empty AND names diff; design_name exists in project.
+
+   if { $cur_design ne $design_name } {
+      common::send_gid_msg -ssname BD::TCL -id 2001 -severity "INFO" "Changing value of <design_name> from <$design_name> to <$cur_design> since current design is empty."
+      set design_name [get_property NAME $cur_design]
+   }
+   common::send_gid_msg -ssname BD::TCL -id 2002 -severity "INFO" "Constructing design in IPI design <$cur_design>..."
+
+} elseif { ${cur_design} ne "" && $list_cells ne "" && $cur_design eq $design_name } {
+   # USE CASES:
+   #    5) Current design opened AND has components AND same names.
+
+   set errMsg "Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
+   set nRet 1
+} elseif { [get_files -quiet ${design_name}.bd] ne "" } {
+   # USE CASES: 
+   #    6) Current opened design, has components, but diff names, design_name exists in project.
+   #    7) No opened design, design_name exists in project.
+
+   set errMsg "Design <$design_name> already exists in your project, please set the variable <design_name> to another value."
+   set nRet 2
+
+} else {
+   # USE CASES:
+   #    8) No opened design, design_name not in project.
+   #    9) Current opened design, has components, but diff names, design_name not in project.
+
+   common::send_gid_msg -ssname BD::TCL -id 2003 -severity "INFO" "Currently there is no design <$design_name> in project, so creating one..."
+
+   create_bd_design $design_name
+
+   common::send_gid_msg -ssname BD::TCL -id 2004 -severity "INFO" "Making design <$design_name> as current_bd_design."
+   current_bd_design $design_name
+
+}
+
+common::send_gid_msg -ssname BD::TCL -id 2005 -severity "INFO" "Currently the variable <design_name> is equal to \"$design_name\"."
+
+if { $nRet != 0 } {
+   catch {common::send_gid_msg -ssname BD::TCL -id 2006 -severity "ERROR" $errMsg}
+   return $nRet
+}
+
+set bCheckIPsPassed 1
+##################################################################
+# CHECK IPs
+##################################################################
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
@@ -106,7 +228,7 @@ proc create_root_design { parentCell } {
   set system_ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:system_ila:1.* system_ila_0 ]
   set_property -dict [ list \
    CONFIG.C_BRAM_CNT {0.0} \
-   CONFIG.C_DATA_DEPTH {65536} \
+   CONFIG.C_DATA_DEPTH {16384} \
    CONFIG.C_MON_TYPE {NATIVE} \
    CONFIG.C_NUM_OF_PROBES {44} \
    CONFIG.C_PROBE_WIDTH_PROPAGATION {AUTO} \
@@ -1015,8 +1137,8 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets zynq_ultra_ps_e_0_M_AXI_HPM0_LPD
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"0.624999",
-   "Default View_TopLeft":"1885,1512",
+   "Default View_ScaleFactor":"0.34697",
+   "Default View_TopLeft":"0,744",
    "ExpandedHierarchyInLayout":"",
    "PinnedBlocks":"/AXI_PerfectTranslator_0|/backstabber_0|/byte_writer_0|/rst_ps8_0_99M|/smartconnect_0|/system_ila_0|/test_register_file_0|/vio_0|/zynq_ultra_ps_e_0|/system_ila_1|",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
@@ -1027,10 +1149,10 @@ preplace inst byte_writer_0 -pg 1 -lvl 3 -x 2250 -y 3030 -defaultsOSRD
 preplace inst rst_ps8_0_99M -pg 1 -lvl 1 -x 470 -y 1850 -defaultsOSRD
 preplace inst smartconnect_0 -pg 1 -lvl 2 -x 1120 -y 2460 -defaultsOSRD
 preplace inst system_ila_0 -pg 1 -lvl 4 -x 3400 -y 1970 -defaultsOSRD
-preplace inst vio_0 -pg 1 -lvl 2 -x 1120 -y 3040 -defaultsOSRD
-preplace inst zynq_ultra_ps_e_0 -pg 1 -lvl 5 -x 4700 -y 2050 -defaultsOSRD
 preplace inst system_ila_1 -pg 1 -lvl 6 -x 5170 -y 2040 -defaultsOSRD
 preplace inst test_register_file_0 -pg 1 -lvl 3 -x 2250 -y 1970 -defaultsOSRD
+preplace inst vio_0 -pg 1 -lvl 2 -x 1120 -y 3040 -defaultsOSRD
+preplace inst zynq_ultra_ps_e_0 -pg 1 -lvl 5 -x 4700 -y 2050 -defaultsOSRD
 preplace netloc backstabber_0_acready 1 2 3 1450 1320 2750 1320 3600
 preplace netloc backstabber_0_araddr 1 2 3 N 1450 2600 1440 3580
 preplace netloc backstabber_0_arbar 1 2 3 N 1470 2610 1450 3570
@@ -1133,7 +1255,15 @@ pagesize -pg 1 -db -bbox -sgen 0 0 5280 3940
   # Restore current instance
   current_bd_instance $oldCurInst
 
-  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
+
+
+##################################################################
+# MAIN FLOW
+##################################################################
+
+create_root_design ""
+
+
