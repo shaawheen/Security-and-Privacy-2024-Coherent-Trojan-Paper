@@ -121,8 +121,9 @@ set bCheckIPsPassed 1
 # CHECK IPs
 ##################################################################
 puts "CHECK IPs---------------------------------------------------"
-set_property  ip_repo_paths  $script_folder/ip_repo [current_project]
+set_property  ip_repo_paths  $script_folder/../ip_repo [current_project]
 update_ip_catalog
+
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
@@ -1263,7 +1264,6 @@ pagesize -pg 1 -db -bbox -sgen 0 0 5280 3940
 # End of create_root_design()
 
 
-
 ##################################################################
 # MAIN FLOW
 ##################################################################
@@ -1315,6 +1315,7 @@ launch_runs impl_1 -to_step write_bitstream -jobs 8
 # set_property library xil_defaultlib [get_files $script_folder/ip_repo/backstabber_1.0/src/devil_tb.sv]"
 # set_property library xil_defaultlib [get_files $script_folder/ip_repo/backstabber_1.0/hdl/devil_in_fpga.v]"
 
+get_property PROGRESS [get_runs synth_1]
 get_property PROGRESS [get_runs impl_1]
 
 

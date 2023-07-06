@@ -232,7 +232,7 @@ proc create_root_design { parentCell } {
   set system_ila_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:system_ila:1.* system_ila_0 ]
   set_property -dict [ list \
    CONFIG.C_BRAM_CNT {0.0} \
-   CONFIG.C_DATA_DEPTH {65536} \
+   CONFIG.C_DATA_DEPTH {16384} \
    CONFIG.C_MON_TYPE {NATIVE} \
    CONFIG.C_NUM_OF_PROBES {44} \
    CONFIG.C_PROBE_WIDTH_PROPAGATION {AUTO} \
@@ -1141,8 +1141,8 @@ connect_bd_intf_net -intf_net [get_bd_intf_nets zynq_ultra_ps_e_0_M_AXI_HPM0_LPD
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"0.624999",
-   "Default View_TopLeft":"1885,1512",
+   "Default View_ScaleFactor":"0.34697",
+   "Default View_TopLeft":"0,744",
    "ExpandedHierarchyInLayout":"",
    "PinnedBlocks":"/AXI_PerfectTranslator_0|/backstabber_0|/byte_writer_0|/rst_ps8_0_99M|/smartconnect_0|/system_ila_0|/test_register_file_0|/vio_0|/zynq_ultra_ps_e_0|/system_ila_1|",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
@@ -1153,10 +1153,10 @@ preplace inst byte_writer_0 -pg 1 -lvl 3 -x 2250 -y 3030 -defaultsOSRD
 preplace inst rst_ps8_0_99M -pg 1 -lvl 1 -x 470 -y 1850 -defaultsOSRD
 preplace inst smartconnect_0 -pg 1 -lvl 2 -x 1120 -y 2460 -defaultsOSRD
 preplace inst system_ila_0 -pg 1 -lvl 4 -x 3400 -y 1970 -defaultsOSRD
-preplace inst vio_0 -pg 1 -lvl 2 -x 1120 -y 3040 -defaultsOSRD
-preplace inst zynq_ultra_ps_e_0 -pg 1 -lvl 5 -x 4700 -y 2050 -defaultsOSRD
 preplace inst system_ila_1 -pg 1 -lvl 6 -x 5170 -y 2040 -defaultsOSRD
 preplace inst test_register_file_0 -pg 1 -lvl 3 -x 2250 -y 1970 -defaultsOSRD
+preplace inst vio_0 -pg 1 -lvl 2 -x 1120 -y 3040 -defaultsOSRD
+preplace inst zynq_ultra_ps_e_0 -pg 1 -lvl 5 -x 4700 -y 2050 -defaultsOSRD
 preplace netloc backstabber_0_acready 1 2 3 1450 1320 2750 1320 3600
 preplace netloc backstabber_0_araddr 1 2 3 N 1450 2600 1440 3580
 preplace netloc backstabber_0_arbar 1 2 3 N 1470 2610 1450 3570
@@ -1259,10 +1259,10 @@ pagesize -pg 1 -db -bbox -sgen 0 0 5280 3940
   # Restore current instance
   current_bd_instance $oldCurInst
 
-  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
+
 
 
 
