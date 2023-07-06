@@ -239,9 +239,6 @@ proc create_root_design { parentCell } {
 
   # Create instance: system_ila_1, and set properties
   set system_ila_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:system_ila:1.* system_ila_1 ]
-  set_property -dict [ list \
-   CONFIG.C_DATA_DEPTH {32768} \
- ] $system_ila_1
 
   # Create instance: test_register_file_0, and set properties
   set test_register_file_0 [ create_bd_cell -type ip -vlnv user.org:user:test_register_file:1.* test_register_file_0 ]
@@ -1030,10 +1027,9 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   connect_bd_intf_net -intf_net smartconnect_0_M03_AXI [get_bd_intf_pins smartconnect_0/M03_AXI] [get_bd_intf_pins test_register_file_0/S00_AXI]
   connect_bd_intf_net -intf_net zynq_ultra_ps_e_0_M_AXI_HPM0_FPD [get_bd_intf_pins AXI_PerfectTranslator_0/S00_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_FPD]
   connect_bd_intf_net -intf_net zynq_ultra_ps_e_0_M_AXI_HPM0_LPD [get_bd_intf_pins smartconnect_0/S01_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_LPD]
+connect_bd_intf_net -intf_net [get_bd_intf_nets zynq_ultra_ps_e_0_M_AXI_HPM0_LPD] [get_bd_intf_pins system_ila_1/SLOT_0_AXI] [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_LPD]
 
   # Create port connections
-  connect_bd_net -net Net2 [get_bd_pins zynq_ultra_ps_e_0/maxigp2_bid]
-  connect_bd_net -net Net6 [get_bd_pins zynq_ultra_ps_e_0/maxigp2_rid]
   connect_bd_net -net backstabber_0_acready [get_bd_pins backstabber_0/acready] [get_bd_pins system_ila_0/probe2] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_acready]
   set_property HDL_ATTRIBUTE.DEBUG {true} [get_bd_nets backstabber_0_acready]
   connect_bd_net -net backstabber_0_araddr [get_bd_pins backstabber_0/araddr] [get_bd_pins system_ila_0/probe5] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_araddr]
@@ -1103,34 +1099,6 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   connect_bd_net -net test_register_file_0_w_mem_size_Data [get_bd_pins system_ila_0/probe43] [get_bd_pins test_register_file_0/w_mem_size_Data]
   connect_bd_net -net test_register_file_0_w_status_OSH_END [get_bd_pins system_ila_0/probe39] [get_bd_pins test_register_file_0/w_status_OSH_END]
   connect_bd_net -net vio_0_probe_out0 [get_bd_pins byte_writer_0/axi_init_axi_txn] [get_bd_pins vio_0/probe_out0]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_araddr [get_bd_pins system_ila_1/SLOT_0_AXI_araddr] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_araddr]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arburst [get_bd_pins system_ila_1/SLOT_0_AXI_arburst] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arburst]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arcache [get_bd_pins system_ila_1/SLOT_0_AXI_arcache] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arcache]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arid [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arid]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arlen [get_bd_pins system_ila_1/SLOT_0_AXI_arlen] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arlen]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arlock [get_bd_pins system_ila_1/SLOT_0_AXI_arlock] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arlock]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arprot [get_bd_pins system_ila_1/SLOT_0_AXI_arprot] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arprot]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arqos [get_bd_pins system_ila_1/SLOT_0_AXI_arqos] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arqos]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arsize [get_bd_pins system_ila_1/SLOT_0_AXI_arsize] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arsize]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_aruser [get_bd_pins zynq_ultra_ps_e_0/maxigp2_aruser]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_arvalid [get_bd_pins system_ila_1/SLOT_0_AXI_arvalid] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_arvalid]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awaddr [get_bd_pins system_ila_1/SLOT_0_AXI_awaddr] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awaddr]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awburst [get_bd_pins system_ila_1/SLOT_0_AXI_awburst] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awburst]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awcache [get_bd_pins system_ila_1/SLOT_0_AXI_awcache] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awcache]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awid [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awid]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awlen [get_bd_pins system_ila_1/SLOT_0_AXI_awlen] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awlen]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awlock [get_bd_pins system_ila_1/SLOT_0_AXI_awlock] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awlock]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awprot [get_bd_pins system_ila_1/SLOT_0_AXI_awprot] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awprot]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awqos [get_bd_pins system_ila_1/SLOT_0_AXI_awqos] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awqos]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awsize [get_bd_pins system_ila_1/SLOT_0_AXI_awsize] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awsize]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awuser [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awuser]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_awvalid [get_bd_pins system_ila_1/SLOT_0_AXI_awvalid] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_awvalid]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_bready [get_bd_pins system_ila_1/SLOT_0_AXI_bready] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_bready]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_rready [get_bd_pins system_ila_1/SLOT_0_AXI_rready] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_rready]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_wdata [get_bd_pins system_ila_1/SLOT_0_AXI_wdata] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_wdata]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_wlast [get_bd_pins system_ila_1/SLOT_0_AXI_wlast] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_wlast]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_wstrb [get_bd_pins system_ila_1/SLOT_0_AXI_wstrb] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_wstrb]
-  connect_bd_net -net zynq_ultra_ps_e_0_maxigp2_wvalid [get_bd_pins system_ila_1/SLOT_0_AXI_wvalid] [get_bd_pins zynq_ultra_ps_e_0/maxigp2_wvalid]
   connect_bd_net -net zynq_ultra_ps_e_0_pl_clk0 [get_bd_pins AXI_PerfectTranslator_0/m00_axi_aclk] [get_bd_pins AXI_PerfectTranslator_0/s00_axi_aclk] [get_bd_pins backstabber_0/ace_aclk] [get_bd_pins backstabber_0/config_axi_aclk] [get_bd_pins backstabber_0/m00_axi_aclk] [get_bd_pins backstabber_0/s00_axi_aclk] [get_bd_pins backstabber_0/s01_axi_aclk] [get_bd_pins byte_writer_0/axi_aclk] [get_bd_pins byte_writer_0/config_axi_aclk] [get_bd_pins rst_ps8_0_99M/slowest_sync_clk] [get_bd_pins smartconnect_0/aclk] [get_bd_pins system_ila_0/clk] [get_bd_pins system_ila_1/clk] [get_bd_pins test_register_file_0/s00_axi_aclk] [get_bd_pins vio_0/clk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm0_fpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/maxihpm0_lpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_aclk] [get_bd_pins zynq_ultra_ps_e_0/saxihpc0_fpd_aclk]
   connect_bd_net -net zynq_ultra_ps_e_0_pl_resetn0 [get_bd_pins rst_ps8_0_99M/ext_reset_in] [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0]
   connect_bd_net -net zynq_ultra_ps_e_0_sacefpd_acaddr [get_bd_pins backstabber_0/acaddr] [get_bd_pins system_ila_0/probe0] [get_bd_pins zynq_ultra_ps_e_0/sacefpd_acaddr]
@@ -1172,126 +1140,125 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"0.883883",
-   "Default View_TopLeft":"1084,1592",
+   "Default View_ScaleFactor":"0.624999",
+   "Default View_TopLeft":"1885,1512",
    "ExpandedHierarchyInLayout":"",
+   "PinnedBlocks":"/AXI_PerfectTranslator_0|/backstabber_0|/byte_writer_0|/rst_ps8_0_99M|/smartconnect_0|/system_ila_0|/test_register_file_0|/vio_0|/zynq_ultra_ps_e_0|/system_ila_1|",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
 #  -string -flagsOSRD
 preplace inst AXI_PerfectTranslator_0 -pg 1 -lvl 2 -x 1120 -y 1120 -defaultsOSRD
+preplace inst backstabber_0 -pg 1 -lvl 2 -x 1120 -y 1820 -defaultsOSRD
 preplace inst byte_writer_0 -pg 1 -lvl 3 -x 2250 -y 3030 -defaultsOSRD
 preplace inst rst_ps8_0_99M -pg 1 -lvl 1 -x 470 -y 1850 -defaultsOSRD
 preplace inst smartconnect_0 -pg 1 -lvl 2 -x 1120 -y 2460 -defaultsOSRD
 preplace inst system_ila_0 -pg 1 -lvl 4 -x 3400 -y 1970 -defaultsOSRD
 preplace inst vio_0 -pg 1 -lvl 2 -x 1120 -y 3040 -defaultsOSRD
 preplace inst zynq_ultra_ps_e_0 -pg 1 -lvl 5 -x 4700 -y 2050 -defaultsOSRD
-preplace inst backstabber_0 -pg 1 -lvl 2 -x 1120 -y 1820 -defaultsOSRD
+preplace inst system_ila_1 -pg 1 -lvl 6 -x 5170 -y 2040 -defaultsOSRD
 preplace inst test_register_file_0 -pg 1 -lvl 3 -x 2250 -y 1970 -defaultsOSRD
-preplace inst system_ila_1 -pg 1 -lvl 6 -x 5360 -y 2070 -defaultsOSRD
-preplace netloc backstabber_0_acready 1 2 3 1450 1300 2430 1290 3580
-preplace netloc backstabber_0_araddr 1 2 3 N 1450 2640 1440 3570
-preplace netloc backstabber_0_arbar 1 2 3 N 1470 2650 1450 3560
-preplace netloc backstabber_0_arburst 1 2 3 1350 1060 N 1060 3820
-preplace netloc backstabber_0_arcache 1 2 3 1360 1070 N 1070 3810
-preplace netloc backstabber_0_ardomain 1 2 3 N 1530 2610 1340 3590
-preplace netloc backstabber_0_arid 1 2 3 1390 1110 N 1110 3790
-preplace netloc backstabber_0_arlen 1 2 3 1400 1120 N 1120 3780
-preplace netloc backstabber_0_arlock 1 2 3 1380 1080 N 1080 3760
-preplace netloc backstabber_0_arprot 1 2 3 1470 1230 N 1230 3690
-preplace netloc backstabber_0_arqos 1 2 3 1420 1130 N 1130 3800
-preplace netloc backstabber_0_arregion 1 2 3 1370 1020 N 1020 3940
-preplace netloc backstabber_0_arsize 1 2 3 1410 1090 N 1090 3850
-preplace netloc backstabber_0_arsnoop 1 2 3 N 1690 2590 1280 3680
-preplace netloc backstabber_0_aruser 1 2 3 1430 1140 N 1140 3830
-preplace netloc backstabber_0_arvalid 1 2 3 N 1730 2450 1220 3640
-preplace netloc backstabber_0_awaddr 1 2 3 1440 1150 N 1150 4010
-preplace netloc backstabber_0_awbar 1 2 3 1460 1160 N 1160 4000
-preplace netloc backstabber_0_awburst 1 2 3 1480 1170 N 1170 3990
-preplace netloc backstabber_0_awcache 1 2 3 1490 1180 N 1180 3980
-preplace netloc backstabber_0_awdomain 1 2 3 1500 1190 N 1190 3970
-preplace netloc backstabber_0_awid 1 2 3 1510 1200 N 1200 3960
-preplace netloc backstabber_0_awlen 1 2 3 1520 1210 N 1210 3950
-preplace netloc backstabber_0_awlock 1 2 3 1530 1240 N 1240 3840
-preplace netloc backstabber_0_awprot 1 2 3 1560 1270 N 1270 3910
-preplace netloc backstabber_0_awqos 1 2 3 1550 1260 N 1260 3930
-preplace netloc backstabber_0_awregion 1 2 3 1580 1310 2440 1300 3900
-preplace netloc backstabber_0_awsize 1 2 3 1610 1340 2560 1330 3870
-preplace netloc backstabber_0_awsnoop 1 2 3 1600 1330 2540 1320 3890
-preplace netloc backstabber_0_awuser 1 2 3 1590 1320 2510 1310 3920
-preplace netloc backstabber_0_awvalid 1 2 3 1620 1350 N 1350 3720
-preplace netloc backstabber_0_bready 1 2 3 1630 1360 N 1360 3660
-preplace netloc backstabber_0_cddata 1 2 3 N 1390 2720 1390 3550
-preplace netloc backstabber_0_cdlast 1 2 3 N 1410 2690 1410 3530
-preplace netloc backstabber_0_cdvalid 1 2 3 N 1430 2540 2490 3510
-preplace netloc backstabber_0_crresp 1 2 3 1570 1380 2740 1380 3540
-preplace netloc backstabber_0_crvalid 1 2 3 1540 1400 2710 1400 3520
-preplace netloc backstabber_0_debug_counter 1 2 2 NJ 2290 2490
-preplace netloc backstabber_0_debug_delay_reg 1 2 2 NJ 2310 2470
-preplace netloc backstabber_0_debug_devil_state 1 2 2 NJ 2270 2570
-preplace netloc backstabber_0_debug_snoop_state 1 2 2 NJ 2250 2550
-preplace netloc backstabber_0_debug_status 1 2 2 NJ 2330 2500
-preplace netloc backstabber_0_rack 1 2 3 1630 2150 2560 2540 3500
-preplace netloc backstabber_0_rready 1 2 3 1590 2160 2750 2470 3510
-preplace netloc backstabber_0_wack 1 2 3 1420 2200 2430 2520 3510
-preplace netloc backstabber_0_wdata 1 2 3 1640 1480 2560 1460 3620
-preplace netloc backstabber_0_wlast 1 2 3 1670 1490 2670 1470 3610
-preplace netloc backstabber_0_wstrb 1 2 3 1660 1420 N 1420 3670
-preplace netloc backstabber_0_wuser 1 2 3 1650 1370 N 1370 N
-preplace netloc backstabber_0_wvalid 1 2 3 1510 2240 2660 1430 3630
-preplace netloc rst_ps8_0_99M_peripheral_aresetn 1 1 2 660 2610 1720
-preplace netloc s01_axi_awaddr_0_1 1 1 3 800 2550 1700J 2210 2580
-preplace netloc s01_axi_awvalid_0_1 1 1 3 810 2560 1690J 2190 2600
-preplace netloc s01_axi_wdata_0_1 1 1 3 790 2580 1730J 2220 2710
-preplace netloc test_register_file_0_w_acsnoop_type 1 3 1 2460 2050n
-preplace netloc test_register_file_0_w_base_addr_Data 1 3 1 2450 2070n
-preplace netloc test_register_file_0_w_control_ACFLT 1 3 1 2610 1930n
-preplace netloc test_register_file_0_w_control_ADDRFLT 1 3 1 2590 1950n
-preplace netloc test_register_file_0_w_control_CONEN 1 3 1 2530 1990n
-preplace netloc test_register_file_0_w_control_CRRESP 1 3 1 2630 1910n
-preplace netloc test_register_file_0_w_control_EN 1 3 1 2670 1850n
-preplace netloc test_register_file_0_w_control_FUNC 1 3 1 2640 1890n
-preplace netloc test_register_file_0_w_control_OSHEN 1 3 1 2510 1970n
-preplace netloc test_register_file_0_w_control_TEST 1 3 1 2650 1870n
-preplace netloc test_register_file_0_w_delay_data 1 3 1 2480 2030n
-preplace netloc test_register_file_0_w_mem_size_Data 1 3 1 2440 2090n
-preplace netloc test_register_file_0_w_status_OSH_END 1 3 1 2520 2010n
+preplace netloc backstabber_0_acready 1 2 3 1450 1320 2750 1320 3600
+preplace netloc backstabber_0_araddr 1 2 3 N 1450 2600 1440 3580
+preplace netloc backstabber_0_arbar 1 2 3 N 1470 2610 1450 3570
+preplace netloc backstabber_0_arburst 1 2 3 1330 1000 N 1000 3870
+preplace netloc backstabber_0_arcache 1 2 3 1340 1010 N 1010 3860
+preplace netloc backstabber_0_ardomain 1 2 3 N 1530 2500 1280 3690
+preplace netloc backstabber_0_arid 1 2 3 1350 1020 N 1020 3900
+preplace netloc backstabber_0_arlen 1 2 3 1360 1030 N 1030 3890
+preplace netloc backstabber_0_arlock 1 2 3 1370 1040 N 1040 3780
+preplace netloc backstabber_0_arprot 1 2 3 1380 1050 N 1050 3850
+preplace netloc backstabber_0_arqos 1 2 3 1390 1060 N 1060 3840
+preplace netloc backstabber_0_arregion 1 2 3 1400 1070 N 1070 3830
+preplace netloc backstabber_0_arsize 1 2 3 1410 1080 N 1080 3820
+preplace netloc backstabber_0_arsnoop 1 2 3 N 1690 2430 1310 3730
+preplace netloc backstabber_0_aruser 1 2 3 1420 1090 N 1090 3880
+preplace netloc backstabber_0_arvalid 1 2 3 N 1730 2420 1400 3590
+preplace netloc backstabber_0_awaddr 1 2 3 1430 1100 N 1100 4030
+preplace netloc backstabber_0_awbar 1 2 3 1440 1110 N 1110 4020
+preplace netloc backstabber_0_awburst 1 2 3 1460 1120 N 1120 4010
+preplace netloc backstabber_0_awcache 1 2 3 1470 1130 N 1130 4000
+preplace netloc backstabber_0_awdomain 1 2 3 1480 1140 N 1140 3990
+preplace netloc backstabber_0_awid 1 2 3 1490 1150 N 1150 3980
+preplace netloc backstabber_0_awlen 1 2 3 1500 1160 N 1160 3970
+preplace netloc backstabber_0_awlock 1 2 3 1520 1230 N 1230 3810
+preplace netloc backstabber_0_awprot 1 2 3 1540 1240 N 1240 3960
+preplace netloc backstabber_0_awqos 1 2 3 1550 1260 N 1260 3950
+preplace netloc backstabber_0_awregion 1 2 3 1560 1270 N 1270 3940
+preplace netloc backstabber_0_awsize 1 2 3 1580 1300 N 1300 3920
+preplace netloc backstabber_0_awsnoop 1 2 3 1570 1290 N 1290 3930
+preplace netloc backstabber_0_awuser 1 2 3 1590 1330 N 1330 3910
+preplace netloc backstabber_0_awvalid 1 2 3 1600 1340 N 1340 3760
+preplace netloc backstabber_0_bready 1 2 3 1610 1350 N 1350 3710
+preplace netloc backstabber_0_cddata 1 2 3 N 1390 2670 1390 3560
+preplace netloc backstabber_0_cdlast 1 2 3 N 1410 2660 1410 3540
+preplace netloc backstabber_0_cdvalid 1 2 3 N 1430 2530 2490 3520
+preplace netloc backstabber_0_crresp 1 2 3 1530 1360 2720 1360 3550
+preplace netloc backstabber_0_crvalid 1 2 3 1510 1380 2700 1380 3530
+preplace netloc backstabber_0_debug_counter 1 2 2 NJ 2290 2480
+preplace netloc backstabber_0_debug_delay_reg 1 2 2 NJ 2310 2460
+preplace netloc backstabber_0_debug_devil_state 1 2 2 1680J 2240 2630
+preplace netloc backstabber_0_debug_snoop_state 1 2 2 NJ 2250 2520
+preplace netloc backstabber_0_debug_status 1 2 2 1670J 2230 2540
+preplace netloc backstabber_0_rack 1 2 3 1610 2160 2680 2540 3510
+preplace netloc backstabber_0_rready 1 2 3 1590 2150 2690 2470 3520
+preplace netloc backstabber_0_wack 1 2 3 1490 2260 2420 2530 3520
+preplace netloc backstabber_0_wdata 1 2 3 1620 1480 2550 1460 3670
+preplace netloc backstabber_0_wlast 1 2 3 1650 1490 2620 1470 3640
+preplace netloc backstabber_0_wstrb 1 2 3 1640 1420 N 1420 3720
+preplace netloc backstabber_0_wuser 1 2 3 1630 1370 N 1370 N
+preplace netloc backstabber_0_wvalid 1 2 3 1350 2280 2590 1430 3680
+preplace netloc rst_ps8_0_99M_peripheral_aresetn 1 1 5 650 2590 1700 2830 N 2830 N 2830 5040
+preplace netloc test_register_file_0_w_acsnoop_type 1 3 1 2450 2050n
+preplace netloc test_register_file_0_w_base_addr_Data 1 3 1 2440 2070n
+preplace netloc test_register_file_0_w_control_ACFLT 1 3 1 2570 1930n
+preplace netloc test_register_file_0_w_control_ADDRFLT 1 3 1 2560 1950n
+preplace netloc test_register_file_0_w_control_CONEN 1 3 1 2510 1990n
+preplace netloc test_register_file_0_w_control_CRRESP 1 3 1 2580 1910n
+preplace netloc test_register_file_0_w_control_EN 1 3 1 2620 1850n
+preplace netloc test_register_file_0_w_control_FUNC 1 3 1 2600 1890n
+preplace netloc test_register_file_0_w_control_OSHEN 1 3 1 2500 1970n
+preplace netloc test_register_file_0_w_control_TEST 1 3 1 2610 1870n
+preplace netloc test_register_file_0_w_delay_data 1 3 1 2470 2030n
+preplace netloc test_register_file_0_w_mem_size_Data 1 3 1 2430 2090n
+preplace netloc test_register_file_0_w_status_OSH_END 1 3 1 2490 2010n
 preplace netloc vio_0_probe_out0 1 2 1 NJ 3040
-preplace netloc zynq_ultra_ps_e_0_pl_clk0 1 0 6 30 1750 650 2630 1710 2230 2620J 2550 3490 2810 5050
-preplace netloc zynq_ultra_ps_e_0_pl_resetn0 1 0 6 20 900 N 900 N 900 2510 880 N 880 5070
-preplace netloc zynq_ultra_ps_e_0_sacefpd_acaddr 1 1 4 860 990 N 990 2630J 1030 3750
-preplace netloc zynq_ultra_ps_e_0_sacefpd_acprot 1 1 4 830 910 N 910 2750J 920 3880
-preplace netloc zynq_ultra_ps_e_0_sacefpd_acsnoop 1 1 4 870 1230 1450 1250 2780J 1250 3600
-preplace netloc zynq_ultra_ps_e_0_sacefpd_acvalid 1 1 4 820 920 N 920 2790J 910 3860
-preplace netloc zynq_ultra_ps_e_0_sacefpd_arready 1 1 4 710 860 1420 1100 2770J 1100 3710
-preplace netloc zynq_ultra_ps_e_0_sacefpd_awready 1 1 4 720 930 NJ 930 N 930 4060
-preplace netloc zynq_ultra_ps_e_0_sacefpd_bid 1 1 4 730 940 NJ 940 N 940 4050
-preplace netloc zynq_ultra_ps_e_0_sacefpd_bresp 1 1 4 740 950 NJ 950 N 950 4040
-preplace netloc zynq_ultra_ps_e_0_sacefpd_buser 1 1 4 750 960 NJ 960 N 960 4080
-preplace netloc zynq_ultra_ps_e_0_sacefpd_bvalid 1 1 4 760 970 NJ 970 N 970 4030
-preplace netloc zynq_ultra_ps_e_0_sacefpd_cdready 1 1 4 700 840 1440 850 2680J 990 3730
-preplace netloc zynq_ultra_ps_e_0_sacefpd_crready 1 1 4 850 980 N 980 2760J 980 3700
-preplace netloc zynq_ultra_ps_e_0_sacefpd_rdata 1 1 4 760 2620 NJ 2620 2790 2530 3720
-preplace netloc zynq_ultra_ps_e_0_sacefpd_rid 1 1 4 870 2590 NJ 2590 2760 2510 3490
-preplace netloc zynq_ultra_ps_e_0_sacefpd_rlast 1 1 4 680 850 1430 860 2700J 1040 3770
-preplace netloc zynq_ultra_ps_e_0_sacefpd_rresp 1 1 4 880 2600 1740J 2580 2720 2500 3710
-preplace netloc zynq_ultra_ps_e_0_sacefpd_ruser 1 1 4 770 1000 NJ 1000 N 1000 4070
-preplace netloc zynq_ultra_ps_e_0_sacefpd_rvalid 1 1 4 890 2570 1740 2480 2730J 2480 3740
-preplace netloc zynq_ultra_ps_e_0_sacefpd_wready 1 1 4 780 1010 NJ 1010 N 1010 4020
-preplace netloc AXI_PerfectTranslator_0_M00_AXI 1 2 3 1330 1050 N 1050 3650
-preplace netloc byte_writer_0_axi 1 1 3 670 870 NJ 870 2420
-preplace netloc smartconnect_0_M00_AXI 1 2 1 1510 2430n
-preplace netloc smartconnect_0_M01_AXI 1 1 2 880 1240 1340
-preplace netloc smartconnect_0_M02_AXI 1 1 2 890 1250 1330
-preplace netloc smartconnect_0_M03_AXI 1 2 1 1680 1950n
-preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_FPD 1 1 5 840 880 N 880 2440 890 N 890 5060
-preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_LPD 1 1 5 690 890 N 890 2430 900 N 900 5050
-levelinfo -pg 1 0 470 1120 2250 3400 4700 5360 5520
-pagesize -pg 1 -db -bbox -sgen 0 0 5520 3940
+preplace netloc zynq_ultra_ps_e_0_pl_clk0 1 0 6 20 1750 640 2600 1690 2270 2550J 2550 3500 2820 5030
+preplace netloc zynq_ultra_ps_e_0_pl_resetn0 1 0 6 20 2840 N 2840 N 2840 N 2840 N 2840 5010
+preplace netloc zynq_ultra_ps_e_0_sacefpd_acaddr 1 1 4 810 1010 1290 1210 2780J 1210 3630
+preplace netloc zynq_ultra_ps_e_0_sacefpd_acprot 1 1 4 820 1230 1320 1250 2770J 1250 3620
+preplace netloc zynq_ultra_ps_e_0_sacefpd_acsnoop 1 1 4 800 1000 1300 1220 2760J 1220 3650
+preplace netloc zynq_ultra_ps_e_0_sacefpd_acvalid 1 1 4 730 870 N 870 2730J 1180 3660
+preplace netloc zynq_ultra_ps_e_0_sacefpd_arready 1 1 4 720 890 N 890 2710J 1200 3700
+preplace netloc zynq_ultra_ps_e_0_sacefpd_awready 1 1 4 760 940 NJ 940 N 940 4070
+preplace netloc zynq_ultra_ps_e_0_sacefpd_bid 1 1 4 670 880 NJ 880 N 880 4060
+preplace netloc zynq_ultra_ps_e_0_sacefpd_bresp 1 1 4 680 900 NJ 900 N 900 4050
+preplace netloc zynq_ultra_ps_e_0_sacefpd_buser 1 1 4 690 910 NJ 910 N 910 4080
+preplace netloc zynq_ultra_ps_e_0_sacefpd_bvalid 1 1 4 700 920 NJ 920 N 920 4040
+preplace netloc zynq_ultra_ps_e_0_sacefpd_cdready 1 1 4 770 950 N 950 2630J 1190 3610
+preplace netloc zynq_ultra_ps_e_0_sacefpd_crready 1 1 4 780 960 N 960 2650J 970 3750
+preplace netloc zynq_ultra_ps_e_0_sacefpd_rdata 1 1 4 800 2580 NJ 2580 2780 2520 3780
+preplace netloc zynq_ultra_ps_e_0_sacefpd_rid 1 1 4 810 2560 NJ 2560 2760 2500 3760
+preplace netloc zynq_ultra_ps_e_0_sacefpd_rlast 1 1 4 750 980 N 980 2740J 980 3790
+preplace netloc zynq_ultra_ps_e_0_sacefpd_rresp 1 1 4 820 2570 NJ 2570 2770 2510 3500
+preplace netloc zynq_ultra_ps_e_0_sacefpd_ruser 1 1 4 660 860 NJ 860 N 860 4090
+preplace netloc zynq_ultra_ps_e_0_sacefpd_rvalid 1 1 4 840 2550 1710 2480 2640J 2480 3770
+preplace netloc zynq_ultra_ps_e_0_sacefpd_wready 1 1 4 740 990 1310J 1170 N 1170 3800
+preplace netloc AXI_PerfectTranslator_0_M00_AXI 1 2 3 1320 990 N 990 3740
+preplace netloc byte_writer_0_axi 1 1 3 710 970 NJ 970 2410
+preplace netloc smartconnect_0_M00_AXI 1 2 1 1480 2430n
+preplace netloc smartconnect_0_M01_AXI 1 1 2 830 1240 1310
+preplace netloc smartconnect_0_M02_AXI 1 1 2 840 1250 1300
+preplace netloc smartconnect_0_M03_AXI 1 2 1 1660 1950n
+preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_FPD 1 1 5 790 930 N 930 N 930 N 930 5010
+preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_LPD 1 1 5 830 2810 N 2810 N 2810 N 2810 5020
+levelinfo -pg 1 0 470 1120 2250 3400 4700 5170 5280
+pagesize -pg 1 -db -bbox -sgen 0 0 5280 3940
 "
 }
 
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
