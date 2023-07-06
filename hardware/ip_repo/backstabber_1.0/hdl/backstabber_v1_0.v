@@ -424,9 +424,9 @@
     wire                            w_devil_end;
     wire                            w_acready;
     wire                            w_devil_reply;
+    wire                            w_devil_busy;
     wire                     [63:0] w_counter; // test porpuses
 
-    assign w_snoop_state = snoop_state;
 
     wire   w_en;
     assign w_en = w_control_reg[0];
@@ -455,11 +455,12 @@
     localparam DVM_SYNC_RACK            = 6;
     localparam DVM_OP_MP                = 7;
     localparam DVM_OP_WAIT              = 8;
-    localparam REPLY                    = 9;; 
+    localparam REPLY                    = 9; 
     localparam DEVIL_EN                 = 10; 
     
 
     reg   [3 : 0] snoop_state;
+    assign w_snoop_state = snoop_state;
 
     assign queue_push_condition         = (snoop_state == IDLE) && reply_condition && ~queue_full && crready; //(snoop_state == REPLY) && ~queue_full && crready;
     assign queue_pop_condition          = m00_axi_arvalid && m00_axi_arready; // 'm00_axi_arvalid' is '~queue_empty'
@@ -727,40 +728,102 @@
         .memory_out(buffer)
     );
 
-    // Instantiation of Axi-Lite Bus Interface s01_AXI
-	fuzzing_ACE_v1_0_S01_AXI # ( 
-		.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
-		.C_S_AXI_ADDR_WIDTH(C_S01_AXI_ADDR_WIDTH)
-	) fuzzing_ACE_v1_0_s01_AXI_inst (
-		.S_AXI_ACLK(s01_axi_aclk),
-		.S_AXI_ARESETN(s01_axi_aresetn),
-		.S_AXI_AWADDR(s01_axi_awaddr),
-		.S_AXI_AWPROT(s01_axi_awprot),
-		.S_AXI_AWVALID(s01_axi_awvalid),
-		.S_AXI_AWREADY(s01_axi_awready),
-		.S_AXI_WDATA(s01_axi_wdata),
-		.S_AXI_WSTRB(s01_axi_wstrb),
-		.S_AXI_WVALID(s01_axi_wvalid),
-		.S_AXI_WREADY(s01_axi_wready),
-		.S_AXI_BRESP(s01_axi_bresp),
-		.S_AXI_BVALID(s01_axi_bvalid),
-		.S_AXI_BREADY(s01_axi_bready),
-		.S_AXI_ARADDR(s01_axi_araddr),
-		.S_AXI_ARPROT(s01_axi_arprot),
-		.S_AXI_ARVALID(s01_axi_arvalid),
-		.S_AXI_ARREADY(s01_axi_arready),
-		.S_AXI_RDATA(s01_axi_rdata),
-		.S_AXI_RRESP(s01_axi_rresp),
-		.S_AXI_RVALID(s01_axi_rvalid),
-		.S_AXI_RREADY(s01_axi_rready),
-        .o_control_reg(w_control_reg),
-        .i_status_reg(w_write_status_reg), // The Value that the this IP Writes to Status Reg 
-        .o_status_reg(w_read_status_reg), // The Value that User Writes to Status Reg
-        .o_delay_reg(w_delay_reg),
-        .o_acsnoop_reg(w_acsnoop_reg),
-        .o_base_addr_reg(w_base_addr_reg),
-        .o_addr_size_reg(w_addr_size_reg)
-	);
+    // // Instantiation of Axi-Lite Bus Interface s01_AXI
+	// fuzzing_ACE_v1_0_S01_AXI # ( 
+	// 	.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
+	// 	.C_S_AXI_ADDR_WIDTH(C_S01_AXI_ADDR_WIDTH)
+	// ) fuzzing_ACE_v1_0_s01_AXI_inst (
+	// 	.S_AXI_ACLK(s01_axi_aclk),
+	// 	.S_AXI_ARESETN(s01_axi_aresetn),
+	// 	.S_AXI_AWADDR(s01_axi_awaddr),
+	// 	.S_AXI_AWPROT(s01_axi_awprot),
+	// 	.S_AXI_AWVALID(s01_axi_awvalid),
+	// 	.S_AXI_AWREADY(s01_axi_awready),
+	// 	.S_AXI_WDATA(s01_axi_wdata),
+	// 	.S_AXI_WSTRB(s01_axi_wstrb),
+	// 	.S_AXI_WVALID(s01_axi_wvalid),
+	// 	.S_AXI_WREADY(s01_axi_wready),
+	// 	.S_AXI_BRESP(s01_axi_bresp),
+	// 	.S_AXI_BVALID(s01_axi_bvalid),
+	// 	.S_AXI_BREADY(s01_axi_bready),
+	// 	.S_AXI_ARADDR(s01_axi_araddr),
+	// 	.S_AXI_ARPROT(s01_axi_arprot),
+	// 	.S_AXI_ARVALID(s01_axi_arvalid),
+	// 	.S_AXI_ARREADY(s01_axi_arready),
+	// 	.S_AXI_RDATA(s01_axi_rdata),
+	// 	.S_AXI_RRESP(s01_axi_rresp),
+	// 	.S_AXI_RVALID(s01_axi_rvalid),
+	// 	.S_AXI_RREADY(s01_axi_rready),
+    //     .o_control_reg(w_control_reg),
+    //     .i_status_reg(w_write_status_reg), // The Value that the this IP Writes to Status Reg 
+    //     .o_status_reg(w_read_status_reg), // The Value that User Writes to Status Reg
+    //     .o_delay_reg(w_delay_reg),
+    //     .o_acsnoop_reg(w_acsnoop_reg),
+    //     .o_base_addr_reg(w_base_addr_reg),
+    //     .o_addr_size_reg(w_addr_size_reg)
+	// );
+
+  wire w_control_EN;
+  wire [3:0] w_control_TEST;
+  wire [3:0] w_control_FUNC;
+  wire [4:0] w_control_CRRESP;
+  wire w_control_ACFLT;
+  wire w_control_ADDRFLT;
+  wire w_control_OSHEN;
+  wire w_control_CONEN;
+  wire w_status_OSH_END;
+  wire w_status_OSH_END_hw_set;
+  wire [31:0] w_delay_data;
+  wire [3:0] w_acsnoop_type;
+  wire [31:0] w_base_addr_Data;
+  wire [31:0] w_mem_size_Data;
+
+    assign w_control_reg = {w_control_CONEN, w_control_OSHEN, w_control_ADDRFLT, w_control_ACFLT, w_control_CRRESP, w_control_FUNC, w_control_TEST, w_control_EN};
+
+    // Instantiation of devil register file 
+    devil_register_file #(
+        .ADDRESS_WIDTH(C_S01_AXI_ADDR_WIDTH) 
+    )devil_register_file_inst(
+    .i_clk(s01_axi_aclk),
+    .i_rst_n(s01_axi_aresetn),
+    .i_awvalid(s01_axi_awvalid),
+    .o_awready(s01_axi_awready),
+    .i_awid(0),
+    .i_awaddr(s01_axi_awaddr),
+    .i_awprot(s01_axi_awprot),
+    .i_wvalid(s01_axi_wvalid),
+    .o_wready(s01_axi_wready),
+    .i_wdata(s01_axi_wdata),
+    .i_wstrb(s01_axi_wstrb),
+    .o_bvalid(s01_axi_bvalid),
+    .i_bready(s01_axi_bready),
+    .o_bresp(s01_axi_bresp),
+    .i_arvalid(s01_axi_arvalid),
+    .o_arready(s01_axi_arready),
+    .i_arid(0),
+    .i_araddr(s01_axi_araddr),
+    .i_arprot(s01_axi_arprot),
+    .o_rvalid(s01_axi_rvalid),
+    .i_rready(s01_axi_rready),
+    .o_rdata(s01_axi_rdata),
+    .o_rresp(s01_axi_rresp),
+    .o_control_EN(w_control_EN),
+    .o_control_TEST(w_control_TEST),
+    .o_control_FUNC(w_control_FUNC),
+    .o_control_CRRESP(w_control_CRRESP),
+    .o_control_ACFLT(w_control_ACFLT),
+    .o_control_ADDRFLT(w_control_ADDRFLT),
+    .o_control_OSHEN(w_control_OSHEN),
+    .o_control_CONEN(w_control_CONEN),
+    .o_status_OSH_END(w_read_status_reg),
+    .i_status_OSH_END_hw_set(w_write_status_reg),
+    .i_status_BUSY_hw_set(w_devil_busy),
+    .i_status_BUSY_hw_clear(~w_devil_busy),
+    .o_delay_data(w_delay_reg),
+    .o_acsnoop_type(w_acsnoop_reg),
+    .o_base_addr_Data(w_base_addr_reg),
+    .o_mem_size_Data(w_addr_size_reg)
+    );
 
     // Instantiation of devil-in-fpgs module
     devil_in_fpga #(
@@ -791,8 +854,10 @@
         .i_trigger(w_trigger),
         .i_crready(crready),
         .o_reply(w_devil_reply),
+        .o_busy(w_devil_busy),
         .o_counter(w_counter) // test porpuses
 
     );
+
 
 	endmodule

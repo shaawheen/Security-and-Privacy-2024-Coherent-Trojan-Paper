@@ -57,6 +57,7 @@ module devil_tb();
     bit tb_reset;
     bit tb_clk;
     bit [31:0] reg_ctrl;
+    bit [31:0] reg_status;
     bit [31:0] reg_acsnoop;
     bit [31:0] reg_addr;
     bit [31:0] reg_size;
@@ -134,12 +135,21 @@ module devil_tb();
 
     task osh_cr_devil();
         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
-        reg_ctrl =  (1 << `DELAY_pos) | (`TEST_DELAY_CR << `TEST_pos) | 
-                (`FUNC_OSH << `FUNC_pos) | (1 << `OSHEN_pos) | (1 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        //AXI4LITE_READ_BURST(addr,prot,data,resp);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DELAY,prot,2,resp);
+        
+        reg_ctrl =  (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_OSH << `FUNC_pos) |
+                    (1 << `OSHEN_pos) | (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp);
 
-        #1000ns;
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp); 
+        while(!reg_status)
+            mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`STATUS,prot,reg_status,resp);
+    
+        //clean bit
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`STATUS,prot,1,resp); 
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp);
+        #10ns;
     endtask :osh_cr_devil
 
     task con_cr_devil();

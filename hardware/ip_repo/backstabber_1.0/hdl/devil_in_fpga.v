@@ -48,6 +48,7 @@
         input  wire                              i_crready,
         input  wire                              i_trigger,
         output wire                              o_reply,
+        output wire                              o_busy,
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -93,6 +94,7 @@
     // assign o_acready = w_acready;
     assign o_counter = r_counter;
     assign o_reply = r_reply;
+    assign o_busy = (fsm_devil_state != DEVIL_IDLE);
 
     `define NUM_OF_CYCLES   1 // 7 ns  -> 1/150Mhz
     // `define NUM_OF_CYCLES   150 // 1 us 
@@ -135,10 +137,6 @@
     assign w_osh_en = i_control_reg[16];
     assign w_con_en = i_control_reg[17];
 
-// Devil-in-the-fpga Control Reg parameters/bits
-    wire    w_osh_end;
-    assign  w_osh_end = i_read_status_reg[0];
-
     always @(posedge ace_aclk)
     begin
     if(~ace_aresetn)
@@ -165,12 +163,6 @@
                         fsm_devil_state <= DEVIL_FILTER;     
                     else 
                         fsm_devil_state <= DEVIL_IDLE;
-
-                    if(r_status_reg[0] == 1 && !w_osh_en)
-                    begin
-                        // Clean the osh_end bit when the user disbales OSH func
-                        r_status_reg[0] <= 0;    
-                    end 
 
                     if(r_end_op && !w_en)
                     begin
@@ -213,7 +205,7 @@
                     case (w_func[3:0])
                         `OSH  : 
                         begin
-                            if (r_status_reg[0] == 0 && w_osh_en)
+                            if (i_read_status_reg[0] == 0 && w_osh_en)
                                 fsm_devil_state <= DEVIL_ONE_SHOT_DELAY; 
                             else 
                                 fsm_devil_state <= DEVIL_DUMMY_REPLY;
@@ -230,12 +222,12 @@
                 end
             DEVIL_ONE_SHOT_DELAY: // 1
                 begin
-                    if (r_status_reg[0] == 0 && i_crready) // just one reply with delay                                      
+                    if (i_read_status_reg[0] == 0 && i_crready) // just one reply with delay                                      
                     begin                                                            
                         fsm_devil_state  <= DEVIL_RESPONSE;
                         r_return <= DEVIL_END_OP;                              
                     end  
-                    else if(r_status_reg[0] && i_crready) // normal reply                                                         
+                    else if(i_read_status_reg[0] && i_crready) // normal reply                                                         
                     begin                          
                         fsm_devil_state  <= DEVIL_DUMMY_REPLY;                                
                     end 
@@ -328,7 +320,7 @@
             DEVIL_DELAY: // 4
                 begin
                     // wait some cycles to respond
-                    if(r_counter == ( i_control_reg[31:18] == 0 ? 0 :`NUM_OF_CYCLES << (i_control_reg[31:18]-1)) )
+                    if(r_counter == (i_delay_reg == 0 ? 0 :`NUM_OF_CYCLES << (i_delay_reg-1)) )
                     begin
                         r_counter <= 0;
                         case (w_test[3:0])
@@ -367,6 +359,7 @@
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
+                    r_status_reg[0] <= 0;    
                     r_end_op <= 1;
                     r_reply <= 1;
                     fsm_devil_state <= DEVIL_IDLE;                                                  
@@ -376,6 +369,7 @@
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
+                    r_status_reg[0] <= 0;    
                     r_reply <= 1;
                     fsm_devil_state <= DEVIL_IDLE;                                                  
                 end

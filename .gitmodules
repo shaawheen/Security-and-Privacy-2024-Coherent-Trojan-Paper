@@ -1,0 +1,3 @@
+[submodule "hardware/ip_repo/backstabber_1.0/hdl/rggen-verilog-rtl"]
+	path = hardware/ip_repo/backstabber_1.0/hdl/rggen-verilog-rtl
+	url = https://github.com/rggen/rggen-verilog-rtl.git

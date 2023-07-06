@@ -20,20 +20,19 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-#set scripts_vivado_version 2022.1
-#set current_vivado_version [version -short]
+set scripts_vivado_version 2022.1
+set current_vivado_version [version -short]
 
-#if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
-#   puts ""
-#   catch {common::send_gid_msg -ssname BD::TCL -id 2041 -severity "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
+if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
+   puts ""
+   catch {common::send_gid_msg -ssname BD::TCL -id 2041 -severity "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
 
-#   return 1
-#}
+   return 1
+}
 
 ################################################################
 # START
 ################################################################
-puts "START-----------------------------------------------------"
 
 # To test this script, run the following commands from Vivado Tcl console:
 # source design_1_script.tcl
@@ -44,7 +43,7 @@ puts "START-----------------------------------------------------"
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 backstabbing_devil -part xczu9eg-ffvb1156-2-e
+   create_project project_1 myproj -part xczu9eg-ffvb1156-2-e
 }
 
 
@@ -121,9 +120,6 @@ set bCheckIPsPassed 1
 ##################################################################
 # CHECK IPs
 ##################################################################
-puts "CHECK IPs---------------------------------------------------"
-set_property  ip_repo_paths  $script_folder/ip_repo [current_project]
-update_ip_catalog
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
@@ -1297,28 +1293,13 @@ pagesize -pg 1 -db -bbox -sgen 0 0 5520 3940
 }
 # End of create_root_design()
 
+
 ##################################################################
 # MAIN FLOW
 ##################################################################
-puts "MAIN FLOW---------------------------------------------------"
 
 create_root_design ""
 
-##################################################################
-# Wrap Design 
-##################################################################
-make_wrapper -files [get_files $script_folder/backstabbing_devil/project_1.srcs/sources_1/bd/design_1/design_1.bd] -top
-add_files -norecurse $script_folder/backstabbing_devil/project_1.gen/sources_1/bd/design_1/hdl/design_1_wrapper.v
 
-##################################################################
-# Configure Library Propriety for the Simulation Files
-##################################################################
-# To Configure Library Propriety for the Simulation Files"
-# Open backstabber IP and issue the following cmds:"
-# set_property library xil_defaultlib [get_files $script_folder/ip_repo/backstabber_1.0/src/devil_tb.sv]"
-# set_property library xil_defaultlib [get_files $script_folder/ip_repo/backstabber_1.0/hdl/devil_in_fpga.v]"
-
-
-
-
+common::send_gid_msg -ssname BD::TCL -id 2053 -severity "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
