@@ -39,4 +39,4 @@ In this first test, the Linux is controlling the devil-in-the-fpga IP. There is 
 ## Results 
 - The system does not crash, only slows down.
 - Almost 1:1 relation between performance degradation and the size of the delay. See `results.xlsx`
-- The linux, for big delays, is throwing "Quality of service" errors (i.e., the CPU is stalled), but the application keeps executing. See `output_linux.txt`
+- The linux, for big delays, is throwing warning from the RCU’s CPU Stall Detector, but the application keeps executing. See `output_linux.txt`
