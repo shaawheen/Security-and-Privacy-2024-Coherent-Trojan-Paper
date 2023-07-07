@@ -54,8 +54,15 @@
 		output wire [31:0] w_delay_data,
 		output wire [3:0] w_acsnoop_type,
 		output wire [31:0] w_base_addr_Data,
-		output wire [31:0] w_mem_size_Data
+		output wire [31:0] w_mem_size_Data,
+		output wire  w_wvalid,
+		output wire [C_S00_AXI_ADDR_WIDTH-1 : 0] w_awaddr,
+		output wire [C_S00_AXI_DATA_WIDTH-1 : 0] w_wdata
 	);
+
+	assign w_wvalid = s00_axi_wvalid;
+	assign w_awaddr = s00_axi_awaddr;
+	assign w_wdata = s00_axi_wdata;
 // Instantiation of Axi Bus Interface S00_AXI
 	// test_register_file_v1_0_S00_AXI # ( 
 	// 	.C_S_AXI_DATA_WIDTH(C_S00_AXI_DATA_WIDTH),

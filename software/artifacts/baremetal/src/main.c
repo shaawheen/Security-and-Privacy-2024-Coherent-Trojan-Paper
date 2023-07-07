@@ -73,12 +73,12 @@ char* strnchr(const char* s, size_t n, char c) {
 // Status Reg bits
 #define OSH_END_pos 0
 
-unsigned int *ctrl       = (unsigned int*)(0x80020000+0x00);
-unsigned int *status     = (unsigned int*)(0x80020000+0x04);
-unsigned int *p_delay    = (unsigned int*)(0x80020000+0x08);
-unsigned int *acsnoop    = (unsigned int*)(0x80020000+0x0C);
-unsigned int *base_addr  = (unsigned int*)(0x80020000+0x10);
-unsigned int *mem_size   = (unsigned int*)(0x80020000+0x14);
+unsigned int *ctrl       = (unsigned int*)(0x80010000+0x00);
+unsigned int *status     = (unsigned int*)(0x80010000+0x04);
+unsigned int *p_delay    = (unsigned int*)(0x80010000+0x08);
+unsigned int *acsnoop    = (unsigned int*)(0x80010000+0x0C);
+unsigned int *base_addr  = (unsigned int*)(0x80010000+0x10);
+unsigned int *mem_size   = (unsigned int*)(0x80010000+0x14);
 
 
 void osh_cr_delay(int delay){
