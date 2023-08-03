@@ -90,10 +90,19 @@ void osh_cr_delay(int delay){
     printf(" base_addr = 0%x\n", base_addr);
     printf(" mem_size = 0%x\n", mem_size);
     *p_delay = delay;
+    *acsnoop = delay+1;
+    *base_addr = delay+2;
+    *mem_size = delay+3;
     *ctrl |= (TEST_DELAY_CR << TEST_pos);
     *ctrl |= (FUNC_OSH << FUNC_pos); // One-shot Delay
     *ctrl |= (1 << OSHEN_pos); // Enable One-shot Delay
     *ctrl |= (1 << EN_pos); // Enable IP
+    printf(" *ctrl = %d\n", *ctrl);
+    printf(" *status = %d\n", *status);
+    printf(" *p_delay = %d\n", *p_delay);
+    printf(" *acsnoop = %d\n", *acsnoop);
+    printf(" *base_addr = %d\n", *base_addr);
+    printf(" *mem_size = %d\n", *mem_size);
     //  printf("ctrl      %d: %d\n", irq_count, *ctrl); 
     // printf("status    %d: %d\n", irq_count, *status); 
     // printf("delay     %d: %d\n", irq_count, *delay); 
