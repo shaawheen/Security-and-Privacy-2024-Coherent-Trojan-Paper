@@ -21,6 +21,7 @@
 
 import axi_vip_pkg::*;
 import design_1_axi_vip_0_0_pkg::*;
+import design_1_axi_vip_1_0_pkg::*;
 
 //--------------   ADDRESS MAP  ----------------
 `define DEVIL_BASE_ADDR 32'h80010000
@@ -51,7 +52,9 @@ import design_1_axi_vip_0_0_pkg::*;
 
 module devil_tb();
     xil_axi_uint                mst_agent_verbosity = XIL_AXI_VERBOSITY_NONE;
+    xil_axi_uint                slv_agent_verbosity = XIL_AXI_VERBOSITY_NONE;
     design_1_axi_vip_0_0_mst_t  mst_agent;
+    design_1_axi_vip_1_0_slv_mem_t  slv_agent;
     xil_axi_prot_t  prot = 0;
     xil_axi_resp_t  resp;
     bit tb_reset;
@@ -114,15 +117,22 @@ module devil_tb();
     $display("Start Simulation");
     // new agents
     mst_agent = new("MasterVIP", DUT.design_1_i.axi_vip_0.inst.IF);
+    slv_agent = new("SlaveVIP",DUT.design_1_i.axi_vip_1.inst.IF);
     // Set tags for easier debug
     mst_agent.set_agent_tag("Master VIP");
+    slv_agent.set_agent_tag("Slave VIP");
     // Set verbosity
     mst_agent.set_verbosity(mst_agent_verbosity);
+    slv_agent.set_verbosity(slv_agent_verbosity);
     // start the agents
     mst_agent.start_master();
+    slv_agent.start_slave();
+    slv_agent.mem_model.set_memory_fill_policy(XIL_AXI_MEMORY_FILL_RANDOM);      
+    // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
+    data_leak_devil();
     // osh_cr_devil();  
-    osh_cr_devil();  
+    // osh_cr_devil();  
     // con_cr_devil();
     // dummy_cr_devil();
     // ac_filter_cr_devil();
@@ -132,6 +142,19 @@ module devil_tb();
     $display("END Simulation");
     $finish;
     end 
+
+    task data_leak_devil();
+        reg_addr = 32'h00000002;
+        reg_size = 4'h0;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`MEM_SIZE,prot,reg_size,resp); 
+        reg_ctrl =  (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+        reg_ctrl =  (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+    endtask :data_leak_devil
 
     task osh_cr_devil();
         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
