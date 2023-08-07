@@ -197,7 +197,8 @@ void main(void){
         // spin_unlock(&print_lock);
         // sprintf(shmem_buff, "%d", irq_count);
         // irq_count++;
-        osh_cr_delay(4);
+        // osh_cr_delay(4);
+        *ctrl |= (1 << EN_pos); // Enable IP
     }
 
     while(!master_done);

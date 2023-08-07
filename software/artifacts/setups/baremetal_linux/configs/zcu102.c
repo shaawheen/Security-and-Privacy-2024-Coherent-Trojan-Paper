@@ -106,13 +106,17 @@ struct config config = {
             .platform = {
                 .cpu_num = 1,
 
-                .region_num = 1,
+                .region_num = 2,
                 .regions =  (struct vm_mem_region[]) {
                     {
                         .base = 0x00000000,
-                        .size = 0x8000000
+                        .size =  0x8000000
+                    },
+                    {
+                        .base = 0x40000000,
+                        .size = 0x10000,
+                        .place_phys=true
                     }
-
                 },
 
                 .ipc_num = 1,
