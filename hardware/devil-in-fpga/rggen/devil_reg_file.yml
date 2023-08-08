@@ -115,6 +115,33 @@ register_blocks:
       bit_fields:
       - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
 
+################################################################
+    - name: rddata_1
+      comment: |
+        First Word of the rrdata response.
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: rddata_2
+      comment: |
+        Second Word of the rrdata response.
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: rddata_3
+      comment: |
+        Third Word of the rrdata response.
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: rddata_4
+      comment: |
+        Fourth Word of the rrdata response.
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
     # - name: register_2
     #   offset_address: 0x08
     #   bit_fields:

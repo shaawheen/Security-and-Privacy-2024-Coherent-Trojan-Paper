@@ -871,7 +871,11 @@
     .o_delay_data(w_delay_reg),
     .o_acsnoop_type(w_acsnoop_reg),
     .o_base_addr_Data(w_base_addr_reg),
-    .o_mem_size_Data(w_addr_size_reg)
+    .o_mem_size_Data(w_addr_size_reg),
+    .i_rddata_1_data(r_buff[0][31:0]),
+    .i_rddata_2_data(r_buff[0][63:32]),
+    .i_rddata_3_data(r_buff[0][95:64]),
+    .i_rddata_4_data(r_buff[0][127:96])
     );
 
     // Instantiation of devil-in-fpgs module

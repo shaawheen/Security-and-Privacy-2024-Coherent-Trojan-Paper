@@ -31,6 +31,10 @@ import design_1_axi_vip_1_0_pkg::*;
 `define ACSNOOP         32'h0C
 `define BASE_ADDR       32'h10
 `define MEM_SIZE        32'h14
+`define RDATA1          32'h18
+`define RDATA2          32'h1C
+`define RDATA3          32'h20
+`define RDATA4          32'h24
 
 // Control Reg bits
 `define EN_pos      0
@@ -61,6 +65,7 @@ module devil_tb();
     bit tb_clk;
     bit [31:0] reg_ctrl;
     bit [31:0] reg_status;
+    bit [31:0] reg_rdata;
     bit [31:0] reg_acsnoop;
     bit [31:0] reg_addr;
     bit [31:0] reg_size;
@@ -154,6 +159,14 @@ module devil_tb();
         reg_ctrl =  (0 << `EN_pos);
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
         #100ns;
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA1,prot,reg_rdata,resp);
+        $display("RDATA1 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA2,prot,reg_rdata,resp);
+        $display("RDATA2 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA3,prot,reg_rdata,resp);
+        $display("RDATA3 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA4,prot,reg_rdata,resp);
+        $display("RDATA4 = %h",reg_rdata);
     endtask :data_leak_devil
 
     task osh_cr_devil();
