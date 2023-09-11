@@ -9,7 +9,7 @@ with pkgs;
 
 let
   packages = rec {
-    platform = "zcu102";
+    platform = "zcu104";
     #artifacts
     artifacts = callPackage ./pkgs/artifacts/artifacts.nix {};
     # tools
@@ -22,7 +22,7 @@ let
     linux = callPackage ./pkgs/guest/linux-guest.nix { toolchain = aarch64-none-elf; inherit artifacts; inherit platform; };
     bao = callPackage ./pkgs/bao/bao.nix { toolchain = aarch64-none-elf; inherit artifacts; vm1 = baremetal; vm2 = linux; inherit platform;};
     atf = callPackage ./pkgs/atf/atf.nix { toolchain = aarch64-none-elf; inherit artifacts;};
-    xilinx_firmware = callPackage ./pkgs/firmware/firmware.nix { inherit artifacts; }; 
+    xilinx_firmware = callPackage ./pkgs/firmware/firmware.nix { inherit artifacts; inherit platform;}; 
 
     gen_sd = callPackage ./pkgs/gen_sd/gen_sd.nix { inherit artifacts; inherit bao; inherit bootgen; inherit xilinx_firmware; inherit atf; };
     # scripts = callPackage ./pkgs/scripts/scripts.nix { inherit gen_sd; };
@@ -35,7 +35,7 @@ let
       text = ''
         #!/bin/bash
 
-        export BAO_SDCARD=/media/$USER/boot1
+        export BAO_SDCARD=/media/$USER/boot2
         
         if [ -d $BAO_SDCARD ]
             then  
