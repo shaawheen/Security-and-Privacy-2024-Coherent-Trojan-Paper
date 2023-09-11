@@ -570,7 +570,7 @@
 
     reg r_trigger;
     reg [1:0]r_index;
-    reg [127:0]r_buff[1:0];
+    reg [127:0]r_buff[3:0]; // 4 elements of 16 bytes
     wire w_trigger ;
     assign w_trigger         = r_trigger;
 

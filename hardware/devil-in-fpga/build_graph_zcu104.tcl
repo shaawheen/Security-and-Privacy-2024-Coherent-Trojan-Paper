@@ -23,7 +23,7 @@ set script_file "build.tcl"
 set orig_proj_dir "[file normalize "$origin_dir/"]"
 
 # Create project
-create_project ${_xil_proj_name_} $origin_dir/${_xil_proj_name_} -part xczu9eg-ffvb1156-2-e
+create_project ${_xil_proj_name_} $origin_dir/${_xil_proj_name_} -part xczu7ev-ffvc1156-2-e
 
 # Set the directory path for the new project
 set proj_dir [get_property directory [current_project]]
@@ -37,7 +37,7 @@ set_property -name "enable_vhdl_2008" -value "1" -objects $obj
 set_property -name "ip_cache_permissions" -value "read write" -objects $obj
 set_property -name "ip_output_repo" -value "$proj_dir/${_xil_proj_name_}.cache/ip" -objects $obj
 set_property -name "mem.enable_memory_map_generation" -value "1" -objects $obj
-set_property -name "part" -value "xczu9eg-ffvb1156-2-e" -objects $obj
+set_property -name "part" -value "xczu7ev-ffvc1156-2-e" -objects $obj
 set_property -name "revised_directory_structure" -value "1" -objects $obj
 set_property -name "sim.central_dir" -value "$proj_dir/${_xil_proj_name_}.ip_user_files" -objects $obj
 set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
@@ -65,7 +65,7 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 
 # Set 'constrs_1' fileset properties
 set obj [get_filesets constrs_1]
-set_property -name "target_part" -value "xczu9eg-ffvb1156-2-e" -objects $obj
+set_property -name "target_part" -value "xczu7ev-ffvc1156-2-e" -objects $obj
 
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
@@ -83,10 +83,4 @@ source $origin_dir/src/bd/design_1.tcl
 
 save_bd_design
 
-## Generate bitstream
-
-launch_runs impl_1 -to_step write_bitstream -jobs 8
-
-get_property PROGRESS [get_runs synth_1]
-get_property PROGRESS [get_runs impl_1]
 
