@@ -569,6 +569,7 @@
     assign debug_status         = w_write_status_reg;
 
     reg r_trigger;
+    reg r_one_shot;
     reg [1:0]r_index;
     reg [127:0]r_buff[3:0]; // 4 elements of 16 bytes
     wire w_trigger ;
@@ -582,6 +583,7 @@
             snoop_state <= IDLE;
             r_trigger <= 0; // DEVIL_IDLE
             r_index <= 0;
+            r_one_shot <= 0;
         end
         else if (snoop_state == IDLE)
         begin
@@ -590,7 +592,13 @@
             //     snoop_state <= DEVIL_EN;
             //     r_trigger <= 1; 
             // end
-            if((acsnoop != `DVM_MESSAGE) && w_en) 
+
+            if(w_en)
+                r_one_shot <= 1;
+            else
+                r_one_shot <= 0;
+            
+            if((acsnoop != `DVM_MESSAGE) && w_en && !r_one_shot) 
             begin
                 snoop_state <= DEVIL_AR_PHASE;
                 r_index <= 0;

@@ -86,7 +86,7 @@ save_bd_design
 
 ## Generate bitstream
 
-launch_runs impl_1 -to_step write_bitstream -jobs 8
+launch_runs impl_1 -to_step write_bitstream -jobs 6
 
 get_property PROGRESS [get_runs synth_1]
 get_property PROGRESS [get_runs impl_1]
