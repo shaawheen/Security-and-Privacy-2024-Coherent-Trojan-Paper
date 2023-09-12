@@ -35,11 +35,11 @@ case "$1" in
         case "$2" in
             "zcu102")
                 echo $'\e[1;31m Building hardware components ZCU102...\e[0m'
-                vivado -source build_zcu102.tcl
+                vivado -source -mode batch build_zcu102.tcl
                 ;;
             "zcu104")
                 echo $'\e[1;31m Building hardware components ZCU104...\e[0m'
-                vivado -source build_zcu104.tcl
+                vivado -source -mode batch build_zcu104.tcl
                 ;;
             *)
                 echo $'\e[1;31m Board not Supported in build mode.\e[0m Use zcu102 or zcu104'
