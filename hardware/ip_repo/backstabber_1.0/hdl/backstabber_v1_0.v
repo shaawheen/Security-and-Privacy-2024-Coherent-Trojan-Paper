@@ -510,7 +510,7 @@
     assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) || ((snoop_state == DEVIL_AR_PHASE) && arready); //acvalid & is_in_range & ace_enable;
 
     // ACE R Channel, data phase
-    assign rready       = (snoop_state == DVM_SYNC_READ) || (snoop_state == DEVIL_R_PHASE);
+    assign rready       = (snoop_state == DVM_SYNC_READ) || (snoop_state == DEVIL_AR_PHASE)  || (snoop_state == DEVIL_R_PHASE);
     assign rack         = (snoop_state == DVM_SYNC_READ) || (snoop_state == DEVIL_RACK);
     assign r_handshake  = rready && rvalid && rlast;
 
@@ -629,7 +629,7 @@
         end
          else if (snoop_state == DEVIL_AR_PHASE) 
         begin
-            if (arready) 
+            if (arready)  
                 snoop_state <= DEVIL_R_PHASE;
             else
                 snoop_state <= snoop_state;
