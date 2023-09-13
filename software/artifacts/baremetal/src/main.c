@@ -203,17 +203,7 @@ void main(void){
         // sprintf(shmem_buff, "%d", irq_count);
         // irq_count++;
         // osh_cr_delay(4);
-        *ptr = 0xdeadbeef;
-        *base_addr = 0x4000000;
-        *mem_size = 0;
-        printf(" ptr = 0x%8x\n", *ptr);
-        *ctrl |= (1 << EN_pos); // Enable IP
-        for (size_t i = 0; i < 1000; i++);   
-        *ctrl &= ~(1 << EN_pos); // Disable IP
-        printf(" rdata1 = 0x%8x\n", *rdata1);
-        printf(" rdata2 = 0x%8x\n", *rdata2);
-        printf(" rdata3 = 0x%8x\n", *rdata3);
-        printf(" rdata4 = 0x%8x\n", *rdata4);
+
     }
 
     while(!master_done);
@@ -226,6 +216,37 @@ void main(void){
     //     // printf("status    %d: %d\n", irq_count, *status); 
     //     for (size_t i = 0; i < 100000000; i++);        
     // }
+
+    // while (1)
+    // {
+    //     printf(" ctrl = 0%x\n", *ctrl);
+    //     printf(" base_addr = 0%x\n", *base_addr);
+    //     printf(" mem_size = 0%x\n", *mem_size);
+    //     // *ptr = 0xdeadbeef;
+    //     *base_addr = 0x4000000;
+    //     *mem_size = 0;
+    //     printf(" ptr = 0x%8x\n", *ptr);
+    //     *ctrl |= (1 << EN_pos); // Enable IP
+    //     // while (!(*ctrl & (1 << EN_pos)));
+    //     // *ctrl &= ~(1 << EN_pos); // Disable IP
+    //     printf(" ctrl = 0%x\n", *ctrl);
+    //     printf(" base_addr = 0%x\n", *base_addr);
+    //     printf(" mem_size = 0%x\n", *mem_size);
+    //     printf(" rdata1 = 0x%08x\n", *rdata1);
+    //     printf(" rdata2 = 0x%08x\n", *rdata2);
+    //     printf(" rdata3 = 0x%08x\n", *rdata3);
+    //     printf(" rdata4 = 0x%08x\n", *rdata4);
+    //     for (size_t i = 0; i < 100000000; i++);   
+    // }
+
+    while (1)
+    {
+        spin_lock(&print_lock);
+        printf(" ptr = 0x%08x\n", *ptr);
+        spin_unlock(&print_lock);
+        for (size_t i = 0; i < 100000000; i++);   
+    }
+    
 
     while(1) wfi();    
 }
