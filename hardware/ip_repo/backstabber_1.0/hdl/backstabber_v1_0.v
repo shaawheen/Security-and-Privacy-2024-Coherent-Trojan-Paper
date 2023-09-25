@@ -402,6 +402,7 @@
 //******************************************************************************
 // Devil-in-the-fpga
 //******************************************************************************
+    `define READ_ONCE       4'b0000
     `define CLEAN_INVALID   4'b1001
     `define DVM_COMPLETE    4'b1110
     `define DVM_MESSAGE     4'b1111
@@ -457,6 +458,9 @@
     localparam DVM_OP_WAIT              = 8;
     localparam REPLY                    = 9; 
     localparam DEVIL_EN                 = 10; 
+    localparam DEVIL_AR_PHASE           = 11; 
+    localparam DEVIL_R_PHASE            = 12; 
+    localparam DEVIL_RACK               = 13;
     
 
     reg   [3 : 0] snoop_state;
@@ -488,22 +492,37 @@
                       ((snoop_state == DVM_SYNC_LAST) && crready && arready) ||
                       ((snoop_state == REPLY) && crready);
     
-    assign araddr   = 0;
+    // ACE R Channel, address phase
+    assign araddr   = ((snoop_state == DEVIL_AR_PHASE) && arready) ? {w_base_addr_reg, w_addr_size_reg[3:0]} : 0;
     assign arbar    = 1'b0;
     assign arburst  = 2'b01; //Should be calculated based on the acaddr inc or wrap?
-    assign arcache  = 4'h3;//Refer to page 64 of manual. What is the effect of ARCACHE[1]?
-    assign ardomain = 2'b00;
+    assign arcache  = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
+    assign ardomain = ((snoop_state == DEVIL_AR_PHASE) && arready) ? 2'b10 : 2'b00; // outer shareable  
     assign arid     = 0;
-    assign arlen    = 0; // Set to 3 for Four bursts to fill 64B (CL size)
+    assign arlen    = ((snoop_state == DEVIL_AR_PHASE) && arready) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
     assign arlock   = 0;
-    assign arprot   = 3'b011; //Data, Privileged, Non-secure access
+    assign arprot   = 3'b011; // [2] Data Access, [1] Non-secure access, [0] Privileged
     assign arqos    = 0;
     assign arregion = 0;
     assign arsize   = 4'b100; //Size of each burst is 16B
-    
-    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : 0; //Means arbar and ardomain have to be 0
+    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : (((snoop_state == DEVIL_AR_PHASE) && arready) ? `READ_ONCE : 0); //Means arbar and ardomain have to be 0
     assign aruser   = 0;
-    assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready); //acvalid & is_in_range & ace_enable;
+    assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) || ((snoop_state == DEVIL_AR_PHASE) && arready); //acvalid & is_in_range & ace_enable;
+
+    // ACE R Channel, data phase
+    assign rready       = (snoop_state == DVM_SYNC_READ) || (snoop_state == DEVIL_AR_PHASE)  || (snoop_state == DEVIL_R_PHASE);
+    assign rack         = (snoop_state == DVM_SYNC_READ) || (snoop_state == DEVIL_RACK);
+    assign r_handshake  = rready && rvalid && rlast;
+
+// output wire                                          rready,
+// input  wire                   [C_ACE_DATA_WIDTH-1:0] rdata,
+// input  wire                                    [5:0] rid,
+// input  wire                                          rlast,
+// input  wire                                    [3:0] rresp,
+// input  wire                                          ruser,
+// input  wire                                          rvalid,
+
+    // ACE W channel, address phase
     assign awaddr   = 0;
     assign awbar    = 0;
     assign awburst  = 0;
@@ -533,10 +552,7 @@
     assign cddata   = w_rdata;
     assign cdlast   = w_cdlast;
     assign cdvalid  = w_cdvalid;
-    assign rready   = (snoop_state == DVM_SYNC_READ);
-    assign rack     = (snoop_state == DVM_SYNC_READ);
     assign ac_handshake                   = acready && acvalid;
-    assign r_handshake                    = rready && rvalid && rlast;
     
     assign reply_condition                = ac_handshake && (acsnoop != `DVM_MESSAGE) && lying_condition;
     assign non_reply_condition            = ac_handshake && (acsnoop != `DVM_MESSAGE) && ~lying_condition;
@@ -553,6 +569,9 @@
     assign debug_status         = w_write_status_reg;
 
     reg r_trigger;
+    reg r_one_shot;
+    reg [1:0]r_index;
+    reg [127:0]r_buff[3:0]; // 4 elements of 16 bytes
     wire w_trigger ;
     assign w_trigger         = r_trigger;
 
@@ -563,13 +582,26 @@
         begin
             snoop_state <= IDLE;
             r_trigger <= 0; // DEVIL_IDLE
+            r_index <= 0;
+            r_one_shot <= 0;
         end
         else if (snoop_state == IDLE)
         begin
-            if((acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && ac_handshake) 
+            // if((acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && ac_handshake) 
+            // begin
+            //     snoop_state <= DEVIL_EN;
+            //     r_trigger <= 1; 
+            // end
+
+            if(w_en)
+                r_one_shot <= 1;
+            else
+                r_one_shot <= 0;
+            
+            if((acsnoop != `DVM_MESSAGE) && w_en && !r_one_shot) 
             begin
-                snoop_state <= DEVIL_EN;
-                r_trigger <= 1; 
+                snoop_state <= DEVIL_AR_PHASE;
+                r_index <= 0;
             end
             else if(non_reply_condition || dvm_operation_last_condition)
                 snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
@@ -586,6 +618,7 @@
                 r_trigger <= r_trigger; 
             end
         end
+        // DEVIL
         else if (snoop_state == DEVIL_EN) // Wait for devil to finish
         begin
             r_trigger <= 0; // Clean trigger
@@ -594,6 +627,30 @@
             else
                 snoop_state <= snoop_state;
         end
+         else if (snoop_state == DEVIL_AR_PHASE) 
+        begin
+            if (arready)  
+                snoop_state <= DEVIL_R_PHASE;
+            else
+                snoop_state <= snoop_state;
+        end
+         else if (snoop_state == DEVIL_R_PHASE) 
+        begin
+            if (rready && rvalid) begin 
+                r_index <= r_index + 1;
+                r_buff[r_index] <= rdata;
+            end
+
+            if (rready && rvalid && rlast) 
+                snoop_state <= DEVIL_RACK;
+            else
+                snoop_state <= snoop_state;
+        end
+         else if (snoop_state == DEVIL_RACK) 
+        begin
+                snoop_state <= IDLE;
+        end
+        // Backstabber
         else if (snoop_state == NON_REPLY_OR_DVM_OP_LAST)
         begin
             if (crready)
@@ -822,7 +879,11 @@
     .o_delay_data(w_delay_reg),
     .o_acsnoop_type(w_acsnoop_reg),
     .o_base_addr_Data(w_base_addr_reg),
-    .o_mem_size_Data(w_addr_size_reg)
+    .o_mem_size_Data(w_addr_size_reg),
+    .i_rddata_1_data(r_buff[0][31:0]),
+    .i_rddata_2_data(r_buff[0][63:32]),
+    .i_rddata_3_data(r_buff[0][95:64]),
+    .i_rddata_4_data(r_buff[0][127:96])
     );
 
     // Instantiation of devil-in-fpgs module
