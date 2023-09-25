@@ -21,6 +21,7 @@ let
     baremetal = callPackage ./pkgs/guest/baremetal-guest.nix { toolchain = aarch64-none-elf; inherit artifacts; inherit platform; };
     linux = callPackage ./pkgs/guest/linux-guest.nix { toolchain = aarch64-none-elf; inherit artifacts; inherit platform; };
     bao = callPackage ./pkgs/bao/bao.nix { toolchain = aarch64-none-elf; inherit artifacts; vm1 = baremetal; vm2 = linux; inherit platform;};
+    # u-boot = callPackage ./pkgs/u-boot/u-boot.nix { toolchain = aarch64-none-elf; };
     atf = callPackage ./pkgs/atf/atf.nix { toolchain = aarch64-none-elf; inherit artifacts;};
     xilinx_firmware = callPackage ./pkgs/firmware/firmware.nix { inherit artifacts; inherit platform;}; 
 

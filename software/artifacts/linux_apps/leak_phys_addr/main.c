@@ -65,7 +65,17 @@ int main() {
     rdata3 = map_base+8;
     rdata4 = map_base+9;
 
-    *base_addr = 0x4000000;
+    // Instruction leak  
+    //  - ATF (OCM) -> 0xFFFEA000 
+    //      To validate, hexdump -C bl31.elf  (start at offset 0x0000a000 ) 
+    //  - system-dtb -> 0x00100000
+    //      To validate, hexdump -C system.dtb (start at offset 0x00000000)
+    // Data leak between VMs 
+    //  - Data addr -> 0x40000000
+    //      To validate, run ./read_phys_addr which will write in addr 0x40000000
+    //      and then this code will leak the data written there
+
+    *base_addr = 0xFFFEA00;
     *mem_size = 0;
     printf(" ctrl = 0x%08x\n", *ctrl);
     *ctrl |= (1 << EN_pos); // Enable IP
