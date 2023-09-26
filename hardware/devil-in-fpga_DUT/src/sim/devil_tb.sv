@@ -135,7 +135,8 @@ module devil_tb();
     slv_agent.mem_model.set_memory_fill_policy(XIL_AXI_MEMORY_FILL_RANDOM);      
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
-    data_leak_devil();
+    data_tampering_devil();
+    // data_leak_devil();
     // osh_cr_devil();  
     // osh_cr_devil();  
     // con_cr_devil();
@@ -148,7 +149,7 @@ module devil_tb();
     $finish;
     end 
 
-    task data_leak_devil();
+    task data_tampering_devil();
         reg_addr = 32'h00000002;
         reg_size = 4'h0;
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp); 
@@ -167,7 +168,7 @@ module devil_tb();
         $display("RDATA3 = %h",reg_rdata);
         mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA4,prot,reg_rdata,resp);
         $display("RDATA4 = %h",reg_rdata);
-    endtask :data_leak_devil
+    endtask :data_tampering_devil
 
     task osh_cr_devil();
         //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
