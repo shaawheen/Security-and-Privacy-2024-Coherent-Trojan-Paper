@@ -76,17 +76,17 @@ int main() {
     //      To validate, run ./read_phys_addr which will write in addr 0x40000000
     //      and then this code will leak the data written there
 
-    *base_addr = 0xFFFEA00;
+    *base_addr = 0x4000000;
     *mem_size = 0;
     printf(" ctrl = 0x%08x\n", *ctrl);
     *ctrl |= (1 << EN_pos); // Enable IP
     // // while (!(*ctrl & (1 << EN_pos)));
     for (size_t i = 0; i < 10000000; i++);   
     printf(" ctrl = 0x%08x\n", *ctrl);   
-    printf(" rdata1 = 0x%08x\n", *rdata1);
-    printf(" rdata2 = 0x%08x\n", *rdata2);
-    printf(" rdata3 = 0x%08x\n", *rdata3);
-    printf(" rdata4 = 0x%08x\n", *rdata4);
+    // printf(" rdata1 = 0x%08x\n", *rdata1);
+    // printf(" rdata2 = 0x%08x\n", *rdata2);
+    // printf(" rdata3 = 0x%08x\n", *rdata3);
+    // printf(" rdata4 = 0x%08x\n", *rdata4);
     *ctrl &= ~(1 << EN_pos); // Disable IP
     printf(" ctrl = 0x%08x\n", *ctrl);   
 

@@ -242,7 +242,7 @@ void main(void){
     while (1)
     {
         spin_lock(&print_lock);
-        printf(" ptr = 0x%08x\n", *ptr);
+        printf(" ptr = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr, *(ptr+4), *(ptr+8), *(ptr+12));
         spin_unlock(&print_lock);
         for (size_t i = 0; i < 100000000; i++);   
     }

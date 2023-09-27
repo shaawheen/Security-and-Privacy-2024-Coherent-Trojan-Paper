@@ -293,7 +293,7 @@
 		output wire                                          s01_axi_rvalid,
 		input wire                                           s01_axi_rready,
         // Debug (temporary) IO
-        output wire                                    [3:0] debug_snoop_state,
+        output wire                                    [4:0] debug_snoop_state,
         output wire                                    [3:0] debug_devil_state,
         output wire                                   [63:0] debug_counter,
         output wire                                   [31:0] debug_delay_reg,
@@ -417,6 +417,16 @@
     wire [C_S01_AXI_DATA_WIDTH-1:0] w_acsnoop_reg;
     wire [C_S01_AXI_DATA_WIDTH-1:0] w_base_addr_reg;
     wire [C_S01_AXI_DATA_WIDTH-1:0] w_addr_size_reg;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_arsnoop_Data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_l_araddr_Data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_h_araddr_Data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_awsnoop_Data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_l_awaddr_Data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_h_awaddr_Data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_wdata_0_data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_wdata_1_data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_wdata_2_data;
+    wire [C_S01_AXI_DATA_WIDTH-1:0] w_wdata_3_data;
     wire     [C_ACE_DATA_WIDTH-1:0] w_rdata;
     wire                      [4:0] w_crresp;
     wire                            w_crvalid;
@@ -499,7 +509,7 @@
                       ((snoop_state == REPLY) && crready);
     
     // ACE AR Channel (Read address phase)
-    assign araddr   = ((snoop_state == DEVIL_AR_PHASE) && arready) ? {w_base_addr_reg, w_addr_size_reg[3:0]} : 0;
+    assign araddr   = ((snoop_state == DEVIL_AR_PHASE) && arready) ? {w_h_araddr_Data[7:0], w_l_araddr_Data} : 0;
     assign arbar    = 1'b0;
     assign arburst  = 2'b01; //Should be calculated based on the acaddr inc or wrap?
     assign arcache  = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
@@ -511,7 +521,7 @@
     assign arqos    = 0;
     assign arregion = 0;
     assign arsize   = 4'b100; //Size of each burst is 16B
-    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : (((snoop_state == DEVIL_AR_PHASE) && arready) ? `READ_ONCE : 0); //Means arbar and ardomain have to be 0
+    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : (((snoop_state == DEVIL_AR_PHASE) && arready) ? w_arsnoop_Data : 0); //Means arbar and ardomain have to be 0
     assign aruser   = 0;
     assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) || ((snoop_state == DEVIL_AR_PHASE) && arready); //acvalid & is_in_range & ace_enable;
 
@@ -520,16 +530,8 @@
     assign rack         = (snoop_state == DVM_SYNC_READ) || (snoop_state == DEVIL_RACK);
     assign r_handshake  = rready && rvalid && rlast;
 
-// output wire                                          rready,
-// input  wire                   [C_ACE_DATA_WIDTH-1:0] rdata,
-// input  wire                                    [5:0] rid,
-// input  wire                                          rlast,
-// input  wire                                    [3:0] rresp,
-// input  wire                                          ruser,
-// input  wire                                          rvalid,
-
     // ACE AW channel (Write address phase)
-    assign awaddr   = ((snoop_state == DEVIL_AW_PHASE) && awready) ? {w_base_addr_reg, w_addr_size_reg[3:0]} : 0;;
+    assign awaddr   = ((snoop_state == DEVIL_AW_PHASE) && awready) ? {w_h_awaddr_Data[7:0], w_l_awaddr_Data} : 0;
     assign awbar    = 1'b0;
     assign awburst  = 2'b01; // INCR
     assign awcache  = 4'b1111; // Write-back Write-allocate, Refer to page 65 of manual. 
@@ -540,13 +542,13 @@
     assign awprot   = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged
     assign awqos    = 0;
     assign awregion = 0;
-    assign awsize   = 4'b100; //Size of each burst is 16B
-    assign awsnoop  = ((snoop_state == DEVIL_AW_PHASE) && awready) ? `WRITE_LINE_UNIQUE : 0; //Refer to page 166 of manual. 
+    assign awsize   = 4'b100; //Size of each burst is 16B (data-bus of 128 bits )
+    assign awsnoop  = ((snoop_state == DEVIL_AW_PHASE) && awready) ? w_awsnoop_Data : 0; //Refer to page 166 of manual. 
     assign awuser   = 0;
     assign awvalid  = (snoop_state == DEVIL_AW_PHASE) && awready; 
 
     // ACE W channel (Write data phase)
-    assign wdata    = (snoop_state == DEVIL_W_PHASE) ? r_index+1 : 0; // w_buff[r_index] : 0;
+    assign wdata    = (snoop_state == DEVIL_W_PHASE) ? {w_wdata_3_data, w_wdata_2_data, w_wdata_1_data, w_wdata_0_data} : 0; // This way I am writing 16B (128bits) 4x times
     assign wlast    = (r_index == 3);
     assign wstrb    = 16'hffff; // Activate all strobes, we have a data-bus of 128 bits 
     assign wuser    = 0;
@@ -923,10 +925,20 @@
     .o_acsnoop_type(w_acsnoop_reg),
     .o_base_addr_Data(w_base_addr_reg),
     .o_mem_size_Data(w_addr_size_reg),
-    .i_rddata_1_data(r_buff[0][31:0]),
-    .i_rddata_2_data(r_buff[0][63:32]),
-    .i_rddata_3_data(r_buff[0][95:64]),
-    .i_rddata_4_data(r_buff[0][127:96])
+    .o_arsnoop_Data(w_arsnoop_Data),
+    .o_l_araddr_Data(w_l_araddr_Data),
+    .o_h_araddr_Data(w_h_araddr_Data),
+    .i_rdata_0_data(r_buff[0][31:0]),
+    .i_rdata_1_data(r_buff[0][63:32]),
+    .i_rdata_2_data(r_buff[0][95:64]),
+    .i_rdata_3_data(r_buff[0][127:96]),
+    .o_awsnoop_Data(w_awsnoop_Data),
+    .o_l_awaddr_Data(w_l_awaddr_Data),
+    .o_h_awaddr_Data(w_h_awaddr_Data),
+    .o_wdata_0_data(w_wdata_0_data),
+    .o_wdata_1_data(w_wdata_1_data),
+    .o_wdata_2_data(w_wdata_2_data),
+    .o_wdata_3_data(w_wdata_3_data)
     );
 
     // Instantiation of devil-in-fpgs module
