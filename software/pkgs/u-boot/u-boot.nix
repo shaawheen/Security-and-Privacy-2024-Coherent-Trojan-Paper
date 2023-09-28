@@ -25,7 +25,7 @@ stdenv.mkDerivation rec {
         echo "CONFIG_TFABOOT=y" >> .config
         echo "CONFIG_SYS_TEXT_BASE=0x60000000" >> .config
         echo "CONFIG_BOOTDELAY=0" >> ./.config 
-        echo "CONFIG_BOOTCOMMAND=\"go 0x50000000\"" >> .config
+        echo "CONFIG_BOOTCOMMAND=\"fatload mmc 0 0x200000 bao.img; bootm start 0x200000; bootm loados; bootm go\"" >> .config
         make
     '';
     

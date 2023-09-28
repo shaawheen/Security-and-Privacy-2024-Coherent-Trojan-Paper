@@ -24,6 +24,9 @@
 // Status Reg bits
 #define OSH_END_pos 0
 
+#define READ_ONCE           0b0000
+#define WRITE_LINE_UNIQUE   0b001
+#define WRITE_BACK          0b011
 
 int main() {
     int mem_fd;
@@ -35,10 +38,20 @@ int main() {
     unsigned int *acsnoop;
     unsigned int *base_addr;
     unsigned int *mem_size;
-    unsigned int *rdata1;
-    unsigned int *rdata2;
-    unsigned int *rdata3;
-    unsigned int *rdata4;
+    unsigned int *arsnoop;
+    unsigned int *l_araddr;
+    unsigned int *h_araddr;
+    unsigned int *rdata_0;
+    unsigned int *rdata_1;
+    unsigned int *rdata_2;
+    unsigned int *rdata_3;
+    unsigned int *awsnoop;
+    unsigned int *l_awaddr;
+    unsigned int *h_awaddr;
+    unsigned int *wdata_0;
+    unsigned int *wdata_1;
+    unsigned int *wdata_2;
+    unsigned int *wdata_3;
 
     // Open /dev/mem to access physical memory
     mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -61,10 +74,20 @@ int main() {
     acsnoop = map_base+3;
     base_addr = map_base+4;
     mem_size = map_base+5;
-    rdata1 = map_base+6;
-    rdata2 = map_base+7;
-    rdata3 = map_base+8;
-    rdata4 = map_base+9;
+    arsnoop = map_base+6;
+    l_araddr = map_base+8;
+    h_araddr = map_base+8;
+    rdata_0 = map_base+9;
+    rdata_1 = map_base+10;
+    rdata_2 = map_base+11;
+    rdata_3 = map_base+12;
+    awsnoop = map_base+13;
+    l_awaddr = map_base+14;
+    h_awaddr = map_base+15;
+    wdata_0 = map_base+16;
+    wdata_1 = map_base+17;
+    wdata_2 = map_base+18;
+    wdata_3 = map_base+19;
 
     // Instruction leak  
     //  - ATF (OCM) -> 0xFFFEA000 
@@ -76,21 +99,31 @@ int main() {
     //      To validate, run ./read_phys_addr which will write in addr 0x40000000
     //      and then this code will leak the data written there
 
-    *base_addr = 0x4000000;
-    *mem_size = 0;
-    printf(" ctrl = 0x%08x\n", *ctrl);
+    *h_awaddr = 0x00;
+    // *l_awaddr = 0x0008fec0;
+    *l_awaddr = 0x00300000;
+    *awsnoop = WRITE_LINE_UNIQUE;
+    *wdata_0 = 0xF1F1F1F1;
+    *wdata_1 = 0xF2F2F2F2;
+    *wdata_2 = 0xF3F3F3F3;
+    *wdata_3 = 0xF4F4F4F4;
+    while (1)
+    {
+    // printf(" ctrl = 0x%08x\n", *ctrl);
+    printf(" addr = 0x%08x\n", *l_awaddr);
     *ctrl |= (1 << EN_pos); // Enable IP
     // // while (!(*ctrl & (1 << EN_pos)));
-    for (size_t i = 0; i < 10000000; i++);   
+    for (size_t i = 0; i < 1000; i++);   
+    // for (size_t i = 0; i < 10000000; i++);   
     printf(" ctrl = 0x%08x\n", *ctrl);   
     // printf(" rdata1 = 0x%08x\n", *rdata1);
     // printf(" rdata2 = 0x%08x\n", *rdata2);
     // printf(" rdata3 = 0x%08x\n", *rdata3);
     // printf(" rdata4 = 0x%08x\n", *rdata4);
     *ctrl &= ~(1 << EN_pos); // Disable IP
-    printf(" ctrl = 0x%08x\n", *ctrl);   
-
-
+    // printf(" ctrl = 0x%08x\n", *ctrl);   
+    *l_awaddr = *l_awaddr + 0x10;
+    }
     // Unmap memory and close /dev/mem
     munmap(map_base, 4096);
     close(mem_fd);

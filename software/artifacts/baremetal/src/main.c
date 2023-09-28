@@ -182,6 +182,9 @@ void main(void){
     static volatile bool master_done = false;
     int beat = 0;
     unsigned int *ptr = (unsigned int*)(0x40000000);
+    unsigned int *ptr1 = (unsigned int*)(0x40000004);
+    unsigned int *ptr2 = (unsigned int*)(0x40000008);
+    unsigned int *ptr3 = (unsigned int*)(0x4000000C);
     
     if(cpu_is_master()){
         spin_lock(&print_lock);
@@ -238,11 +241,12 @@ void main(void){
     //     printf(" rdata4 = 0x%08x\n", *rdata4);
     //     for (size_t i = 0; i < 100000000; i++);   
     // }
-
+    int counter = 0;
     while (1)
-    {
+    {   
         spin_lock(&print_lock);
-        printf(" ptr = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr, *(ptr+4), *(ptr+8), *(ptr+12));
+        printf(" counter 0x%08x | \n", counter++);
+        printf(" ptr = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr, *ptr1, *ptr2, *ptr3);
         spin_unlock(&print_lock);
         for (size_t i = 0; i < 100000000; i++);   
     }
