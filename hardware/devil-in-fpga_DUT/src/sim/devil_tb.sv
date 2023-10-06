@@ -31,10 +31,23 @@ import design_1_axi_vip_1_0_pkg::*;
 `define ACSNOOP         32'h0C
 `define BASE_ADDR       32'h10
 `define MEM_SIZE        32'h14
-`define RDATA1          32'h18
-`define RDATA2          32'h1C
-`define RDATA3          32'h20
-`define RDATA4          32'h24
+`define ARSNOOP         32'h18
+`define L_ARADDR        32'h1C
+`define H_ARADDR        32'h20
+`define RDATA1          32'h24
+`define RDATA2          32'h28
+`define RDATA3          32'h2C
+`define RDATA4          32'h30
+`define AWSNOOP         32'h34
+`define L_AWADDR        32'h38
+`define H_AWADDR        32'h3C
+`define WDATA1          32'h40
+`define WDATA2          32'h44
+`define WDATA3          32'h48
+`define WDATA4          32'h4C
+
+`define READ_ONCE           4'b0000
+`define WRITE_LINE_UNIQUE   3'b001
 
 // Control Reg bits
 `define EN_pos      0
@@ -69,6 +82,16 @@ module devil_tb();
     bit [31:0] reg_acsnoop;
     bit [31:0] reg_addr;
     bit [31:0] reg_size;
+    bit [31:0] reg_l_araddr;
+    bit [31:0] reg_h_araddr;
+    bit [31:0] reg_l_awaddr;
+    bit [31:0] reg_h_awaddr;
+    bit [31:0] reg_wdata1;
+    bit [31:0] reg_wdata2;
+    bit [31:0] reg_wdata3;
+    bit [31:0] reg_wdata4;
+    bit [31:0] reg_arsnoop;
+    bit [31:0] reg_awsnoop;
     bit [43:0]acaddr;
     bit [3:0]acsnoop;
     bit acvalid;
@@ -135,7 +158,8 @@ module devil_tb();
     slv_agent.mem_model.set_memory_fill_policy(XIL_AXI_MEMORY_FILL_RANDOM);      
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
-    data_leak_devil();
+    data_tampering_devil();
+    // data_leak_devil();
     // osh_cr_devil();  
     // osh_cr_devil();  
     // con_cr_devil();
@@ -148,11 +172,38 @@ module devil_tb();
     $finish;
     end 
 
+    task data_tampering_devil();
+        reg_l_awaddr = 32'h00000002;
+        reg_h_awaddr = 8'h00;
+        reg_wdata1 = 32'hF0F0F0F0;
+        reg_wdata2 = 32'h00000001;
+        reg_wdata3 = 32'hFFFFFFFF;
+        reg_wdata4 = 32'h00000002;
+        reg_awsnoop = `WRITE_LINE_UNIQUE;
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_AWADDR,prot,reg_l_awaddr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_AWADDR,prot,reg_h_awaddr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA1,prot,reg_wdata1,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA2,prot,reg_wdata2,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA3,prot,reg_wdata3,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA4,prot,reg_wdata4,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`AWSNOOP,prot,reg_awsnoop,resp); 
+        
+        reg_ctrl =  (1 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+        reg_ctrl =  (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #10ns;
+    endtask :data_tampering_devil
+
     task data_leak_devil();
-        reg_addr = 32'h00000002;
-        reg_size = 4'h0;
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`MEM_SIZE,prot,reg_size,resp); 
+        reg_l_araddr = 32'h00000002;
+        reg_h_araddr = 8'h00;
+        reg_arsnoop = `READ_ONCE;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_ARADDR,prot,reg_l_araddr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_ARADDR,prot,reg_h_araddr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ARSNOOP,prot,reg_arsnoop,resp); 
         reg_ctrl =  (1 << `EN_pos);
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
         #100ns;

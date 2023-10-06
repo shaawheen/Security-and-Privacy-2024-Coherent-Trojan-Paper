@@ -1,6 +1,6 @@
 register_blocks:
   - name: devil_register_file
-    byte_size: 64
+    byte_size: 128
     comment: |
         devil-in-fpga register file.
 
@@ -116,32 +116,104 @@ register_blocks:
       - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
 
 ################################################################
-    - name: rddata_1
+    - name: arsnoop
       comment: |
-        First Word of the rrdata response.
+        Define the type of read snoop.
+      bit_fields:
+      - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: l_araddr
+      comment: |
+        Low 32 bits of ARADDR.
+      bit_fields:
+      - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: h_araddr
+      comment: |
+        High 8 bits of ARADDR. The remaining bits are ignored.
+      bit_fields:
+      - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: rdata_0
+      comment: |
+        First Word of the rdata response (128 bits data-bus)..
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
 
 ################################################################
-    - name: rddata_2
+    - name: rdata_1
       comment: |
-        Second Word of the rrdata response.
+        Second Word of the rdata response (128 bits data-bus)..
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
 
 ################################################################
-    - name: rddata_3
+    - name: rdata_2
       comment: |
-        Third Word of the rrdata response.
+        Third Word of the rdata response (128 bits data-bus)..
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
 
 ################################################################
-    - name: rddata_4
+    - name: rdata_3
       comment: |
-        Fourth Word of the rrdata response.
+        Fourth Word of the rdata response (128 bits data-bus)..
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: awsnoop
+      comment: |
+        Define the type of write snoop.
+      bit_fields:
+      - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: l_awaddr
+      comment: |
+        Low 32 bits of AWADDR.
+      bit_fields:
+      - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: h_awaddr
+      comment: |
+        High 8 bits of AWADDR. The remaining bits are ignored.
+      bit_fields:
+      - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_0
+      comment: |
+        First Word of the wdata (128 bits data-bus).
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_1
+      comment: |
+        Second Word of the wdata (128 bits data-bus)..
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_2
+      comment: |
+        Third Word of the wdata (128 bits data-bus)..
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_3
+      comment: |
+        Fourth Word of the wdata (128 bits data-bus).
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+
+
     # - name: register_2
     #   offset_address: 0x08
     #   bit_fields:
