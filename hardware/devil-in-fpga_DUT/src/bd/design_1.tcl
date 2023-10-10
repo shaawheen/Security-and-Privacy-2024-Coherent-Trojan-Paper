@@ -18,19 +18,6 @@ variable script_folder
 set script_folder [_tcl::get_script_folder]
 
 ################################################################
-# Check if script is running in correct Vivado version.
-################################################################
-set scripts_vivado_version 2022.1
-set current_vivado_version [version -short]
-
-if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
-   puts ""
-   catch {common::send_gid_msg -ssname BD::TCL -id 2041 -severity "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
-
-   return 1
-}
-
-################################################################
 # START
 ################################################################
 
@@ -270,6 +257,7 @@ proc create_root_design { parentCell } {
   set acaddr_0 [ create_bd_port -dir I -from 43 -to 0 acaddr_0 ]
   set acsnoop_0 [ create_bd_port -dir I -from 3 -to 0 acsnoop_0 ]
   set acvalid_0 [ create_bd_port -dir I acvalid_0 ]
+  set cdready_0 [ create_bd_port -dir I cdready_0 ]
   set clk_100MHz [ create_bd_port -dir I -type clk -freq_hz 100000000 clk_100MHz ]
   set crready_0 [ create_bd_port -dir I crready_0 ]
   set crvalid_0 [ create_bd_port -dir O crvalid_0 ]
@@ -397,6 +385,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net backstabber_0_wlast [get_bd_pins axi_vip_1/s_axi_wlast] [get_bd_pins backstabber_0/wlast]
   connect_bd_net -net backstabber_0_wstrb [get_bd_pins axi_vip_1/s_axi_wstrb] [get_bd_pins backstabber_0/wstrb]
   connect_bd_net -net backstabber_0_wvalid [get_bd_pins axi_vip_1/s_axi_wvalid] [get_bd_pins backstabber_0/wvalid]
+  connect_bd_net -net cdready_0_1 [get_bd_ports cdready_0] [get_bd_pins backstabber_0/cdready]
   connect_bd_net -net clk_100MHz_1 [get_bd_ports clk_100MHz] [get_bd_pins clk_wiz_0/clk_in1]
   connect_bd_net -net clk_wiz_0_locked [get_bd_pins clk_wiz_0/locked] [get_bd_pins proc_sys_reset_0/dcm_locked]
   connect_bd_net -net clk_wiz_clk_out1 [get_bd_pins axi_vip_0/aclk] [get_bd_pins axi_vip_1/aclk] [get_bd_pins backstabber_0/ace_aclk] [get_bd_pins backstabber_0/config_axi_aclk] [get_bd_pins backstabber_0/m00_axi_aclk] [get_bd_pins backstabber_0/s00_axi_aclk] [get_bd_pins backstabber_0/s01_axi_aclk] [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins smartconnect_0/aclk] [get_bd_pins test_register_file_0/s00_axi_aclk]
@@ -430,8 +419,8 @@ proc create_root_design { parentCell } {
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"0.47967",
-   "Default View_TopLeft":"-494,-429",
+   "Default View_ScaleFactor":"1.26586",
+   "Default View_TopLeft":"-409,-141",
    "ExpandedHierarchyInLayout":"",
    "PinnedBlocks":"/axi_vip_0|/clk_wiz_0|/proc_sys_reset_0|/backstabber_0|/smartconnect_0|/test_register_file_0|/axi_vip_1|",
    "PinnedPorts":"acaddr_0|acsnoop_0|acvalid_0|clk_100MHz|crready_0|crvalid_0|reset|w_control_FUNC_0|w_control_TEST_0|w_control_CRRESP_0|w_control_OSHEN_0|w_control_ADDRFLT_0|w_control_ACFLT_0|w_control_EN_0|w_control_CONEN_0|w_acsnoop_type_0|w_awaddr_0|w_base_addr_Data_0|w_delay_data_0|w_mem_size_Data_0|w_status_OSH_END_0|w_wdata_0|w_wvalid_0|config_axi_0|m00_axi_0|s00_axi_0|",
@@ -452,6 +441,7 @@ preplace port port-id_w_control_EN_0 -pg 1 -lvl 6 -x 2720 -y -40 -defaultsOSRD
 preplace port port-id_w_control_OSHEN_0 -pg 1 -lvl 6 -x 2720 -y 80 -defaultsOSRD
 preplace port port-id_w_status_OSH_END_0 -pg 1 -lvl 6 -x 2720 -y 120 -defaultsOSRD
 preplace port port-id_w_wvalid_0 -pg 1 -lvl 6 -x 2720 -y 220 -defaultsOSRD
+preplace port port-id_cdready_0 -pg 1 -lvl 0 -x -250 -y 350 -defaultsOSRD
 preplace portBus acaddr_0 -pg 1 -lvl 0 -x -250 -y -70 -defaultsOSRD
 preplace portBus acsnoop_0 -pg 1 -lvl 0 -x -250 -y -30 -defaultsOSRD
 preplace portBus w_acsnoop_type_0 -pg 1 -lvl 6 -x 2720 -y 160 -defaultsOSRD
@@ -465,79 +455,80 @@ preplace portBus w_mem_size_Data_0 -pg 1 -lvl 6 -x 2720 -y 200 -defaultsOSRD
 preplace portBus w_wdata_0 -pg 1 -lvl 6 -x 2720 -y 260 -defaultsOSRD
 preplace inst axi_vip_0 -pg 1 -lvl 2 -x 930 -y -170 -defaultsOSRD
 preplace inst axi_vip_1 -pg 1 -lvl 5 -x 2430 -y 20 -defaultsOSRD
+preplace inst backstabber_0 -pg 1 -lvl 4 -x 1690 -y 420 -defaultsOSRD
 preplace inst clk_wiz_0 -pg 1 -lvl 1 -x 290 -y -90 -defaultsOSRD
 preplace inst proc_sys_reset_0 -pg 1 -lvl 1 -x 290 -y -320 -defaultsOSRD
-preplace inst smartconnect_0 -pg 1 -lvl 3 -x 1190 -y 370 -defaultsOSRD
-preplace inst test_register_file_0 -pg 1 -lvl 4 -x 1670 -y 1180 -defaultsOSRD
-preplace inst backstabber_0 -pg 1 -lvl 4 -x 1670 -y 420 -defaultsOSRD
-preplace netloc acaddr_0_1 1 0 4 -220J -160 500J -100 N -100 1390
-preplace netloc acsnoop_0_1 1 0 4 -210J -20 NJ -20 N -20 1350
-preplace netloc acvalid_0_1 1 0 4 NJ -10 NJ -10 N -10 1340
-preplace netloc axi_vip_1_s_axi_arready 1 3 2 1430 -230 1980J
-preplace netloc axi_vip_1_s_axi_awready 1 3 2 1440 -220 2150J
-preplace netloc axi_vip_1_s_axi_bresp 1 3 2 1450 -210 1860J
-preplace netloc axi_vip_1_s_axi_bvalid 1 3 2 1460 -200 2140J
-preplace netloc axi_vip_1_s_axi_rdata 1 3 2 1470 -190 1970J
-preplace netloc axi_vip_1_s_axi_rlast 1 3 2 1480 -180 2100J
-preplace netloc axi_vip_1_s_axi_rresp 1 3 2 1490 -170 1900J
-preplace netloc axi_vip_1_s_axi_rvalid 1 3 2 1410 -250 1940J
-preplace netloc axi_vip_1_s_axi_wready 1 3 2 1420 -240 2130J
-preplace netloc backstabber_0_araddr 1 4 1 1890 -330n
-preplace netloc backstabber_0_arburst 1 4 1 1910 -310n
-preplace netloc backstabber_0_arcache 1 4 1 1930 -290n
-preplace netloc backstabber_0_arlen 1 4 1 1950 -270n
-preplace netloc backstabber_0_arlock 1 4 1 1960 -250n
-preplace netloc backstabber_0_arprot 1 4 1 1990 -230n
-preplace netloc backstabber_0_arqos 1 4 1 1880 -210n
-preplace netloc backstabber_0_arregion 1 4 1 1920 -170n
-preplace netloc backstabber_0_arsize 1 4 1 2010 -150n
-preplace netloc backstabber_0_arvalid 1 4 1 2020 -130n
-preplace netloc backstabber_0_awaddr 1 4 1 2030 -110n
-preplace netloc backstabber_0_awburst 1 4 1 1980 -90n
-preplace netloc backstabber_0_awcache 1 4 1 2040 -70n
-preplace netloc backstabber_0_awlen 1 4 1 2050 -50n
-preplace netloc backstabber_0_awlock 1 4 1 2070 -30n
-preplace netloc backstabber_0_awprot 1 4 1 2080 -10n
-preplace netloc backstabber_0_awqos 1 4 1 2090 10n
-preplace netloc backstabber_0_awregion 1 4 1 2110 50n
-preplace netloc backstabber_0_awsize 1 4 1 2120 70n
-preplace netloc backstabber_0_awvalid 1 4 1 2150 90n
-preplace netloc backstabber_0_bready 1 4 1 2160 110n
-preplace netloc backstabber_0_crvalid 1 4 2 1850 -420 2550
-preplace netloc backstabber_0_rready 1 4 1 2170 210n
-preplace netloc backstabber_0_wdata 1 4 1 2180 270n
-preplace netloc backstabber_0_wlast 1 4 1 2190 290n
-preplace netloc backstabber_0_wstrb 1 4 1 2200 330n
-preplace netloc backstabber_0_wvalid 1 4 1 2210 350n
+preplace inst smartconnect_0 -pg 1 -lvl 3 -x 1200 -y 370 -defaultsOSRD
+preplace inst test_register_file_0 -pg 1 -lvl 4 -x 1690 -y 1180 -defaultsOSRD
+preplace netloc acaddr_0_1 1 0 4 -220J -160 500J -100 N -100 1410
+preplace netloc acsnoop_0_1 1 0 4 -210J -20 NJ -20 N -20 1370
+preplace netloc acvalid_0_1 1 0 4 NJ -10 NJ -10 N -10 1350
+preplace netloc axi_vip_1_s_axi_arready 1 3 2 1450 -230 2000J
+preplace netloc axi_vip_1_s_axi_awready 1 3 2 1460 -220 2170J
+preplace netloc axi_vip_1_s_axi_bresp 1 3 2 1470 -210 1880J
+preplace netloc axi_vip_1_s_axi_bvalid 1 3 2 1480 -200 2160J
+preplace netloc axi_vip_1_s_axi_rdata 1 3 2 1490 -190 1990J
+preplace netloc axi_vip_1_s_axi_rlast 1 3 2 1500 -180 2120J
+preplace netloc axi_vip_1_s_axi_rresp 1 3 2 1510 -170 1920J
+preplace netloc axi_vip_1_s_axi_rvalid 1 3 2 1430 -250 1960J
+preplace netloc axi_vip_1_s_axi_wready 1 3 2 1440 -240 2150J
+preplace netloc backstabber_0_araddr 1 4 1 1910 -330n
+preplace netloc backstabber_0_arburst 1 4 1 1930 -310n
+preplace netloc backstabber_0_arcache 1 4 1 1950 -290n
+preplace netloc backstabber_0_arlen 1 4 1 1970 -270n
+preplace netloc backstabber_0_arlock 1 4 1 1980 -250n
+preplace netloc backstabber_0_arprot 1 4 1 2010 -230n
+preplace netloc backstabber_0_arqos 1 4 1 1900 -210n
+preplace netloc backstabber_0_arregion 1 4 1 1940 -170n
+preplace netloc backstabber_0_arsize 1 4 1 2030 -150n
+preplace netloc backstabber_0_arvalid 1 4 1 2040 -130n
+preplace netloc backstabber_0_awaddr 1 4 1 2050 -110n
+preplace netloc backstabber_0_awburst 1 4 1 2000 -90n
+preplace netloc backstabber_0_awcache 1 4 1 2060 -70n
+preplace netloc backstabber_0_awlen 1 4 1 2070 -50n
+preplace netloc backstabber_0_awlock 1 4 1 2090 -30n
+preplace netloc backstabber_0_awprot 1 4 1 2100 -10n
+preplace netloc backstabber_0_awqos 1 4 1 2110 10n
+preplace netloc backstabber_0_awregion 1 4 1 2130 50n
+preplace netloc backstabber_0_awsize 1 4 1 2140 70n
+preplace netloc backstabber_0_awvalid 1 4 1 2170 90n
+preplace netloc backstabber_0_bready 1 4 1 2180 110n
+preplace netloc backstabber_0_crvalid 1 4 2 1870 -420 2550
+preplace netloc backstabber_0_rready 1 4 1 2190 210n
+preplace netloc backstabber_0_wdata 1 4 1 2200 270n
+preplace netloc backstabber_0_wlast 1 4 1 2210 290n
+preplace netloc backstabber_0_wstrb 1 4 1 2220 330n
+preplace netloc backstabber_0_wvalid 1 4 1 2230 350n
 preplace netloc clk_100MHz_1 1 0 1 -230 -150n
 preplace netloc clk_wiz_0_locked 1 0 2 -190 -170 470
-preplace netloc clk_wiz_clk_out1 1 0 5 -200 -180 480 -90 1050 -90 1360 -160 2060
-preplace netloc crready_0_1 1 0 4 NJ 10 NJ 10 N 10 1330
+preplace netloc clk_wiz_clk_out1 1 0 5 -200 -180 480 -90 1060 -90 1380 -160 2080
+preplace netloc crready_0_1 1 0 4 NJ 10 NJ 10 N 10 1340
 preplace netloc reset_1 1 0 1 -210 -340n
-preplace netloc rst_clk_wiz_100M_peripheral_aresetn 1 1 4 520 -70 1030 -70 1370 -150 2000
-preplace netloc test_register_file_0_w_acsnoop_type 1 4 2 2050J 1030 2600
-preplace netloc test_register_file_0_w_awaddr 1 4 2 2170J 1040 2650
-preplace netloc test_register_file_0_w_base_addr_Data 1 4 2 2080J 1050 2630
-preplace netloc test_register_file_0_w_control_ACFLT 1 4 2 1860J 1060 2560
-preplace netloc test_register_file_0_w_control_ADDRFLT 1 4 2 1930J 1070 2580
-preplace netloc test_register_file_0_w_control_CONEN 1 4 2 2120J 1080 2620
+preplace netloc rst_clk_wiz_100M_peripheral_aresetn 1 1 4 520 -70 1040 -70 1390 -150 2020
+preplace netloc test_register_file_0_w_acsnoop_type 1 4 2 2070J 1030 2600
+preplace netloc test_register_file_0_w_awaddr 1 4 2 2190J 1040 2650
+preplace netloc test_register_file_0_w_base_addr_Data 1 4 2 2100J 1050 2630
+preplace netloc test_register_file_0_w_control_ACFLT 1 4 2 1880J 1060 2560
+preplace netloc test_register_file_0_w_control_ADDRFLT 1 4 2 1950J 1070 2580
+preplace netloc test_register_file_0_w_control_CONEN 1 4 2 2140J 1080 2620
 preplace netloc test_register_file_0_w_control_CRRESP 1 4 2 NJ 1090 2570
-preplace netloc test_register_file_0_w_control_EN 1 4 2 2030J 1100 2550
-preplace netloc test_register_file_0_w_control_FUNC 1 4 2 1890J 1110 2590
-preplace netloc test_register_file_0_w_control_OSHEN 1 4 2 2150J 1120 2640
-preplace netloc test_register_file_0_w_control_TEST 1 4 2 1960J 1130 2610
-preplace netloc test_register_file_0_w_delay_data 1 4 2 2200J 1170 2660
-preplace netloc test_register_file_0_w_mem_size_Data 1 4 2 2210J 1180 2680
+preplace netloc test_register_file_0_w_control_EN 1 4 2 2050J 1100 2550
+preplace netloc test_register_file_0_w_control_FUNC 1 4 2 1910J 1110 2590
+preplace netloc test_register_file_0_w_control_OSHEN 1 4 2 2170J 1120 2640
+preplace netloc test_register_file_0_w_control_TEST 1 4 2 1980J 1130 2610
+preplace netloc test_register_file_0_w_delay_data 1 4 2 2220J 1170 2660
+preplace netloc test_register_file_0_w_mem_size_Data 1 4 2 2230J 1180 2680
 preplace netloc test_register_file_0_w_status_OSH_END 1 4 2 NJ 1190 2670
-preplace netloc test_register_file_0_w_wdata 1 4 2 2210J 1280 2700
+preplace netloc test_register_file_0_w_wdata 1 4 2 2230J 1280 2700
 preplace netloc test_register_file_0_w_wvalid 1 4 2 NJ 1290 2690
-preplace netloc axi_vip_0_M_AXI 1 2 1 1040 -170n
-preplace netloc backstabber_0_m00_axi 1 4 2 1870 -410 N
-preplace netloc config_axi_0_1 1 0 4 NJ -210 510J -80 N -80 1400
-preplace netloc s00_axi_0_1 1 0 4 NJ -190 490J -60 N -60 1380
-preplace netloc smartconnect_0_M00_AXI 1 3 1 1380 150n
-preplace netloc smartconnect_0_M01_AXI 1 3 1 1330 380n
-levelinfo -pg 1 -250 290 930 1190 1670 2430 2720
+preplace netloc cdready_0_1 1 0 4 NJ 350 NJ 350 1030J 450 1420J
+preplace netloc axi_vip_0_M_AXI 1 2 1 1050 -170n
+preplace netloc backstabber_0_m00_axi 1 4 2 1890 -410 N
+preplace netloc config_axi_0_1 1 0 4 NJ -210 510J -80 N -80 1420
+preplace netloc s00_axi_0_1 1 0 4 NJ -190 490J -60 N -60 1400
+preplace netloc smartconnect_0_M00_AXI 1 3 1 1360 150n
+preplace netloc smartconnect_0_M01_AXI 1 3 1 1340 380n
+levelinfo -pg 1 -250 290 930 1200 1690 2430 2720
 pagesize -pg 1 -db -bbox -sgen -410 -750 2970 2040
 "
 }

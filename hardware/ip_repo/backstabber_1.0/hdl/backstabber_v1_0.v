@@ -600,22 +600,22 @@
         end
         else if (snoop_state == IDLE)
         begin
-            // if((acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && ac_handshake) 
-            // begin
-            //     snoop_state <= DEVIL_EN;
-            //     r_trigger <= 1; 
-            // end
-
             if(w_en)
                 r_one_shot <= 1;
             else
                 r_one_shot <= 0;
-            
-            if((acsnoop != `DVM_MESSAGE) && w_en && !r_one_shot) 
+
+            // if((acsnoop != `DVM_MESSAGE) && w_en && !r_one_shot) 
+            // begin
+            //     // snoop_state <= DEVIL_AR_PHASE;
+            //     snoop_state <= DEVIL_AW_PHASE;
+            //     r_index <= 0;
+            // end
+            if((acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && ac_handshake) // ||
+             //  (acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && w_control_FUNC[3:0] == leak or tampering....) 
             begin
-                // snoop_state <= DEVIL_AR_PHASE;
-                snoop_state <= DEVIL_AW_PHASE;
-                r_index <= 0;
+                snoop_state <= DEVIL_EN;
+                r_trigger <= 1; 
             end
             else if(non_reply_condition || dvm_operation_last_condition)
                 snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
@@ -865,22 +865,35 @@
     //     .o_addr_size_reg(w_addr_size_reg)
 	// );
 
-  wire w_control_EN;
-  wire [3:0] w_control_TEST;
-  wire [3:0] w_control_FUNC;
-  wire [4:0] w_control_CRRESP;
-  wire w_control_ACFLT;
-  wire w_control_ADDRFLT;
-  wire w_control_OSHEN;
-  wire w_control_CONEN;
-  wire w_status_OSH_END;
-  wire w_status_OSH_END_hw_set;
-  wire [31:0] w_delay_data;
-  wire [3:0] w_acsnoop_type;
-  wire [31:0] w_base_addr_Data;
-  wire [31:0] w_mem_size_Data;
+    wire w_control_EN;
+    wire [3:0] w_control_TEST;
+    wire [3:0] w_control_FUNC;
+    wire [4:0] w_control_CRRESP;
+    wire w_control_ACFLT;
+    wire w_control_ADDRFLT;
+    wire w_control_OSHEN;
+    wire w_control_CONEN;
+    wire w_control_ADLEN;
+    wire w_control_ADTEN;
+    wire w_control_PDTEN;
+    wire w_status_OSH_END;
+    wire w_status_OSH_END_hw_set;
+    wire [31:0] w_delay_data;
+    wire [3:0] w_acsnoop_type;
+    wire [31:0] w_base_addr_Data;
+    wire [31:0] w_mem_size_Data;
 
-    assign w_control_reg = {w_control_CONEN, w_control_OSHEN, w_control_ADDRFLT, w_control_ACFLT, w_control_CRRESP, w_control_FUNC, w_control_TEST, w_control_EN};
+    assign w_control_reg = {w_control_PDTEN,    // bit 20
+                            w_control_ADTEN,    // bit 19
+                            w_control_ADLEN,    // bit 18
+                            w_control_CONEN,    // bit 17 
+                            w_control_OSHEN,    // bit 16
+                            w_control_ADDRFLT,  // bit 15
+                            w_control_ACFLT,    // bit 14
+                            w_control_CRRESP,   // bit 13:9
+                            w_control_FUNC,     // bit 8:5
+                            w_control_TEST,     // bit 4:1
+                            w_control_EN};      // bit 0
 
     // Instantiation of devil register file 
     devil_register_file #(
@@ -917,6 +930,9 @@
     .o_control_ADDRFLT(w_control_ADDRFLT),
     .o_control_OSHEN(w_control_OSHEN),
     .o_control_CONEN(w_control_CONEN),
+    .o_control_ADLEN(w_control_ADLEN),
+    .o_control_ADTEN(w_control_ADTEN),
+    .o_control_PDTEN(w_control_PDTEN),
     .o_status_OSH_END(w_read_status_reg),
     .i_status_OSH_END_hw_set(w_write_status_reg),
     .i_status_BUSY_hw_set(w_devil_busy),
@@ -971,9 +987,12 @@
         .i_crready(crready),
         .o_reply(w_devil_reply),
         .o_busy(w_devil_busy),
+        .i_cdready(cdready),
+        .i_wdata_0_data(w_wdata_0_data),
+        .i_wdata_1_data(w_wdata_1_data),
+        .i_wdata_2_data(w_wdata_2_data),
+        .i_wdata_3_data(w_wdata_3_data),
         .o_counter(w_counter) // test porpuses
-
     );
-
 
 	endmodule

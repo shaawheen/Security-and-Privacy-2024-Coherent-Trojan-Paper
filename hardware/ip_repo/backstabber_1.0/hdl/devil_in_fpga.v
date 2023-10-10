@@ -49,6 +49,11 @@
         input  wire                              i_trigger,
         output wire                              o_reply,
         output wire                              o_busy,
+        input  wire                              i_cdready,
+        input  wire                       [31:0] i_wdata_0_data, 
+        input  wire                       [31:0] i_wdata_1_data, 
+        input  wire                       [31:0] i_wdata_2_data, 
+        input  wire                       [31:0] i_wdata_3_data, 
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -61,7 +66,10 @@
                     DEVIL_FUNCTION           = 6,
                     DEVIL_END_OP             = 7,
                     DEVIL_DUMMY_REPLY        = 8,
-                    DEVIL_END_REPLY          = 9;
+                    DEVIL_END_REPLY          = 9,
+                    DEVIL_ACTIVE_DATA_LEAK   = 10,
+                    DEVIL_ACTIVE_DATA_TAMP   = 11,
+                    DEVIL_PASSIVE_DATA_TAMP  = 12;
 
 
     reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
@@ -102,6 +110,9 @@
 // Devil-in-the-fpga Functions
     `define OSH    4'b0000 
     `define CON    4'b0001 
+    `define ADL    4'b0010 
+    `define ADT    4'b0011 
+    `define PDT    4'b0100 
 
 // Devil-in-the-fpga Tests
     `define FUZZING                   4'b0000
@@ -128,6 +139,9 @@
     wire       w_acf_lt;    
     wire       w_addr_flt;    
     wire       w_con_en;    
+    wire       w_adl_en; // Active Data Leak Enable    
+    wire       w_adt_en; // Active Data Tampering Enable   
+    wire       w_pdt_en; // Passive Data Tampering Enable
     assign w_en = i_control_reg[0];
     assign w_test = i_control_reg[4:1];
     assign w_func = i_control_reg[8:5];
@@ -136,6 +150,9 @@
     assign w_addr_flt = i_control_reg[15];
     assign w_osh_en = i_control_reg[16];
     assign w_con_en = i_control_reg[17];
+    assign w_adl_en = i_control_reg[18]; // Active Data Leak Enable   
+    assign w_adt_en = i_control_reg[19]; // Active Data Tampering Enable
+    assign w_pdt_en = i_control_reg[20]; // Passive Data Tampering Enable
 
     always @(posedge ace_aclk)
     begin
@@ -217,6 +234,27 @@
                             else
                                 fsm_devil_state <= DEVIL_DUMMY_REPLY;
                         end
+                        `ADL  :
+                        begin
+                            if (w_adl_en)
+                                fsm_devil_state <= DEVIL_ACTIVE_DATA_LEAK;  
+                            else
+                                fsm_devil_state <= DEVIL_DUMMY_REPLY;
+                        end
+                        `ADT  :
+                        begin
+                            if (w_adt_en)
+                                fsm_devil_state <= DEVIL_ACTIVE_DATA_TAMP;  
+                            else
+                                fsm_devil_state <= DEVIL_DUMMY_REPLY;
+                        end
+                        `PDT  :
+                        begin
+                            if (w_pdt_en)
+                                fsm_devil_state <= DEVIL_PASSIVE_DATA_TAMP;  
+                            else
+                                fsm_devil_state <= DEVIL_DUMMY_REPLY;
+                        end
                         default : fsm_devil_state <= DEVIL_DUMMY_REPLY; 
                     endcase                                                      
                 end
@@ -236,7 +274,7 @@
                 end
             DEVIL_CONTINUOS_DELAY: //2
                 begin
-                      if (!w_con_en && i_crready)                                      
+                    if (!w_con_en && i_crready)                                      
                     begin                                                   // just one reply with delay            
                         fsm_devil_state  <= DEVIL_RESPONSE;  
                         r_return <= DEVIL_END_OP; // last reply      
@@ -246,6 +284,33 @@
                         fsm_devil_state  <= DEVIL_RESPONSE;                                     
                         r_return <= DEVIL_END_REPLY;      
                     end                                                                                               
+                    else
+                        fsm_devil_state <= fsm_devil_state;
+                end
+            DEVIL_ACTIVE_DATA_LEAK: // 10
+                begin
+                    fsm_devil_state <= DEVIL_IDLE;                                                  
+                    // TO IMPLEMENT
+                end
+            DEVIL_ACTIVE_DATA_TAMP: // 11
+                begin
+                    fsm_devil_state <= DEVIL_IDLE;                                                  
+                    // TO IMPLEMENT
+                end
+            DEVIL_PASSIVE_DATA_TAMP: // 12
+                begin
+                    if (i_crready)                                      
+                    begin                            
+                        r_crresp <= w_crresp[4:0];
+                        r_rdata <= {i_wdata_3_data, i_wdata_2_data, i_wdata_1_data, i_wdata_0_data}; // 128 bits
+                        r_crvalid <= 1;
+                        r_cdvalid <= 1; 
+                        r_cdlast <= 1;
+                        if(i_cdready) // cdvalid/cddata must not change until cdready is asserted   
+                            fsm_devil_state  <= DEVIL_END_OP;  
+                        else
+                            fsm_devil_state <= fsm_devil_state;
+                    end  
                     else
                         fsm_devil_state <= fsm_devil_state;
                 end
@@ -354,7 +419,7 @@
                         fsm_devil_state <= DEVIL_DELAY;
                     end                                
                 end
-            DEVIL_END_OP: // State to signal the End of the FSM operation
+            DEVIL_END_OP: // 7 State to signal the End of the FSM operation
                 begin
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
