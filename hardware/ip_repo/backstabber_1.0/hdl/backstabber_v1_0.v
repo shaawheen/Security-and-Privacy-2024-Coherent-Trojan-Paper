@@ -482,6 +482,21 @@
     reg   [4 : 0] snoop_state;
     assign w_snoop_state = snoop_state;
 
+    reg [C_ACE_ADDR_WIDTH-1:0]      r_acaddr_snapshot;
+    reg [C_ACE_ACSNOOP_WIDTH-1:0]   r_acsnoop_snapshot;
+    wire [C_ACE_ADDR_WIDTH-1:0]      w_acaddr_snapshot;
+    wire [C_ACE_ACSNOOP_WIDTH-1:0]   w_acsnoop_snapshot;
+    assign w_acaddr_snapshot =  r_acaddr_snapshot;
+    assign w_acsnoop_snapshot = r_acsnoop_snapshot;
+
+    reg r_trigger;
+    reg r_one_shot;
+    reg [1:0]r_index;
+    reg [127:0]r_buff[3:0]; // 4 elements of 16 bytes
+    wire w_trigger ;
+    assign w_trigger         = r_trigger;
+
+
     assign queue_push_condition         = (snoop_state == IDLE) && reply_condition && ~queue_full && crready; //(snoop_state == REPLY) && ~queue_full && crready;
     assign queue_pop_condition          = m00_axi_arvalid && m00_axi_arready; // 'm00_axi_arvalid' is '~queue_empty'
 	assign lying_condition              = (|config_port_to_backstabber_liar_crresp) &&
@@ -511,11 +526,11 @@
     // ACE AR Channel (Read address phase)
     assign araddr   = ((snoop_state == DEVIL_AR_PHASE) && arready) ? {w_h_araddr_Data[7:0], w_l_araddr_Data} : 0;
     assign arbar    = 1'b0;
-    assign arburst  = 2'b01; //Should be calculated based on the acaddr inc or wrap?
+    assign arburst  = (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ?  2'b10 : 2'b01; //Should be calculated based on the acaddr inc or wrap?
     assign arcache  = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
     assign ardomain = ((snoop_state == DEVIL_AR_PHASE) && arready) ? 2'b10 : 2'b00; // outer shareable  
     assign arid     = 0;
-    assign arlen    = ((snoop_state == DEVIL_AR_PHASE) && arready) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
+    assign arlen    = ((snoop_state == DEVIL_AR_PHASE) && arready) | (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
     assign arlock   = 0;
     assign arprot   = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged
     assign arqos    = 0;
@@ -574,19 +589,11 @@
     assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
     assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
 
-
     assign debug_snoop_state    = snoop_state;
     assign debug_devil_state    = w_fsm_devil_state;
     assign debug_counter        = w_counter;
     assign debug_delay_reg      = w_delay_reg;
     assign debug_status         = w_write_status_reg;
-
-    reg r_trigger;
-    reg r_one_shot;
-    reg [1:0]r_index;
-    reg [127:0]r_buff[3:0]; // 4 elements of 16 bytes
-    wire w_trigger ;
-    assign w_trigger         = r_trigger;
 
 	//main state-machine
 	always @(posedge ace_aclk)
@@ -597,6 +604,8 @@
             r_trigger <= 0; // DEVIL_IDLE
             r_index <= 0;
             r_one_shot <= 0;
+            r_acaddr_snapshot <= 0;
+            r_acsnoop_snapshot <= 0;
         end
         else if (snoop_state == IDLE)
         begin
@@ -614,6 +623,8 @@
             if((acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && ac_handshake) // ||
              //  (acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && w_control_FUNC[3:0] == leak or tampering....) 
             begin
+                r_acaddr_snapshot <= acaddr; // acaddr at the time of the handshake (used by DEVIL_FILTER)
+                r_acsnoop_snapshot <= acsnoop; // acsnoop at the time of the handshake (used by DEVIL_FILTER)
                 snoop_state <= DEVIL_EN;
                 r_trigger <= 1; 
             end
@@ -992,6 +1003,8 @@
         .i_wdata_1_data(w_wdata_1_data),
         .i_wdata_2_data(w_wdata_2_data),
         .i_wdata_3_data(w_wdata_3_data),
+        .i_acaddr_snapshot(w_acaddr_snapshot),
+        .i_acsnoop_snapshot(w_acsnoop_snapshot),
         .o_counter(w_counter) // test porpuses
     );
 

@@ -202,7 +202,7 @@ module devil_tb();
         reg_acsnoop = 1;
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ACSNOOP,prot,reg_acsnoop,resp); 
         
-        reg_ctrl =  | (5'b00001 << `CRRESP_pos) 
+        reg_ctrl =    (5'b00001 << `CRRESP_pos) 
                     | (1 << `ACFLT_pos) 
                     | (1 << `ADDRFLT_pos) 
                     | (1 << `PDTEN_pos)               

@@ -54,6 +54,8 @@
         input  wire                       [31:0] i_wdata_1_data, 
         input  wire                       [31:0] i_wdata_2_data, 
         input  wire                       [31:0] i_wdata_3_data, 
+        input  wire       [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
+        input  wire                        [3:0] i_acsnoop_snapshot,
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -128,8 +130,10 @@
 
     wire w_ac_filter;
     wire w_addr_filter;
-    assign w_ac_filter      = (acsnoop[3:0] == i_acsnoop_reg[3:0]) ? 1 : 0;
-    assign w_addr_filter    = (acaddr[31:0] >= i_base_addr_reg[31:0]) && (acaddr[31:0] < (i_base_addr_reg[31:0] + i_addr_size_reg[31:0])) ? 1 : 0;
+    // ac and addr filters are applied to the acaddr and acsnoop at the time of
+    //the achandshake, bacause once the handshake happens, a new snoop is generated
+    assign w_ac_filter      = (i_acsnoop_snapshot[3:0] == i_acsnoop_snapshot[3:0]) ? 1 : 0;
+    assign w_addr_filter    = (i_acaddr_snapshot[31:0] >= i_base_addr_reg[31:0]) && (i_acaddr_snapshot[31:0] < (i_base_addr_reg[31:0] + i_addr_size_reg[31:0])) ? 1 : 0;
 
 // Devil-in-the-fpga Control Reg parameters/bits
     wire       w_en;
