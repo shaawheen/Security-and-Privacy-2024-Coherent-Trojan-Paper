@@ -30,6 +30,7 @@
         input  wire                              ace_aresetn,
         input  wire                        [3:0] acsnoop,
         input  wire       [C_ACE_ADDR_WIDTH-1:0] acaddr,
+        input  wire                        [7:0] i_arlen,
         input  wire                        [3:0] i_snoop_state,
         output wire                        [3:0] o_fsm_devil_state,
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_control_reg,
@@ -85,6 +86,7 @@
     reg                          r_end_op;
     reg                          r_reply;
     reg                    [3:0] r_return;
+    reg                    [7:0] r_burst_cnt;
 
     // Devil-in-the-fpga snoop request handshake
     // wire handshake;
@@ -170,6 +172,7 @@
         r_crvalid <= 0;
         r_cdvalid <= 0;
         r_counter <= 0;
+        r_burst_cnt <= 0;
         r_status_reg <= 0;
         fsm_devil_state <= DEVIL_IDLE;
         end 
@@ -309,9 +312,16 @@
                         r_rdata <= {i_wdata_3_data, i_wdata_2_data, i_wdata_1_data, i_wdata_0_data}; // 128 bits
                         r_crvalid <= 1;
                         r_cdvalid <= 1; 
-                        r_cdlast <= 1;
-                        if(i_cdready) // cdvalid/cddata must not change until cdready is asserted   
-                            fsm_devil_state  <= DEVIL_END_OP;  
+                        if(i_cdready) begin // cdvalid/cddata must not change until cdready is asserted   
+                            r_burst_cnt <= r_burst_cnt + 1;
+                            if( (i_arlen == 0) || (r_burst_cnt == i_arlen)) 
+                            begin // last reply
+                                r_cdlast <= 1;                                
+                                fsm_devil_state  <= DEVIL_END_OP;  
+                            end
+                            else
+                                fsm_devil_state <= fsm_devil_state;
+                        end
                         else
                             fsm_devil_state <= fsm_devil_state;
                     end  
@@ -428,6 +438,7 @@
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
+                    r_burst_cnt <= 0;
                     r_status_reg[0] <= 0;    
                     r_end_op <= 1;
                     r_reply <= 1;
@@ -438,6 +449,7 @@
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
+                    r_burst_cnt <= 0;
                     r_status_reg[0] <= 0;    
                     r_reply <= 1;
                     fsm_devil_state <= DEVIL_IDLE;                                                  

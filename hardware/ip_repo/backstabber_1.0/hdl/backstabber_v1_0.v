@@ -408,6 +408,8 @@
     `define DVM_COMPLETE        4'b1110
     `define DVM_MESSAGE         4'b1111
     `define OKAY                2'b00
+    `define WRAP                2'b10
+    `define INCR                2'b01
     
 // Devil-in-the-fpga AXI-Lite
     wire [C_S01_AXI_DATA_WIDTH-1:0] w_control_reg;
@@ -526,7 +528,7 @@
     // ACE AR Channel (Read address phase)
     assign araddr   = ((snoop_state == DEVIL_AR_PHASE) && arready) ? {w_h_araddr_Data[7:0], w_l_araddr_Data} : 0;
     assign arbar    = 1'b0;
-    assign arburst  = (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ?  2'b10 : 2'b01; //Should be calculated based on the acaddr inc or wrap?
+    assign arburst  = (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ?  `WRAP : `INCR; //Should be calculated based on the acaddr inc or wrap?
     assign arcache  = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
     assign ardomain = ((snoop_state == DEVIL_AR_PHASE) && arready) ? 2'b10 : 2'b00; // outer shareable  
     assign arid     = 0;
@@ -548,7 +550,7 @@
     // ACE AW channel (Write address phase)
     assign awaddr   = ((snoop_state == DEVIL_AW_PHASE) && awready) ? {w_h_awaddr_Data[7:0], w_l_awaddr_Data} : 0;
     assign awbar    = 1'b0;
-    assign awburst  = 2'b01; // INCR
+    assign awburst  = `INCR;  
     assign awcache  = 4'b1111; // Write-back Write-allocate, Refer to page 65 of manual. 
     assign awdomain = ((snoop_state == DEVIL_AW_PHASE) && awready) ? 2'b10 : 2'b00; // outer shareable  
     assign awid     = 0;
@@ -979,6 +981,7 @@
         .ace_aresetn(ace_aresetn),
         .acsnoop(acsnoop),
         .acaddr(acaddr),
+        .i_arlen(arlen),
         .i_snoop_state(w_snoop_state),
         .o_fsm_devil_state(w_fsm_devil_state),
         .i_control_reg(w_control_reg),
