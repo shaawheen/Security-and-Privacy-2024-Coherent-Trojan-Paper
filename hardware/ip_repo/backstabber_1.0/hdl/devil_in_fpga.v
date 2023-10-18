@@ -132,7 +132,7 @@
     wire w_addr_filter;
     // ac and addr filters are applied to the acaddr and acsnoop at the time of
     //the achandshake, bacause once the handshake happens, a new snoop is generated
-    assign w_ac_filter      = (i_acsnoop_snapshot[3:0] == i_acsnoop_snapshot[3:0]) ? 1 : 0;
+    assign w_ac_filter      = (i_acsnoop_snapshot[3:0] == i_acsnoop_reg[3:0]) ? 1 : 0;
     assign w_addr_filter    = (i_acaddr_snapshot[31:0] >= i_base_addr_reg[31:0]) && (i_acaddr_snapshot[31:0] < (i_base_addr_reg[31:0] + i_addr_size_reg[31:0])) ? 1 : 0;
 
 // Devil-in-the-fpga Control Reg parameters/bits
