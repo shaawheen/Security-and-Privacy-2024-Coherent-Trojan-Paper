@@ -38,7 +38,7 @@ struct config config = {
                     },
                     {
                         .base = 0x40000000, // Virtual Addr
-                        .size = 0x10000,
+                        .size = 0x10000000,
                         .place_phys=true,
                         .phys = 0x40000000 // Physical Addr
                     }
@@ -100,14 +100,13 @@ struct config config = {
         
         { 
             .image = {
-                .base_addr = 0x00000000,
+                .base_addr = 0x20000000,
                 .load_addr = VM_IMAGE_OFFSET(baremetal),
                 .size = VM_IMAGE_SIZE(baremetal)
             },
 
-            .entry = 0x00000000,
+            .entry = 0x20000000,
             .cpu_affinity=0b0010,
-
 
             .platform = {
                 .cpu_num = 1,
@@ -115,12 +114,12 @@ struct config config = {
                 .region_num = 2,
                 .regions =  (struct vm_mem_region[]) {
                     {
-                        .base = 0x00000000,
+                        .base = 0x20000000,
                         .size =  0x8000000
                     },
                     {
                         .base = 0x40000000, // Virtual Addr
-                        .size = 0x10000,
+                        .size = 0x10000000,
                         .place_phys=true,
                         .phys = 0x40000000 // Physical Addr
                     }

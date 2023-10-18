@@ -29,11 +29,13 @@ stdenv.mkDerivation rec {
         cd ./src
         export ARCH=aarch64
         export CROSS_COMPILE=aarch64-none-elf-
-        make PLATFORM=${platform}
+        make PLATFORM=${platform} MEM_BASE=0x20000000 MEM_SIZE=0x30000000
     '';
     
     installPhase = ''
         mkdir -p $out
+        cp ./build/${platform}/baremetal.asm $out
+        cp ./build/${platform}/baremetal.lst $out
         cp ./build/${platform}/baremetal.bin $out
     '';
 
