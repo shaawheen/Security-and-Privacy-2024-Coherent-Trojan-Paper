@@ -437,6 +437,7 @@
                 begin
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
+                    r_crresp <= 0;
                     r_cdlast <= 0;
                     r_burst_cnt <= 0;
                     r_status_reg[0] <= 0;    
@@ -446,6 +447,7 @@
                 end
             DEVIL_END_REPLY: // 9 State to signal the End of a reply
                 begin
+                    r_crresp <= 0;
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
                     r_cdlast <= 0;
