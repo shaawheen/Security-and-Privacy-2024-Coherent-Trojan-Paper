@@ -1,3 +1,4 @@
 0_build/
 !./0_build/arm-trusted-firmware/plat/arm/common/arm_cci.c
 result*
+.vscode/
