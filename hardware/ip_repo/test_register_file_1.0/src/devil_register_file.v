@@ -42,6 +42,9 @@ module devil_register_file #(
   output o_control_ADDRFLT,
   output o_control_OSHEN,
   output o_control_CONEN,
+  output o_control_ADLEN,
+  output o_control_ADTEN,
+  output o_control_PDTEN,
   output o_status_OSH_END,
   input i_status_OSH_END_hw_set,
   output o_status_BUSY,
@@ -132,7 +135,7 @@ module devil_register_file #(
     wire [31:0] w_bit_field_write_data;
     wire [31:0] w_bit_field_read_data;
     wire [31:0] w_bit_field_value;
-    `rggen_tie_off_unused_signals(32, 32'h0003ffff, w_bit_field_read_data, w_bit_field_value)
+    `rggen_tie_off_unused_signals(32, 32'h001fffff, w_bit_field_read_data, w_bit_field_value)
     rggen_default_register #(
       .READABLE       (1),
       .WRITABLE       (1),
@@ -381,6 +384,90 @@ module devil_register_file #(
         .i_value            ({1{1'b0}}),
         .i_mask             ({1{1'b1}}),
         .o_value            (o_control_CONEN),
+        .o_value_unmasked   ()
+      );
+    end
+    if (1) begin : g_ADLEN
+      rggen_bit_field #(
+        .WIDTH          (1),
+        .INITIAL_VALUE  (1'h0),
+        .SW_WRITE_ONCE  (0),
+        .TRIGGER        (0)
+      ) u_bit_field (
+        .i_clk              (i_clk),
+        .i_rst_n            (i_rst_n),
+        .i_sw_valid         (w_bit_field_valid),
+        .i_sw_read_mask     (w_bit_field_read_mask[18+:1]),
+        .i_sw_write_enable  (1'b1),
+        .i_sw_write_mask    (w_bit_field_write_mask[18+:1]),
+        .i_sw_write_data    (w_bit_field_write_data[18+:1]),
+        .o_sw_read_data     (w_bit_field_read_data[18+:1]),
+        .o_sw_value         (w_bit_field_value[18+:1]),
+        .o_write_trigger    (),
+        .o_read_trigger     (),
+        .i_hw_write_enable  (1'b0),
+        .i_hw_write_data    ({1{1'b0}}),
+        .i_hw_set           ({1{1'b0}}),
+        .i_hw_clear         ({1{1'b0}}),
+        .i_value            ({1{1'b0}}),
+        .i_mask             ({1{1'b1}}),
+        .o_value            (o_control_ADLEN),
+        .o_value_unmasked   ()
+      );
+    end
+    if (1) begin : g_ADTEN
+      rggen_bit_field #(
+        .WIDTH          (1),
+        .INITIAL_VALUE  (1'h0),
+        .SW_WRITE_ONCE  (0),
+        .TRIGGER        (0)
+      ) u_bit_field (
+        .i_clk              (i_clk),
+        .i_rst_n            (i_rst_n),
+        .i_sw_valid         (w_bit_field_valid),
+        .i_sw_read_mask     (w_bit_field_read_mask[19+:1]),
+        .i_sw_write_enable  (1'b1),
+        .i_sw_write_mask    (w_bit_field_write_mask[19+:1]),
+        .i_sw_write_data    (w_bit_field_write_data[19+:1]),
+        .o_sw_read_data     (w_bit_field_read_data[19+:1]),
+        .o_sw_value         (w_bit_field_value[19+:1]),
+        .o_write_trigger    (),
+        .o_read_trigger     (),
+        .i_hw_write_enable  (1'b0),
+        .i_hw_write_data    ({1{1'b0}}),
+        .i_hw_set           ({1{1'b0}}),
+        .i_hw_clear         ({1{1'b0}}),
+        .i_value            ({1{1'b0}}),
+        .i_mask             ({1{1'b1}}),
+        .o_value            (o_control_ADTEN),
+        .o_value_unmasked   ()
+      );
+    end
+    if (1) begin : g_PDTEN
+      rggen_bit_field #(
+        .WIDTH          (1),
+        .INITIAL_VALUE  (1'h0),
+        .SW_WRITE_ONCE  (0),
+        .TRIGGER        (0)
+      ) u_bit_field (
+        .i_clk              (i_clk),
+        .i_rst_n            (i_rst_n),
+        .i_sw_valid         (w_bit_field_valid),
+        .i_sw_read_mask     (w_bit_field_read_mask[20+:1]),
+        .i_sw_write_enable  (1'b1),
+        .i_sw_write_mask    (w_bit_field_write_mask[20+:1]),
+        .i_sw_write_data    (w_bit_field_write_data[20+:1]),
+        .o_sw_read_data     (w_bit_field_read_data[20+:1]),
+        .o_sw_value         (w_bit_field_value[20+:1]),
+        .o_write_trigger    (),
+        .o_read_trigger     (),
+        .i_hw_write_enable  (1'b0),
+        .i_hw_write_data    ({1{1'b0}}),
+        .i_hw_set           ({1{1'b0}}),
+        .i_hw_clear         ({1{1'b0}}),
+        .i_value            ({1{1'b0}}),
+        .i_mask             ({1{1'b1}}),
+        .o_value            (o_control_PDTEN),
         .o_value_unmasked   ()
       );
     end

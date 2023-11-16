@@ -31,6 +31,9 @@ register_blocks:
             Chooses the functions of the IP
             0b0000: One-Shot Delay. The IP just delyas one time the snoop response. The delay is defined by DELAY reg value.
             0b0001: Continuous Delay. The IP is constantly delaying the snoop requests while the CONEN bit is active.
+            0b0010: **A**ctive **D**ata **L**eak. The IP issues a snoop request to read an address when the ADLEN bit is active 
+            0b0011: **A**ctive **D**ata **T**ampering. The IP issues a snoop request to write to an address when the ADTEN bit is active
+            0b0100: **P**assive **D**ata **T**ampering. The IP responds to a snoop requests with wrong data while the PDTEN bit is active 
             0bxxxx: Reserved
       - <<:
         - { name:  CRRESP, bit_assignment:  { width: 5 }, type: rw  ,  initial_value: 0}
@@ -61,7 +64,25 @@ register_blocks:
             0: Disables continuous delay
             1: Enables continuous delay
       - <<:
-        - { name:  Res, bit_assignment:  { width: 14 }, type: reserved}
+        - { name:  ADLEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - comment: |
+            Enable or disable the **A**ctive **D**ata **L**eak
+            0: Disables Active Data Leak
+            1: Enables Active Data Leak
+      - <<:
+        - { name:  ADTEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - comment: |
+            Enable or disable the **A**ctive **D**ata **T**ampering
+            0: Disables Active Data Tampering
+            1: Enables Active Data Tampering
+      - <<:
+        - { name:  PDTEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - comment: |
+            Enable or disable the **P**assive **D**ata **T**ampering
+            0: Disables Passive Data Tampering
+            1: Enables Passive Data Tampering
+      - <<:
+        - { name:  Res, bit_assignment:  { width: 11 }, type: reserved}
 
 ################################################################           
     - name: status

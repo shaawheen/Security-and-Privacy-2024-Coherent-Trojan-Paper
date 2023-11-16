@@ -1,0 +1,18 @@
+diff --git a/src/arch/armv8/armv8-a/inc/arch/page_table.h b/src/arch/armv8/armv8-a/inc/arch/page_table.h
+index bcfd2e4..f7e6cf7 100644
+--- a/src/arch/armv8/armv8-a/inc/arch/page_table.h
++++ b/src/arch/armv8/armv8-a/inc/arch/page_table.h
+@@ -120,11 +120,11 @@
+     (PTE_ATTR(2) | PTE_AP_RW | PTE_SH_IS | PTE_AF | PTE_XN)
+ 
+ #define PTE_VM_FLAGS                                                           \
+-    (PTE_MEMATTR_NRML_OWBC | PTE_MEMATTR_NRML_IWBC | PTE_SH_NS | PTE_S2AP_RW | \
++    (PTE_MEMATTR_NRML_OWBC | PTE_MEMATTR_NRML_IWBC | PTE_SH_OS | PTE_S2AP_RW | \
+      PTE_AF)
+ 
+ #define PTE_VM_DEV_FLAGS \
+-    (PTE_MEMATTR_DEV_GRE | PTE_SH_NS | PTE_S2AP_RW | PTE_AF)
++    (PTE_MEMATTR_DEV_GRE | PTE_SH_OS | PTE_S2AP_RW | PTE_AF)
+ 
+ #ifndef __ASSEMBLER__
+ 

@@ -20,6 +20,10 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-2kC2zDPVtaiEdeK4LqGnsJl7bnJ8ptJUdFF2bHA73gY=";
     };
 
+    patches = [
+         "${artifacts}/bao.patch"
+    ];
+
     config = "${artifacts}/setups/baremetal_linux/configs/${platform}.c";
     
     nativeBuildInputs = [ toolchain vm1 vm2 ubootTools]; #build time dependencies

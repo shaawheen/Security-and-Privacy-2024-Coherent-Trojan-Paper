@@ -9,7 +9,7 @@ with pkgs;
 
 let
   packages = rec {
-    platform = "zcu104";
+    platform = "zcu102";
     #artifacts
     artifacts = callPackage ./pkgs/artifacts/artifacts.nix {};
     # tools
@@ -29,7 +29,7 @@ let
     # scripts = callPackage ./pkgs/scripts/scripts.nix { inherit gen_sd; };
     inherit pkgs; # similar to `pkgs = pkgs;` This lets callers use the nixpkgs version defined in this file.
     
-    #result-8
+    #result-9
     sen_sd = writeTextFile { 
       name = "send_sd.sh";
       executable = true;
@@ -42,6 +42,10 @@ let
             then  
                 sudo rm -r $BAO_SDCARD/*
                 sudo cp -r ${gen_sd}/boot_partition/* $BAO_SDCARD
+                # Not needed for booting, just for testing porpuses to load baremetal without bao
+                sudo cp ${baremetal}/baremetal.bin $BAO_SDCARD
+                # Not needed for booting, just for testing porpuses to load linux without bao
+                sudo cp ${linux}/linux.bin $BAO_SDCARD
                 umount $BAO_SDCARD
                 echo $'\e[1;32m SD Card flashed!\e[0m'
             else
