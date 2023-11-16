@@ -14,12 +14,17 @@
 #define FUNC_pos    5
     #define FUNC_OSH        0
     #define FUNC_CON        1
+    #define FUNC_ADL        2
+    #define FUNC_ADT        3
+    #define FUNC_PDT        4
 #define CRRESP_pos  9
 #define ACFLT_pos   14
 #define ADDRFLT_pos 15
 #define OSHEN_pos   16
 #define CONEN_pos   17
-#define DELAY_pos   18
+#define ADLEN_pos   18
+#define ADTEN_pos   19
+#define PDTEN_pos   20
 
 // Status Reg bits
 #define OSH_END_pos 0
@@ -75,7 +80,7 @@ int main() {
     base_addr = map_base+4;
     mem_size = map_base+5;
     arsnoop = map_base+6;
-    l_araddr = map_base+8;
+    l_araddr = map_base+7;
     h_araddr = map_base+8;
     rdata_0 = map_base+9;
     rdata_1 = map_base+10;
@@ -100,30 +105,22 @@ int main() {
     //      and then this code will leak the data written there
 
     *h_awaddr = 0x00;
-    // *l_awaddr = 0x0008fec0;
-    *l_awaddr = 0x00300000;
+    *l_awaddr = 0x40000000;
     *awsnoop = WRITE_LINE_UNIQUE;
     *wdata_0 = 0xF1F1F1F1;
     *wdata_1 = 0xF2F2F2F2;
     *wdata_2 = 0xF3F3F3F3;
     *wdata_3 = 0xF4F4F4F4;
-    while (1)
-    {
-    // printf(" ctrl = 0x%08x\n", *ctrl);
+
     printf(" addr = 0x%08x\n", *l_awaddr);
-    *ctrl |= (1 << EN_pos); // Enable IP
+    *ctrl |= (FUNC_ADT << FUNC_pos) // active data leak
+            | (1 << ADTEN_pos) // active data leak En
+            | (1 << EN_pos); // Enable IP
     // // while (!(*ctrl & (1 << EN_pos)));
-    for (size_t i = 0; i < 1000; i++);   
-    // for (size_t i = 0; i < 10000000; i++);   
+    for (size_t i = 0; i < 10000000; i++);   
     printf(" ctrl = 0x%08x\n", *ctrl);   
-    // printf(" rdata1 = 0x%08x\n", *rdata1);
-    // printf(" rdata2 = 0x%08x\n", *rdata2);
-    // printf(" rdata3 = 0x%08x\n", *rdata3);
-    // printf(" rdata4 = 0x%08x\n", *rdata4);
     *ctrl &= ~(1 << EN_pos); // Disable IP
-    // printf(" ctrl = 0x%08x\n", *ctrl);   
-    *l_awaddr = *l_awaddr + 0x10;
-    }
+
     // Unmap memory and close /dev/mem
     munmap(map_base, 4096);
     close(mem_fd);

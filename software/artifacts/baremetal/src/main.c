@@ -326,6 +326,20 @@ void active_data_leak(){
     for (int i = 0; i < 100000000; i++);    
 }
 
+/*
+* Test: I can mmap on linux the var, as the mmap is not cacheable, I will see 
+* the data on DDR. Then I change the data through the AWSNOOP using the devil IP 
+* and if data tampering is correct, I should see the data change on the VM and on 
+* ddr, but when I write to memory, I should data only change on the linux app 
+* which is looking at the memory  
+*/
+void active_data_tampering(){
+    spin_lock(&print_lock);
+    printf("Ptr = 0x%08x\n", *ptr);
+    spin_unlock(&print_lock);
+    for (int i = 0; i < 100000000; i++); 
+}
+
 void main(void){
 
     static volatile bool master_done = false;
@@ -366,7 +380,8 @@ void main(void){
 
     while (1)
     {   
-        active_data_leak();
+        //active_data_leak();
+        active_data_tampering();
         // data_tamper();
     }
 
