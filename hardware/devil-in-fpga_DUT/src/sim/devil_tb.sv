@@ -165,8 +165,8 @@ module devil_tb();
     slv_agent.mem_model.set_memory_fill_policy(XIL_AXI_MEMORY_FILL_RANDOM);      
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
-    data_tampering_FSM_devil();
-    // data_leak_FMS_devil();
+    // data_tampering_FSM_devil();
+    data_leak_FMS_devil();
     // PDT_devil();
     // data_tampering_devil();
     // data_leak_devil();
@@ -211,7 +211,7 @@ module devil_tb();
     endtask :data_tampering_FSM_devil
 
     task data_leak_FMS_devil();
-        reg_l_araddr = 32'h00000000;
+        reg_l_araddr = 32'h40000000;
         reg_h_araddr = 8'h00;
         reg_arsnoop = `READ_ONCE;
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_ARADDR,prot,reg_l_araddr,resp); 

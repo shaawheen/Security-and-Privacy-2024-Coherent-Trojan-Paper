@@ -14,12 +14,17 @@
 #define FUNC_pos    5
     #define FUNC_OSH        0
     #define FUNC_CON        1
+    #define FUNC_ADL        2
+    #define FUNC_ADT        3
+    #define FUNC_PDT        4
 #define CRRESP_pos  9
 #define ACFLT_pos   14
 #define ADDRFLT_pos 15
 #define OSHEN_pos   16
 #define CONEN_pos   17
-#define DELAY_pos   18
+#define ADLEN_pos   18
+#define ADTEN_pos   19
+#define PDTEN_pos   20
 
 // Status Reg bits
 #define OSH_END_pos 0
@@ -75,7 +80,7 @@ int main() {
     base_addr = map_base+4;
     mem_size = map_base+5;
     arsnoop = map_base+6;
-    l_araddr = map_base+8;
+    l_araddr = map_base+7;
     h_araddr = map_base+8;
     rdata_0 = map_base+9;
     rdata_1 = map_base+10;
@@ -99,11 +104,13 @@ int main() {
     //      To validate, run ./read_phys_addr which will write in addr 0x40000000
     //      and then this code will leak the data written there
 
-    h_araddr =  0x00;
-    l_araddr =  0xFFFEA000;
-    arsnoop = READ_ONCE;
+    *h_araddr =  0x00;
+    *l_araddr =  0x40000000;
+    *arsnoop = READ_ONCE;
     printf(" ctrl = 0x%08x\n", *ctrl);
-    *ctrl |= (1 << EN_pos); // Enable IP
+    *ctrl |= (FUNC_ADL << FUNC_pos) // active data leak
+            | (1 << ADLEN_pos) // active data leak En
+            | (1 << EN_pos); // Enable IP
     // // while (!(*ctrl & (1 << EN_pos)));
     for (size_t i = 0; i < 10000000; i++);   
     printf(" ctrl = 0x%08x\n", *ctrl);   
@@ -111,9 +118,10 @@ int main() {
     printf(" rdata2 = 0x%08x\n", *rdata_1);
     printf(" rdata3 = 0x%08x\n", *rdata_2);
     printf(" rdata4 = 0x%08x\n", *rdata_3);
-    *ctrl &= ~(1 << EN_pos); // Disable IP
+    *ctrl &= ~(FUNC_ADL << FUNC_pos)
+            & ~(1 << ADLEN_pos)
+            & ~(1 << EN_pos); // Disable IP
     printf(" ctrl = 0x%08x\n", *ctrl);   
-
 
     // Unmap memory and close /dev/mem
     munmap(map_base, 4096);
