@@ -446,11 +446,14 @@
     wire                            w_devil_reply;
     wire                            w_devil_busy;
     wire                            w_wlast; 
+    wire     [C_ACE_DATA_WIDTH-1:0] w_wdata;
     wire                     [63:0] w_counter; // test porpuses
     wire     [C_ACE_DATA_WIDTH-1:0] w_buff_0;
     wire     [C_ACE_DATA_WIDTH-1:0] w_buff_1;
     wire     [C_ACE_DATA_WIDTH-1:0] w_buff_2;
-    wire     [C_ACE_DATA_WIDTH-1:0] w_buff_3;                            
+    wire     [C_ACE_DATA_WIDTH-1:0] w_buff_3;      
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
 
     wire   w_en;
     assign w_en = w_control_reg[0];
@@ -582,7 +585,7 @@
     assign awvalid  = w_devil_aw_phase && awready; 
 
     // ACE W channel (Write data phase)
-    assign wdata    = w_devil_w_phase ? {w_wdata_3_data, w_wdata_2_data, w_wdata_1_data, w_wdata_0_data} : 0; // This way I am writing 16B (128bits) 4x times
+    assign wdata    = w_devil_w_phase ? w_wdata : 0; // Writing 16B (128bits) 4x times
     assign wlast    = w_wlast;//(r_index == 3);
     assign wstrb    = 16'hffff; // Activate all strobes, we have a data-bus of 128 bits 
     assign wuser    = 0;
@@ -1006,49 +1009,43 @@
     .o_arsnoop_Data(w_arsnoop_Data),
     .o_l_araddr_Data(w_l_araddr_Data),
     .o_h_araddr_Data(w_h_araddr_Data),
-    // .i_rdata_0_data(w_buff_0[31:0]),
-    // .i_rdata_1_data(w_buff_0[63:32]),
-    // .i_rdata_2_data(w_buff_0[95:64]),
-    // .i_rdata_3_data(w_buff_0[127:96]),
     .o_awsnoop_Data(w_awsnoop_Data),
     .o_l_awaddr_Data(w_l_awaddr_Data),
     .o_h_awaddr_Data(w_h_awaddr_Data),
-    // .o_wdata_0_data(w_wdata_0_data),
-    // .o_wdata_1_data(w_wdata_1_data),
-    // .o_wdata_2_data(w_wdata_2_data),
-    // .o_wdata_3_data(w_wdata_3_data),
-    .i_rdata_0_data(w_wdata_0_data & 32'hFFFF0000),
-    .o_wdata_0_data(w_wdata_0_data),
-    .i_rdata_1_data(w_wdata_1_data & 32'hFFFF0000),
-    .o_wdata_1_data(w_wdata_1_data ),
-    .i_rdata_2_data(w_wdata_2_data & 32'hFFFF0000),
-    .o_wdata_2_data(w_wdata_2_data ),
-    .i_rdata_3_data(w_wdata_3_data & 32'hFFFF0000),
-    .o_wdata_3_data(w_wdata_3_data ),
-    .i_rdata_4_data(w_wdata_4_data & 32'hFFFF0000),
-    .o_wdata_4_data(w_wdata_4_data ),
-    .i_rdata_5_data(w_wdata_5_data & 32'hFFFF0000),
-    .o_wdata_5_data(w_wdata_5_data ),
-    .i_rdata_6_data(w_wdata_6_data & 32'hFFFF0000),
-    .o_wdata_6_data(w_wdata_6_data ),
-    .i_rdata_7_data(w_wdata_7_data & 32'hFFFF0000),
-    .o_wdata_7_data(w_wdata_7_data ),
-    .i_rdata_8_data(w_wdata_8_data & 32'hFFFF0000),
-    .o_wdata_8_data(w_wdata_8_data ),
-    .i_rdata_9_data(w_wdata_9_data & 32'hFFFF0000),
-    .o_wdata_9_data(w_wdata_9_data ),
-    .i_rdata_10_data(w_wdata_10_data & 32'hFFFF0000),
-    .o_wdata_10_data(w_wdata_10_data ),
-    .i_rdata_11_data(w_wdata_11_data & 32'hFFFF0000),
-    .o_wdata_11_data(w_wdata_11_data ),
-    .i_rdata_12_data(w_wdata_12_data & 32'hFFFF0000),
-    .o_wdata_12_data(w_wdata_12_data ),
-    .i_rdata_13_data(w_wdata_13_data & 32'hFFFF0000),
-    .o_wdata_13_data(w_wdata_13_data ),
-    .i_rdata_14_data(w_wdata_14_data & 32'hFFFF0000),
-    .o_wdata_14_data(w_wdata_14_data ),
-    .i_rdata_15_data(w_wdata_15_data & 32'hFFFF0000),
-    .o_wdata_15_data(w_wdata_15_data )
+    // Cache line data (Read)
+     .i_rdata_0_data(w_read_cache_line[31+32*0:0+32*0]),
+     .i_rdata_1_data(w_read_cache_line[31+32*1:0+32*1]),
+     .i_rdata_2_data(w_read_cache_line[31+32*2:0+32*2]),
+     .i_rdata_3_data(w_read_cache_line[31+32*3:0+32*3]),
+     .i_rdata_4_data(w_read_cache_line[31+32*4:0+32*4]),
+     .i_rdata_5_data(w_read_cache_line[31+32*5:0+32*5]),
+     .i_rdata_6_data(w_read_cache_line[31+32*6:0+32*6]),
+     .i_rdata_7_data(w_read_cache_line[31+32*7:0+32*7]),
+     .i_rdata_8_data(w_read_cache_line[31+32*8:0+32*8]),
+     .i_rdata_9_data(w_read_cache_line[31+32*9:0+32*9]),
+    .i_rdata_10_data(w_read_cache_line[31+32*10:0+32*10]),
+    .i_rdata_11_data(w_read_cache_line[31+32*11:0+32*11]),
+    .i_rdata_12_data(w_read_cache_line[31+32*12:0+32*12]),
+    .i_rdata_13_data(w_read_cache_line[31+32*13:0+32*13]),
+    .i_rdata_14_data(w_read_cache_line[31+32*14:0+32*14]),
+    .i_rdata_15_data(w_read_cache_line[31+32*15:0+32*15]),
+    // Cache line data (Write)
+     .o_wdata_0_data(w_write_cache_line[31+32*0:0+32*0]),
+     .o_wdata_1_data(w_write_cache_line[31+32*1:0+32*1]),
+     .o_wdata_2_data(w_write_cache_line[31+32*2:0+32*2]),
+     .o_wdata_3_data(w_write_cache_line[31+32*3:0+32*3]),
+     .o_wdata_4_data(w_write_cache_line[31+32*4:0+32*4]),
+     .o_wdata_5_data(w_write_cache_line[31+32*5:0+32*5]),
+     .o_wdata_6_data(w_write_cache_line[31+32*6:0+32*6]),
+     .o_wdata_7_data(w_write_cache_line[31+32*7:0+32*7]),
+     .o_wdata_8_data(w_write_cache_line[31+32*8:0+32*8]),
+     .o_wdata_9_data(w_write_cache_line[31+32*9:0+32*9]),
+    .o_wdata_10_data(w_write_cache_line[31+32*10:0+32*10]),
+    .o_wdata_11_data(w_write_cache_line[31+32*11:0+32*11]),
+    .o_wdata_12_data(w_write_cache_line[31+32*12:0+32*12]),
+    .o_wdata_13_data(w_write_cache_line[31+32*13:0+32*13]),
+    .o_wdata_14_data(w_write_cache_line[31+32*14:0+32*14]),
+    .o_wdata_15_data(w_write_cache_line[31+32*15:0+32*15])
     );
 
     // Instantiation of devil-in-fpgs module
@@ -1085,10 +1082,6 @@
         .o_reply(w_devil_reply),
         .o_busy(w_devil_busy),
         .i_cdready(cdready),
-        .i_wdata_0_data(w_wdata_0_data),
-        .i_wdata_1_data(w_wdata_1_data),
-        .i_wdata_2_data(w_wdata_2_data),
-        .i_wdata_3_data(w_wdata_3_data),
         .i_acaddr_snapshot(w_acaddr_snapshot),
         .i_acsnoop_snapshot(w_acsnoop_snapshot),
         .o_ar_phase(w_devil_ar_phase),
@@ -1099,6 +1092,7 @@
         .o_b_phase(w_devil_b_phase),
         .o_wack_phase(w_devil_wack_phase),
         .o_wlast(w_wlast),
+        .o_wdata(w_wdata),
         .i_arready(arready),
         .i_rready(rready),
         .i_rvalid(rvalid),
@@ -1111,10 +1105,8 @@
         .i_bresp(bresp),
         .i_bvalid(bvalid),
         .i_bready(bready),
-        .o_buff_0(w_buff_0),
-        .o_buff_1(w_buff_1),
-        .o_buff_2(w_buff_2),
-        .o_buff_3(w_buff_3),
+        .o_cache_line(w_read_cache_line),
+        .i_cache_line(w_write_cache_line),
         .o_counter(w_counter) // test porpuses
     );
 

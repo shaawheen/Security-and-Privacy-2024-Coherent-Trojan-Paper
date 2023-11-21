@@ -54,10 +54,6 @@
         output wire                              o_reply,
         output wire                              o_busy,
         input  wire                              i_cdready,
-        input  wire                       [31:0] i_wdata_0_data, 
-        input  wire                       [31:0] i_wdata_1_data, 
-        input  wire                       [31:0] i_wdata_2_data, 
-        input  wire                       [31:0] i_wdata_3_data, 
         input  wire       [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
         input  wire                        [3:0] i_acsnoop_snapshot,
         output wire                              o_ar_phase,
@@ -68,6 +64,7 @@
         output wire                              o_b_phase,
         output wire                              o_wack_phase,
         output wire                              o_wlast,
+        output wire       [C_ACE_DATA_WIDTH-1:0] o_wdata,
         input wire                               i_arready,
         input wire                               i_rready,
         input wire                               i_rvalid,
@@ -80,10 +77,8 @@
         input wire                               i_bresp,
         input wire                               i_bvalid,
         input wire                               i_bready,
-        output wire       [C_ACE_DATA_WIDTH-1:0] o_buff_0,
-        output wire       [C_ACE_DATA_WIDTH-1:0] o_buff_1,
-        output wire       [C_ACE_DATA_WIDTH-1:0] o_buff_2,
-        output wire       [C_ACE_DATA_WIDTH-1:0] o_buff_3,
+        output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
+        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -128,11 +123,11 @@
     reg                  [127:0] r_buff[3:0]; // 4 elements of 16 bytes
     reg                    [1:0] r_index_active;
 
-
-    assign o_buff_0 = r_buff[0];
-    assign o_buff_1 = r_buff[1];
-    assign o_buff_2 = r_buff[2];
-    assign o_buff_3 = r_buff[3];
+    assign o_cache_line = {r_buff[3], r_buff[2], r_buff[1], r_buff[0]};
+    assign o_wdata = r_index_active == 1 ? i_cache_line[127+128*1:0+128*1]: 
+                     r_index_active == 2 ? i_cache_line[127+128*2:0+128*2]: 
+                     r_index_active == 3 ? i_cache_line[127+128*3:0+128*3]: 
+                     i_cache_line[127+128*0:0+128*0]; // 128 bits
 
     // Devil-in-the-fpga snoop request handshake
     // wire handshake;
@@ -356,11 +351,14 @@
                     if (i_crready)                                      
                     begin                            
                         r_crresp <= w_crresp[4:0];
-                        r_rdata <= {i_wdata_3_data, i_wdata_2_data, i_wdata_1_data, i_wdata_0_data}; // 128 bits
                         r_crvalid <= 1;
                         r_cdvalid <= 1; 
                         if(i_cdready) begin // cdvalid/ data must not change until cdready is asserted   
                             r_burst_cnt <= r_burst_cnt + 1;
+                            r_rdata <=  r_burst_cnt == 1 ? i_cache_line[127+128*1:0+128*1]: 
+                                        r_burst_cnt == 2 ? i_cache_line[127+128*2:0+128*2]: 
+                                        r_burst_cnt == 3 ? i_cache_line[127+128*3:0+128*3]: 
+                                        i_cache_line[127+128*0:0+128*0]; 
                             if( (i_arlen == 0) || (r_burst_cnt == i_arlen)) 
                             begin // last reply
                                 r_cdlast <= 1;                                
