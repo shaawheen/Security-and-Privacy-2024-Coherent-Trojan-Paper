@@ -359,7 +359,7 @@
                         r_rdata <= {i_wdata_3_data, i_wdata_2_data, i_wdata_1_data, i_wdata_0_data}; // 128 bits
                         r_crvalid <= 1;
                         r_cdvalid <= 1; 
-                        if(i_cdready) begin // cdvalid/cddata must not change until cdready is asserted   
+                        if(i_cdready) begin // cdvalid/ data must not change until cdready is asserted   
                             r_burst_cnt <= r_burst_cnt + 1;
                             if( (i_arlen == 0) || (r_burst_cnt == i_arlen)) 
                             begin // last reply
