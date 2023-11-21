@@ -928,6 +928,22 @@
     wire [3:0] w_acsnoop_type;
     wire [31:0] w_base_addr_Data;
     wire [31:0] w_mem_size_Data;
+    wire [31:0] w_wdata_0_data;
+    wire [31:0] w_wdata_1_data;
+    wire [31:0] w_wdata_2_data;
+    wire [31:0] w_wdata_3_data;
+    wire [31:0] w_wdata_4_data;
+    wire [31:0] w_wdata_5_data;
+    wire [31:0] w_wdata_6_data;
+    wire [31:0] w_wdata_7_data;
+    wire [31:0] w_wdata_8_data;
+    wire [31:0] w_wdata_9_data;
+    wire [31:0] w_wdata_10_data;
+    wire [31:0] w_wdata_11_data;
+    wire [31:0] w_wdata_12_data;
+    wire [31:0] w_wdata_13_data;
+    wire [31:0] w_wdata_14_data;
+    wire [31:0] w_wdata_15_data;
 
     assign w_control_reg = {w_control_PDTEN,    // bit 20
                             w_control_ADTEN,    // bit 19
@@ -990,17 +1006,49 @@
     .o_arsnoop_Data(w_arsnoop_Data),
     .o_l_araddr_Data(w_l_araddr_Data),
     .o_h_araddr_Data(w_h_araddr_Data),
-    .i_rdata_0_data(w_buff_0[31:0]),
-    .i_rdata_1_data(w_buff_0[63:32]),
-    .i_rdata_2_data(w_buff_0[95:64]),
-    .i_rdata_3_data(w_buff_0[127:96]),
+    // .i_rdata_0_data(w_buff_0[31:0]),
+    // .i_rdata_1_data(w_buff_0[63:32]),
+    // .i_rdata_2_data(w_buff_0[95:64]),
+    // .i_rdata_3_data(w_buff_0[127:96]),
     .o_awsnoop_Data(w_awsnoop_Data),
     .o_l_awaddr_Data(w_l_awaddr_Data),
     .o_h_awaddr_Data(w_h_awaddr_Data),
+    // .o_wdata_0_data(w_wdata_0_data),
+    // .o_wdata_1_data(w_wdata_1_data),
+    // .o_wdata_2_data(w_wdata_2_data),
+    // .o_wdata_3_data(w_wdata_3_data),
+    .i_rdata_0_data(w_wdata_0_data & 32'hFFFF0000),
     .o_wdata_0_data(w_wdata_0_data),
-    .o_wdata_1_data(w_wdata_1_data),
-    .o_wdata_2_data(w_wdata_2_data),
-    .o_wdata_3_data(w_wdata_3_data)
+    .i_rdata_1_data(w_wdata_1_data & 32'hFFFF0000),
+    .o_wdata_1_data(w_wdata_1_data ),
+    .i_rdata_2_data(w_wdata_2_data & 32'hFFFF0000),
+    .o_wdata_2_data(w_wdata_2_data ),
+    .i_rdata_3_data(w_wdata_3_data & 32'hFFFF0000),
+    .o_wdata_3_data(w_wdata_3_data ),
+    .i_rdata_4_data(w_wdata_4_data & 32'hFFFF0000),
+    .o_wdata_4_data(w_wdata_4_data ),
+    .i_rdata_5_data(w_wdata_5_data & 32'hFFFF0000),
+    .o_wdata_5_data(w_wdata_5_data ),
+    .i_rdata_6_data(w_wdata_6_data & 32'hFFFF0000),
+    .o_wdata_6_data(w_wdata_6_data ),
+    .i_rdata_7_data(w_wdata_7_data & 32'hFFFF0000),
+    .o_wdata_7_data(w_wdata_7_data ),
+    .i_rdata_8_data(w_wdata_8_data & 32'hFFFF0000),
+    .o_wdata_8_data(w_wdata_8_data ),
+    .i_rdata_9_data(w_wdata_9_data & 32'hFFFF0000),
+    .o_wdata_9_data(w_wdata_9_data ),
+    .i_rdata_10_data(w_wdata_10_data & 32'hFFFF0000),
+    .o_wdata_10_data(w_wdata_10_data ),
+    .i_rdata_11_data(w_wdata_11_data & 32'hFFFF0000),
+    .o_wdata_11_data(w_wdata_11_data ),
+    .i_rdata_12_data(w_wdata_12_data & 32'hFFFF0000),
+    .o_wdata_12_data(w_wdata_12_data ),
+    .i_rdata_13_data(w_wdata_13_data & 32'hFFFF0000),
+    .o_wdata_13_data(w_wdata_13_data ),
+    .i_rdata_14_data(w_wdata_14_data & 32'hFFFF0000),
+    .o_wdata_14_data(w_wdata_14_data ),
+    .i_rdata_15_data(w_wdata_15_data & 32'hFFFF0000),
+    .o_wdata_15_data(w_wdata_15_data )
     );
 
     // Instantiation of devil-in-fpgs module

@@ -34,17 +34,25 @@ import design_1_axi_vip_1_0_pkg::*;
 `define ARSNOOP         32'h18
 `define L_ARADDR        32'h1C
 `define H_ARADDR        32'h20
-`define RDATA1          32'h24
-`define RDATA2          32'h28
-`define RDATA3          32'h2C
-`define RDATA4          32'h30
 `define AWSNOOP         32'h34
 `define L_AWADDR        32'h38
 `define H_AWADDR        32'h3C
-`define WDATA1          32'h40
-`define WDATA2          32'h44
-`define WDATA3          32'h48
-`define WDATA4          32'h4C
+`define DATA0           32'h40
+`define DATA1           32'h44
+`define DATA2           32'h48
+`define DATA3           32'h4C
+`define DATA4           32'h50
+`define DATA5           32'h54
+`define DATA6           32'h58
+`define DATA7           32'h5C
+`define DATA8           32'h60
+`define DATA9           32'h64
+`define DATA10          32'h68
+`define DATA11          32'h6C
+`define DATA12          32'h70
+`define DATA13          32'h74
+`define DATA14          32'h78
+`define DATA15          32'h7C
 
 `define READ_ONCE           4'b0000
 `define WRITE_LINE_UNIQUE   3'b001
@@ -97,6 +105,7 @@ module devil_tb();
     bit [31:0] reg_wdata4;
     bit [31:0] reg_arsnoop;
     bit [31:0] reg_awsnoop;
+    bit [31:0] reg_wdata;
     bit [43:0]acaddr;
     bit [3:0]acsnoop;
     bit acvalid;
@@ -166,7 +175,8 @@ module devil_tb();
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
     // data_tampering_FSM_devil();
-    data_leak_FMS_devil();
+    test_data_regs();
+    // data_leak_FMS_devil();
     // PDT_devil();
     // data_tampering_devil();
     // data_leak_devil();
@@ -182,164 +192,217 @@ module devil_tb();
     $finish;
     end 
 
-    task data_tampering_FSM_devil();
-        reg_l_awaddr = 32'h00000000;
-        reg_h_awaddr = 8'h00;
-        reg_wdata1 = 32'hF0F0F0F0;
-        reg_wdata2 = 32'h00000001;
-        reg_wdata3 = 32'hFFFFFFFF;
-        reg_wdata4 = 32'h00000002;
-        reg_awsnoop = `WRITE_LINE_UNIQUE;
+    task test_data_regs();
+        reg_wdata = 32'hFFFFFFFF;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA0,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA1,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA2,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA3,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA4,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA5,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA6,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA7,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA8,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA9,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA10,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA11,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA12,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA13,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA14,prot,reg_wdata,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA15,prot,reg_wdata,resp); 
+        #10ns;
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA0,prot,reg_rdata,resp);
+        $display("RDATA0 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA1,prot,reg_rdata,resp);
+        $display("RDATA1 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA2,prot,reg_rdata,resp);
+        $display("RDATA2 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA3,prot,reg_rdata,resp);
+        $display("RDATA3 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA4,prot,reg_rdata,resp);
+        $display("RDATA4 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA5,prot,reg_rdata,resp);
+        $display("RDATA5 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA6,prot,reg_rdata,resp);
+        $display("RDATA6 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA7,prot,reg_rdata,resp);
+        $display("RDATA7 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA8,prot,reg_rdata,resp);
+        $display("RDATA8 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA9,prot,reg_rdata,resp);
+        $display("RDATA9 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA10,prot,reg_rdata,resp);
+        $display("RDATA10 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA11,prot,reg_rdata,resp);
+        $display("RDATA11 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA12,prot,reg_rdata,resp);
+        $display("RDATA12 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA13,prot,reg_rdata,resp);
+        $display("RDATA13 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA14,prot,reg_rdata,resp);
+        $display("RDATA14 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA15,prot,reg_rdata,resp);
+        $display("RDATA15 = %h",reg_rdata);
+    endtask :test_data_regs
 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_AWADDR,prot,reg_l_awaddr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_AWADDR,prot,reg_h_awaddr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA1,prot,reg_wdata1,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA2,prot,reg_wdata2,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA3,prot,reg_wdata3,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA4,prot,reg_wdata4,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`AWSNOOP,prot,reg_awsnoop,resp); 
+    // task data_tampering_FSM_devil();
+    //     reg_l_awaddr = 32'h00000000;
+    //     reg_h_awaddr = 8'h00;
+    //     reg_wdata1 = 32'hF0F0F0F0;
+    //     reg_wdata2 = 32'h00000001;
+    //     reg_wdata3 = 32'hFFFFFFFF;
+    //     reg_wdata4 = 32'h00000002;
+    //     reg_awsnoop = `WRITE_LINE_UNIQUE;
+
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_AWADDR,prot,reg_l_awaddr,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_AWADDR,prot,reg_h_awaddr,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA1,prot,reg_wdata1,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA2,prot,reg_wdata2,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA3,prot,reg_wdata3,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA4,prot,reg_wdata4,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`AWSNOOP,prot,reg_awsnoop,resp); 
         
-        reg_ctrl = (`FUNC_ADT << `FUNC_pos) // active data tampering
-                    | (1 << `ADTEN_pos)               
-                    | (1 << `EN_pos);
+    //     reg_ctrl = (`FUNC_ADT << `FUNC_pos) // active data tampering
+    //                 | (1 << `ADTEN_pos)               
+    //                 | (1 << `EN_pos);
                     
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #100ns;
-        reg_ctrl =  (0 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #10ns;
-    endtask :data_tampering_FSM_devil
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     #100ns;
+    //     reg_ctrl =  (0 << `EN_pos);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     #10ns;
+    // endtask :data_tampering_FSM_devil
 
-    task data_leak_FMS_devil();
-        reg_l_araddr = 32'h40000000;
-        reg_h_araddr = 8'h00;
-        reg_arsnoop = `READ_ONCE;
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_ARADDR,prot,reg_l_araddr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_ARADDR,prot,reg_h_araddr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ARSNOOP,prot,reg_arsnoop,resp); 
+    // task data_leak_FMS_devil();
+    //     reg_l_araddr = 32'h40000000;
+    //     reg_h_araddr = 8'h00;
+    //     reg_arsnoop = `READ_ONCE;
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_ARADDR,prot,reg_l_araddr,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_ARADDR,prot,reg_h_araddr,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ARSNOOP,prot,reg_arsnoop,resp); 
 
-        reg_ctrl = (`FUNC_ADL << `FUNC_pos) // active data leak
-                    | (1 << `ADLEN_pos)               
-                    | (1 << `EN_pos);
+    //     reg_ctrl = (`FUNC_ADL << `FUNC_pos) // active data leak
+    //                 | (1 << `ADLEN_pos)               
+    //                 | (1 << `EN_pos);
 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #100ns;
-        reg_ctrl =  (0 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #100ns;
-        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA1,prot,reg_rdata,resp);
-        $display("RDATA1 = %h",reg_rdata);
-        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA2,prot,reg_rdata,resp);
-        $display("RDATA2 = %h",reg_rdata);
-        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA3,prot,reg_rdata,resp);
-        $display("RDATA3 = %h",reg_rdata);
-        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA4,prot,reg_rdata,resp);
-        $display("RDATA4 = %h",reg_rdata);
-    endtask :data_leak_FMS_devil
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     #100ns;
+    //     reg_ctrl =  (0 << `EN_pos);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     #100ns;
+    //     mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA1,prot,reg_rdata,resp);
+    //     $display("RDATA1 = %h",reg_rdata);
+    //     mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA2,prot,reg_rdata,resp);
+    //     $display("RDATA2 = %h",reg_rdata);
+    //     mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA3,prot,reg_rdata,resp);
+    //     $display("RDATA3 = %h",reg_rdata);
+    //     mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA4,prot,reg_rdata,resp);
+    //     $display("RDATA4 = %h",reg_rdata);
+    // endtask :data_leak_FMS_devil
 
-    task PDT_devil();
-        reg_wdata1 = 32'hF0F0F0F0;
-        reg_wdata2 = 32'h00000001;
-        reg_wdata3 = 32'hFFFFFFFF;
-        reg_wdata4 = 32'h00000002;
+    // task PDT_devil();
+    //     reg_wdata1 = 32'hF0F0F0F0;
+    //     reg_wdata2 = 32'h00000001;
+    //     reg_wdata3 = 32'hFFFFFFFF;
+    //     reg_wdata4 = 32'h00000002;
         
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA1,prot,reg_wdata1,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA2,prot,reg_wdata2,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA3,prot,reg_wdata3,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA4,prot,reg_wdata4,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA1,prot,reg_wdata1,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA2,prot,reg_wdata2,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA3,prot,reg_wdata3,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA4,prot,reg_wdata4,resp); 
 
-        // Address Filter
-        acaddr = 44'h00040000000;  // Simulate address
-        reg_addr = 32'h40000000;
-        reg_size = 32'h00000004;
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`MEM_SIZE,prot,reg_size,resp);
+    //     // Address Filter
+    //     acaddr = 44'h00040000000;  // Simulate address
+    //     reg_addr = 32'h40000000;
+    //     reg_size = 32'h00000004;
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`BASE_ADDR,prot,reg_addr,resp);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`MEM_SIZE,prot,reg_size,resp);
 
-        // Snoop Filter
-        acsnoop = 1; // Simulate snoop
-        reg_acsnoop = 1;
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ACSNOOP,prot,reg_acsnoop,resp); 
+    //     // Snoop Filter
+    //     acsnoop = 1; // Simulate snoop
+    //     reg_acsnoop = 1;
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ACSNOOP,prot,reg_acsnoop,resp); 
         
-        reg_ctrl =    (5'b00001 << `CRRESP_pos) 
-                    | (1 << `ACFLT_pos) 
-                    | (1 << `ADDRFLT_pos) 
-                    | (1 << `PDTEN_pos)               
-                    | (`FUNC_PDT << `FUNC_pos) 
-                    | (1 << `EN_pos);
+    //     reg_ctrl =    (5'b00001 << `CRRESP_pos) 
+    //                 | (1 << `ACFLT_pos) 
+    //                 | (1 << `ADDRFLT_pos) 
+    //                 | (1 << `PDTEN_pos)               
+    //                 | (`FUNC_PDT << `FUNC_pos) 
+    //                 | (1 << `EN_pos);
 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
         
-        #100ns;
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp); 
-        #100ns;
-    endtask :PDT_devil
+    //     #100ns;
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp); 
+    //     #100ns;
+    // endtask :PDT_devil
 
-    task data_tampering_devil();
-        reg_l_awaddr = 32'h00000002;
-        reg_h_awaddr = 8'h00;
-        reg_wdata1 = 32'hF0F0F0F0;
-        reg_wdata2 = 32'h00000001;
-        reg_wdata3 = 32'hFFFFFFFF;
-        reg_wdata4 = 32'h00000002;
-        reg_awsnoop = `WRITE_LINE_UNIQUE;
+    // task data_tampering_devil();
+    //     reg_l_awaddr = 32'h00000002;
+    //     reg_h_awaddr = 8'h00;
+    //     reg_wdata1 = 32'hF0F0F0F0;
+    //     reg_wdata2 = 32'h00000001;
+    //     reg_wdata3 = 32'hFFFFFFFF;
+    //     reg_wdata4 = 32'h00000002;
+    //     reg_awsnoop = `WRITE_LINE_UNIQUE;
 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_AWADDR,prot,reg_l_awaddr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_AWADDR,prot,reg_h_awaddr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA1,prot,reg_wdata1,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA2,prot,reg_wdata2,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA3,prot,reg_wdata3,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA4,prot,reg_wdata4,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`AWSNOOP,prot,reg_awsnoop,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_AWADDR,prot,reg_l_awaddr,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_AWADDR,prot,reg_h_awaddr,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA1,prot,reg_wdata1,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA2,prot,reg_wdata2,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA3,prot,reg_wdata3,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WDATA4,prot,reg_wdata4,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`AWSNOOP,prot,reg_awsnoop,resp); 
         
-        reg_ctrl =  (1 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #100ns;
-        reg_ctrl =  (0 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #10ns;
-    endtask :data_tampering_devil
+    //     reg_ctrl =  (1 << `EN_pos);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     #100ns;
+    //     reg_ctrl =  (0 << `EN_pos);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     #10ns;
+    // endtask :data_tampering_devil
 
-    task data_leak_devil();
-        reg_l_araddr = 32'h00000002;
-        reg_h_araddr = 8'h00;
-        reg_arsnoop = `READ_ONCE;
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_ARADDR,prot,reg_l_araddr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_ARADDR,prot,reg_h_araddr,resp); 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ARSNOOP,prot,reg_arsnoop,resp); 
-        reg_ctrl =  (1 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #100ns;
-        reg_ctrl =  (0 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #100ns;
-        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA1,prot,reg_rdata,resp);
-        $display("RDATA1 = %h",reg_rdata);
-        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA2,prot,reg_rdata,resp);
-        $display("RDATA2 = %h",reg_rdata);
-        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA3,prot,reg_rdata,resp);
-        $display("RDATA3 = %h",reg_rdata);
-        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA4,prot,reg_rdata,resp);
-        $display("RDATA4 = %h",reg_rdata);
-    endtask :data_leak_devil
+    // task data_leak_devil();
+    //     reg_l_araddr = 32'h00000002;
+    //     reg_h_araddr = 8'h00;
+    //     reg_arsnoop = `READ_ONCE;
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_ARADDR,prot,reg_l_araddr,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_ARADDR,prot,reg_h_araddr,resp); 
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ARSNOOP,prot,reg_arsnoop,resp); 
+    //     reg_ctrl =  (1 << `EN_pos);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     #100ns;
+    //     reg_ctrl =  (0 << `EN_pos);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+    //     #100ns;
+    //     mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA1,prot,reg_rdata,resp);
+    //     $display("RDATA1 = %h",reg_rdata);
+    //     mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA2,prot,reg_rdata,resp);
+    //     $display("RDATA2 = %h",reg_rdata);
+    //     mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA3,prot,reg_rdata,resp);
+    //     $display("RDATA3 = %h",reg_rdata);
+    //     mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`RDATA4,prot,reg_rdata,resp);
+    //     $display("RDATA4 = %h",reg_rdata);
+    // endtask :data_leak_devil
 
-    task osh_cr_devil();
-        //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
-        //AXI4LITE_READ_BURST(addr,prot,data,resp);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DELAY,prot,2,resp);
+    // task osh_cr_devil();
+    //     //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);
+    //     //AXI4LITE_READ_BURST(addr,prot,data,resp);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DELAY,prot,2,resp);
         
-        reg_ctrl =  (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_OSH << `FUNC_pos) |
-                    (1 << `OSHEN_pos) | (1 << `EN_pos);
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp);
+    //     reg_ctrl =  (`TEST_DELAY_CR << `TEST_pos) | (`FUNC_OSH << `FUNC_pos) |
+    //                 (1 << `OSHEN_pos) | (1 << `EN_pos);
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp);
 
-        while(!reg_status)
-            mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`STATUS,prot,reg_status,resp);
+    //     while(!reg_status)
+    //         mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`STATUS,prot,reg_status,resp);
     
-        //clean bit
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`STATUS,prot,1,resp); 
+    //     //clean bit
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`STATUS,prot,1,resp); 
 
-        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp);
-        #10ns;
-    endtask :osh_cr_devil
+    //     mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,0,resp);
+    //     #10ns;
+    // endtask :osh_cr_devil
 
     // task con_cr_devil();
     //     //AXI4LITE_WRITE_BURST(addr1,prot,data_wr1,resp);

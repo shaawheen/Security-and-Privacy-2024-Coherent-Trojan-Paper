@@ -1,6 +1,6 @@
 register_blocks:
   - name: devil_register_file
-    byte_size: 128
+    byte_size: 256
     comment: |
         devil-in-fpga register file.
 
@@ -158,34 +158,6 @@ register_blocks:
       - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
 
 ################################################################
-    - name: rdata_0
-      comment: |
-        First Word of the rdata response (128 bits data-bus)..
-      bit_fields:
-      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
-
-################################################################
-    - name: rdata_1
-      comment: |
-        Second Word of the rdata response (128 bits data-bus)..
-      bit_fields:
-      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
-
-################################################################
-    - name: rdata_2
-      comment: |
-        Third Word of the rdata response (128 bits data-bus)..
-      bit_fields:
-      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
-
-################################################################
-    - name: rdata_3
-      comment: |
-        Fourth Word of the rdata response (128 bits data-bus)..
-      bit_fields:
-      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
-
-################################################################
     - name: awsnoop
       comment: |
         Define the type of write snoop.
@@ -207,33 +179,340 @@ register_blocks:
       - { name:  Data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
 
 ################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_0
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x40
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
     - name: wdata_0
       comment: |
-        First Word of the wdata (128 bits data-bus).
+        Word X of the write cache line
+      offset_address: 0x40
       bit_fields:
-      - { name: data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_1
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x44
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
 
 ################################################################
     - name: wdata_1
       comment: |
-        Second Word of the wdata (128 bits data-bus)..
+        Word X of the write cache line
+      offset_address: 0x44
       bit_fields:
-      - { name: data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_2
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x48
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
 
 ################################################################
     - name: wdata_2
       comment: |
-        Third Word of the wdata (128 bits data-bus)..
+        Word X of the write cache line
+      offset_address: 0x48
       bit_fields:
-      - { name: data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_3
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x4C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
 
 ################################################################
     - name: wdata_3
       comment: |
-        Fourth Word of the wdata (128 bits data-bus).
+        Word X of the write cache line
+      offset_address: 0x4C
       bit_fields:
-      - { name: data, bit_assignment:  { width: 32 }, type: rw  ,  initial_value: 0}
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_4
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x50
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_4
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x50
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_5
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x54
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_5
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x54
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_6
+      comment: |
+        Word X of the read cache line.
+      offset_address: 0x58
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_6
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x58
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_7
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x5C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_7
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x5C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_8
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x60
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_8
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x60
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_9
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x64
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_9
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x64
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_10
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x68
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_10
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x68
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_11
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x6C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_11
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x6C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_12
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x70
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_12
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x70
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_13
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x74
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_13
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x74
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_14
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x78
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_14
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x78
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+# rdata_x and wdata_x are the same register, but with different
+# bit types. rdata_x register is read only and the wdata_x 
+# register is write only. So we can use the same address for both
+# registers. This is a rggen feature
+################################################################
+    - name: rdata_15
+      comment: |
+        Word X of the read cache line
+      offset_address: 0x7C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: wdata_15
+      comment: |
+        Word X of the write cache line
+      offset_address: 0x7C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
     # - name: register_2
     #   offset_address: 0x08
