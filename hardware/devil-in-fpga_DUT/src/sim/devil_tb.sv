@@ -34,9 +34,9 @@ import design_1_axi_vip_1_0_pkg::*;
 `define ARSNOOP         32'h18
 `define L_ARADDR        32'h1C
 `define H_ARADDR        32'h20
-`define AWSNOOP         32'h34
-`define L_AWADDR        32'h38
-`define H_AWADDR        32'h3C
+`define AWSNOOP         32'h24
+`define L_AWADDR        32'h28
+`define H_AWADDR        32'h2C
 `define DATA0           32'h40
 `define DATA1           32'h44
 `define DATA2           32'h48

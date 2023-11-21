@@ -46,17 +46,30 @@ int main() {
     unsigned int *arsnoop;
     unsigned int *l_araddr;
     unsigned int *h_araddr;
-    unsigned int *rdata_0;
-    unsigned int *rdata_1;
-    unsigned int *rdata_2;
-    unsigned int *rdata_3;
     unsigned int *awsnoop;
     unsigned int *l_awaddr;
     unsigned int *h_awaddr;
-    unsigned int *wdata_0;
-    unsigned int *wdata_1;
-    unsigned int *wdata_2;
-    unsigned int *wdata_3;
+    unsigned int *reserved1;
+    unsigned int *reserved2;
+    unsigned int *reserved3;
+    unsigned int *reserved4;
+    unsigned int *DATA0;       
+    unsigned int *DATA1;           
+    unsigned int *DATA2;           
+    unsigned int *DATA3;           
+    unsigned int *DATA4;           
+    unsigned int *DATA5;           
+    unsigned int *DATA6;           
+    unsigned int *DATA7;           
+    unsigned int *DATA8;           
+    unsigned int *DATA9;           
+    unsigned int *DATA10;          
+    unsigned int *DATA11;          
+    unsigned int *DATA12;          
+    unsigned int *DATA13;          
+    unsigned int *DATA14;          
+    unsigned int *DATA15;          
+    
 
     // Open /dev/mem to access physical memory
     mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -82,17 +95,29 @@ int main() {
     arsnoop = map_base+6;
     l_araddr = map_base+7;
     h_araddr = map_base+8;
-    rdata_0 = map_base+9;
-    rdata_1 = map_base+10;
-    rdata_2 = map_base+11;
-    rdata_3 = map_base+12;
-    awsnoop = map_base+13;
-    l_awaddr = map_base+14;
-    h_awaddr = map_base+15;
-    wdata_0 = map_base+16;
-    wdata_1 = map_base+17;
-    wdata_2 = map_base+18;
-    wdata_3 = map_base+19;
+    awsnoop = map_base+9;
+    l_awaddr = map_base+10;
+    h_awaddr = map_base+11;
+    reserved1 = map_base+12;
+    reserved2 = map_base+13;
+    reserved3 = map_base+14;
+    reserved4 = map_base+15;
+    DATA0 = map_base+16;
+    DATA1 = map_base+17;
+    DATA2 = map_base+18;
+    DATA3 = map_base+19;
+    DATA4 = map_base+20;
+    DATA5 = map_base+21;
+    DATA6 = map_base+22;
+    DATA7 = map_base+23;
+    DATA8 = map_base+24;
+    DATA9 = map_base+25;
+    DATA10 = map_base+26;
+    DATA11 = map_base+27;
+    DATA12 = map_base+28;
+    DATA13 = map_base+29;
+    DATA14 = map_base+30;
+    DATA15 = map_base+31;
 
     // Instruction leak  
     //  - ATF (OCM) -> 0xFFFEA000 
@@ -107,10 +132,22 @@ int main() {
     *h_awaddr = 0x00;
     *l_awaddr = 0x40000000;
     *awsnoop = WRITE_LINE_UNIQUE;
-    *wdata_0 = 0xF1F1F1F1;
-    *wdata_1 = 0xF2F2F2F2;
-    *wdata_2 = 0xF3F3F3F3;
-    *wdata_3 = 0xF4F4F4F4;
+    *DATA0 = 0x11111111;
+    *DATA1 = 0x22222222; 
+    *DATA2 = 0x33333333; 
+    *DATA3 = 0x44444444; 
+    *DATA4 = 0x55555555; 
+    *DATA5 = 0x66666666; 
+    *DATA6 = 0x77777777; 
+    *DATA7 = 0x88888888; 
+    *DATA8 = 0x99999999; 
+    *DATA9 = 0xAAAAAAAA; 
+    *DATA10 = 0xBBBBBBBB; 
+    *DATA11 = 0xCCCCCCCC; 
+    *DATA12 = 0xDDDDDDDD; 
+    *DATA13 = 0xEEEEEEEE; 
+    *DATA14 = 0xFFFFFFFF; 
+    *DATA15 = 0x12345667; 
 
     printf(" addr = 0x%08x\n", *l_awaddr);
     *ctrl |= (FUNC_ADT << FUNC_pos) // active data leak
