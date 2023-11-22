@@ -36,7 +36,7 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [current_project]
-set_property -name "board_part_repo_paths" -value "[file normalize "$origin_dir/../../../../../../.Xilinx/Vivado/2021.2/xhub/board_store/xilinx_board_store"]" -objects $obj
+# set_property -name "board_part_repo_paths" -value "[file normalize "$origin_dir/../../../../../../.Xilinx/Vivado/2021.2/xhub/board_store/xilinx_board_store"]" -objects $obj
 set_property -name "board_part" -value "xilinx.com:zcu102:part0:3.4" -objects $obj
 set_property -name "default_lib" -value "xil_defaultlib" -objects $obj
 set_property -name "enable_resource_estimation" -value "0" -objects $obj

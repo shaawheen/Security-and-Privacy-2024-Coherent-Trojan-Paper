@@ -294,11 +294,15 @@
 		input wire                                           s01_axi_rready,
         // Debug (temporary) IO
         output wire                                    [4:0] debug_snoop_state,
-        output wire                                    [3:0] debug_devil_state,
+        output wire                                    [4:0] debug_devil_state,
+        output wire                                    [4:0] debug_devil_state_active,
         output wire                                   [63:0] debug_counter,
         output wire                                   [31:0] debug_delay_reg,
-        output wire                                   [31:0] debug_status
-
+        output wire                                   [31:0] debug_status,
+        output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_0,
+        output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_1,
+        output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_2,
+        output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_3
 	);
 
 	wire                          ac_handshake;
@@ -435,20 +439,32 @@
     wire                            w_cdvalid;
     wire                            w_cdlast;
     wire                      [4:0] w_snoop_state;
-    wire                      [3:0] w_fsm_devil_state;
+    wire                      [4:0] w_fsm_devil_state;
+    wire                      [4:0] w_fsm_devil_state_active;
     wire                            w_devil_end;
     wire                            w_acready;
     wire                            w_devil_reply;
     wire                            w_devil_busy;
+    wire                            w_wlast; 
+    wire     [C_ACE_DATA_WIDTH-1:0] w_wdata;
     wire                     [63:0] w_counter; // test porpuses
-
+    wire     [C_ACE_DATA_WIDTH-1:0] w_buff_0;
+    wire     [C_ACE_DATA_WIDTH-1:0] w_buff_1;
+    wire     [C_ACE_DATA_WIDTH-1:0] w_buff_2;
+    wire     [C_ACE_DATA_WIDTH-1:0] w_buff_3;      
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
 
     wire   w_en;
     assign w_en = w_control_reg[0];
 
-    wire start_devil;
-    assign start_devil = (acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end ? 1 : 0;
-
+    wire w_devil_ar_phase;
+    wire w_devil_r_phase;
+    wire w_devil_rack_phase;
+    wire w_devil_aw_phase;
+    wire w_devil_w_phase;
+    wire w_devil_b_phase;
+    wire w_devil_wack_phase;
                       
 //******************************************************************************
 //******************************************************************************
@@ -472,13 +488,13 @@
     localparam DVM_OP_WAIT              = 8;
     localparam REPLY                    = 9; 
     localparam DEVIL_EN                 = 10; 
-    localparam DEVIL_AR_PHASE           = 11; 
-    localparam DEVIL_R_PHASE            = 12; 
-    localparam DEVIL_RACK               = 13;
-    localparam DEVIL_AW_PHASE           = 14;
-    localparam DEVIL_W_PHASE            = 15;
-    localparam DEVIL_B_PHASE            = 16;
-    localparam DEVIL_WACK               = 17;
+    // localparam DEVIL_AR_PHASE           = 11; 
+    // localparam DEVIL_R_PHASE            = 12; 
+    // localparam DEVIL_RACK               = 13;
+    // localparam DEVIL_AW_PHASE           = 14;
+    // localparam DEVIL_W_PHASE            = 15;
+    // localparam DEVIL_B_PHASE            = 16;
+    // localparam DEVIL_WACK               = 17;
     
 
     reg   [4 : 0] snoop_state;
@@ -491,12 +507,16 @@
     assign w_acaddr_snapshot =  r_acaddr_snapshot;
     assign w_acsnoop_snapshot = r_acsnoop_snapshot;
 
-    reg r_trigger;
+    reg r_trigger_passive_path;
+    reg r_trigger_active_path;
     reg r_one_shot;
-    reg [1:0]r_index;
-    reg [127:0]r_buff[3:0]; // 4 elements of 16 bytes
-    wire w_trigger ;
-    assign w_trigger         = r_trigger;
+
+    // wire [127:0] w_buff; // 4 elements of 16 bytes
+
+    wire w_trigger_passive_path;
+    wire w_trigger_active_path;
+    assign w_trigger_passive_path = r_trigger_passive_path;
+    assign w_trigger_active_path = r_trigger_active_path;
 
 
     assign queue_push_condition         = (snoop_state == IDLE) && reply_condition && ~queue_full && crready; //(snoop_state == REPLY) && ~queue_full && crready;
@@ -526,55 +546,54 @@
                       ((snoop_state == REPLY) && crready);
     
     // ACE AR Channel (Read address phase)
-    assign araddr   = ((snoop_state == DEVIL_AR_PHASE) && arready) ? {w_h_araddr_Data[7:0], w_l_araddr_Data} : 0;
+    assign araddr   = (w_devil_ar_phase && arready) ? {w_h_araddr_Data[7:0], w_l_araddr_Data} : 0;
     assign arbar    = 1'b0;
     assign arburst  = (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ?  `WRAP : `INCR; //Should be calculated based on the acaddr inc or wrap?
     assign arcache  = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
-    assign ardomain = ((snoop_state == DEVIL_AR_PHASE) && arready) ? 2'b10 : 2'b00; // outer shareable  
+    assign ardomain = (w_devil_ar_phase && arready) ? 2'b10 : 2'b00; // outer shareable  
     assign arid     = 0;
-    assign arlen    = ((snoop_state == DEVIL_AR_PHASE) && arready) | (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
+    assign arlen    = (w_devil_ar_phase && arready) | (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
     assign arlock   = 0;
     assign arprot   = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged
     assign arqos    = 0;
     assign arregion = 0;
     assign arsize   = 4'b100; //Size of each burst is 16B
-    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : (((snoop_state == DEVIL_AR_PHASE) && arready) ? w_arsnoop_Data : 0); //Means arbar and ardomain have to be 0
+    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : ((w_devil_ar_phase && arready) ? w_arsnoop_Data : 0); //Means arbar and ardomain have to be 0
     assign aruser   = 0;
-    assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) || ((snoop_state == DEVIL_AR_PHASE) && arready); //acvalid & is_in_range & ace_enable;
+    assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) || (w_devil_ar_phase && arready); //acvalid & is_in_range & ace_enable;
 
     // ACE R Channel (Read data phase)
-    assign rready       = (snoop_state == DVM_SYNC_READ) || (snoop_state == DEVIL_AR_PHASE)  || (snoop_state == DEVIL_R_PHASE);
-    assign rack         = (snoop_state == DVM_SYNC_READ) || (snoop_state == DEVIL_RACK);
+    assign rready       = (snoop_state == DVM_SYNC_READ) || w_devil_ar_phase  || w_devil_r_phase;
+    assign rack         = (snoop_state == DVM_SYNC_READ) || w_devil_rack_phase;
     assign r_handshake  = rready && rvalid && rlast;
 
     // ACE AW channel (Write address phase)
-    assign awaddr   = ((snoop_state == DEVIL_AW_PHASE) && awready) ? {w_h_awaddr_Data[7:0], w_l_awaddr_Data} : 0;
+    assign awaddr   = (w_devil_aw_phase && awready) ? {w_h_awaddr_Data[7:0], w_l_awaddr_Data} : 0;
     assign awbar    = 1'b0;
     assign awburst  = `INCR;  
     assign awcache  = 4'b1111; // Write-back Write-allocate, Refer to page 65 of manual. 
-    assign awdomain = ((snoop_state == DEVIL_AW_PHASE) && awready) ? 2'b10 : 2'b00; // outer shareable  
+    assign awdomain = (w_devil_aw_phase && awready) ? 2'b10 : 2'b00; // outer shareable  
     assign awid     = 0;
-    assign awlen    = ((snoop_state == DEVIL_AW_PHASE) && awready) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
+    assign awlen    = (w_devil_aw_phase && awready) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
     assign awlock   = 0;
     assign awprot   = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged
     assign awqos    = 0;
     assign awregion = 0;
     assign awsize   = 4'b100; //Size of each burst is 16B (data-bus of 128 bits )
-    assign awsnoop  = ((snoop_state == DEVIL_AW_PHASE) && awready) ? w_awsnoop_Data : 0; //Refer to page 166 of manual. 
+    assign awsnoop  = (w_devil_aw_phase && awready) ? w_awsnoop_Data : 0; //Refer to page 166 of manual. 
     assign awuser   = 0;
-    assign awvalid  = (snoop_state == DEVIL_AW_PHASE) && awready; 
+    assign awvalid  = w_devil_aw_phase && awready; 
 
     // ACE W channel (Write data phase)
-    assign wdata    = (snoop_state == DEVIL_W_PHASE) ? {w_wdata_3_data, w_wdata_2_data, w_wdata_1_data, w_wdata_0_data} : 0; // This way I am writing 16B (128bits) 4x times
-    assign wlast    = (r_index == 3);
+    assign wdata    = w_devil_w_phase ? w_wdata : 0; // Writing 16B (128bits) 4x times
+    assign wlast    = w_wlast;//(r_index == 3);
     assign wstrb    = 16'hffff; // Activate all strobes, we have a data-bus of 128 bits 
     assign wuser    = 0;
-    assign wvalid   = (snoop_state == DEVIL_W_PHASE);
-    assign wack     = (snoop_state == DEVIL_WACK);
+    assign wvalid   = w_devil_w_phase;
+    assign wack     = w_devil_wack_phase;
 
     // ACE B channel (Write response)
-    assign bready   = (snoop_state == DEVIL_B_PHASE);
-
+    assign bready   = w_devil_b_phase;
 
     // assign cddata   = m00_axi_rdata;
     // assign cdlast   = m00_axi_rlast;
@@ -591,11 +610,16 @@
     assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
     assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
 
-    assign debug_snoop_state    = snoop_state;
-    assign debug_devil_state    = w_fsm_devil_state;
-    assign debug_counter        = w_counter;
-    assign debug_delay_reg      = w_delay_reg;
-    assign debug_status         = w_write_status_reg;
+    assign debug_snoop_state        = snoop_state;
+    assign debug_devil_state        = w_fsm_devil_state;
+    assign debug_devil_state_active = w_fsm_devil_state_active;
+    assign debug_counter            = w_counter;
+    assign debug_delay_reg          = w_delay_reg;
+    assign debug_status             = w_write_status_reg;
+    assign debug_buff_0             = w_buff_0;
+    assign debug_buff_1             = w_buff_1;
+    assign debug_buff_2             = w_buff_2;
+    assign debug_buff_3             = w_buff_3;
 
 	//main state-machine
 	always @(posedge ace_aclk)
@@ -603,8 +627,8 @@
         if(~ace_aresetn)
         begin
             snoop_state <= IDLE;
-            r_trigger <= 0; // DEVIL_IDLE
-            r_index <= 0;
+            r_trigger_passive_path <= 0; 
+            r_trigger_active_path <= 0; 
             r_one_shot <= 0;
             r_acaddr_snapshot <= 0;
             r_acsnoop_snapshot <= 0;
@@ -616,19 +640,24 @@
             else
                 r_one_shot <= 0;
 
-            // if((acsnoop != `DVM_MESSAGE) && w_en && !r_one_shot) 
-            // begin
-            //     // snoop_state <= DEVIL_AR_PHASE;
-            //     snoop_state <= DEVIL_AW_PHASE;
-            //     r_index <= 0;
-            // end
-            if((acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && ac_handshake) // ||
-             //  (acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && w_control_FUNC[3:0] == leak or tampering....) 
+            if((acsnoop != `DVM_MESSAGE) && w_en && !w_devil_end && ac_handshake) 
             begin
                 r_acaddr_snapshot <= acaddr; // acaddr at the time of the handshake (used by DEVIL_FILTER)
                 r_acsnoop_snapshot <= acsnoop; // acsnoop at the time of the handshake (used by DEVIL_FILTER)
                 snoop_state <= DEVIL_EN;
-                r_trigger <= 1; 
+                //Force to be mutual exclusive
+                r_trigger_passive_path <= 1; // Respond to a snoop
+                r_trigger_active_path <= 0; // Issue a snoop
+
+            end
+            else if((acsnoop != `DVM_MESSAGE) && w_en && !r_one_shot) 
+            begin
+                // snoop_state <= DEVIL_AR_PHASE;
+                // snoop_state <= DEVIL_AW_PHASE;
+               snoop_state <= DEVIL_EN;
+               //Force to be mutual exclusive
+               r_trigger_passive_path <= 0; // Respond to a snoop
+               r_trigger_active_path <= 1; // Issue a snoop
             end
             else if(non_reply_condition || dvm_operation_last_condition)
                 snoop_state <= NON_REPLY_OR_DVM_OP_LAST;
@@ -642,72 +671,79 @@
                 snoop_state <= REPLY;
             else begin
                 snoop_state <= snoop_state;
-                r_trigger <= r_trigger; 
+                r_trigger_passive_path <= r_trigger_passive_path; 
+                r_trigger_active_path <= r_trigger_active_path;
             end
         end
         // DEVIL
         else if (snoop_state == DEVIL_EN) // Wait for devil to finish
         begin
-            r_trigger <= 0; // Clean trigger
+            r_trigger_passive_path <= 0; // Clean trigger
+            r_trigger_active_path <= 0; // Clean trigger
             if (w_devil_reply) 
                 snoop_state <= IDLE;
             else
                 snoop_state <= snoop_state;
         end
-        else if (snoop_state == DEVIL_AR_PHASE) 
-        begin
-            if (arready)  
-                snoop_state <= DEVIL_R_PHASE;
-            else
-                snoop_state <= snoop_state;
-        end
-        else if (snoop_state == DEVIL_R_PHASE) 
-        begin
-            if (rready && rvalid) begin 
-                r_index <= r_index + 1;
-                r_buff[r_index] <= rdata;
-            end
 
-            if (rready && rvalid && rlast) 
-                snoop_state <= DEVIL_RACK;
-            else
-                snoop_state <= snoop_state;
-        end
-        else if (snoop_state == DEVIL_RACK) 
-        begin
-                snoop_state <= IDLE;
-        end
-        else if (snoop_state == DEVIL_AW_PHASE) 
-        begin
-            if (awready)  
-                snoop_state <= DEVIL_W_PHASE;
-            else
-                snoop_state <= snoop_state;
-        end
-        else if (snoop_state == DEVIL_W_PHASE) 
-        begin
-            if (wready && wvalid) begin 
-                r_index <= r_index + 1;
-                if(r_index == 3) // to assert wlast for 1 clock
-                    r_index <= 0;
-            end
 
-            if (wready && wvalid && wlast) 
-                snoop_state <= DEVIL_B_PHASE;
-            else
-                snoop_state <= snoop_state;
-        end
-        else if (snoop_state == DEVIL_B_PHASE) 
-        begin
-            if ((bresp == `OKAY) && bvalid && bready) 
-                snoop_state <= DEVIL_WACK;
-            else
-                snoop_state <= snoop_state;
-        end
-        else if (snoop_state == DEVIL_WACK) 
-        begin
-                snoop_state <= IDLE;
-        end
+        // else if (snoop_state == DEVIL_AR_PHASE) 
+        // begin
+        //     if (arready)  
+        //         snoop_state <= DEVIL_R_PHASE;
+        //     else
+        //         snoop_state <= snoop_state;
+        // end
+        // else if (snoop_state == DEVIL_R_PHASE) 
+        // begin
+        //     if (rready && rvalid) begin 
+        //         r_index <= r_index + 1;
+        //         r_buff[r_index] <= rdata;
+        //     end
+
+        //     if (rready && rvalid && rlast) 
+        //         snoop_state <= DEVIL_RACK;
+        //     else
+        //         snoop_state <= snoop_state;
+        // end
+        // else if (snoop_state == DEVIL_RACK) 
+        // begin
+        //         snoop_state <= IDLE;
+        // end
+
+
+        // else if (snoop_state == DEVIL_AW_PHASE) 
+        // begin
+        //     if (awready)  
+        //         snoop_state <= DEVIL_W_PHASE;
+        //     else
+        //         snoop_state <= snoop_state;
+        // end
+        // else if (snoop_state == DEVIL_W_PHASE) 
+        // begin
+        //     if (wready && wvalid) begin 
+        //         r_index <= r_index + 1;
+        //         if(r_index == 3) // to assert wlast for 1 clock
+        //             r_index <= 0;
+        //     end
+
+        //     if (wready && wvalid && wlast) 
+        //         snoop_state <= DEVIL_B_PHASE;
+        //     else
+        //         snoop_state <= snoop_state;
+        // end
+        // else if (snoop_state == DEVIL_B_PHASE) 
+        // begin
+        //     if ((bresp == `OKAY) && bvalid && bready) 
+        //         snoop_state <= DEVIL_WACK;
+        //     else
+        //         snoop_state <= snoop_state;
+        // end
+        // else if (snoop_state == DEVIL_WACK) 
+        // begin
+        //         snoop_state <= IDLE;
+        // end
+
         // Backstabber
         else if (snoop_state == NON_REPLY_OR_DVM_OP_LAST)
         begin
@@ -895,6 +931,22 @@
     wire [3:0] w_acsnoop_type;
     wire [31:0] w_base_addr_Data;
     wire [31:0] w_mem_size_Data;
+    wire [31:0] w_wdata_0_data;
+    wire [31:0] w_wdata_1_data;
+    wire [31:0] w_wdata_2_data;
+    wire [31:0] w_wdata_3_data;
+    wire [31:0] w_wdata_4_data;
+    wire [31:0] w_wdata_5_data;
+    wire [31:0] w_wdata_6_data;
+    wire [31:0] w_wdata_7_data;
+    wire [31:0] w_wdata_8_data;
+    wire [31:0] w_wdata_9_data;
+    wire [31:0] w_wdata_10_data;
+    wire [31:0] w_wdata_11_data;
+    wire [31:0] w_wdata_12_data;
+    wire [31:0] w_wdata_13_data;
+    wire [31:0] w_wdata_14_data;
+    wire [31:0] w_wdata_15_data;
 
     assign w_control_reg = {w_control_PDTEN,    // bit 20
                             w_control_ADTEN,    // bit 19
@@ -957,17 +1009,43 @@
     .o_arsnoop_Data(w_arsnoop_Data),
     .o_l_araddr_Data(w_l_araddr_Data),
     .o_h_araddr_Data(w_h_araddr_Data),
-    .i_rdata_0_data(r_buff[0][31:0]),
-    .i_rdata_1_data(r_buff[0][63:32]),
-    .i_rdata_2_data(r_buff[0][95:64]),
-    .i_rdata_3_data(r_buff[0][127:96]),
     .o_awsnoop_Data(w_awsnoop_Data),
     .o_l_awaddr_Data(w_l_awaddr_Data),
     .o_h_awaddr_Data(w_h_awaddr_Data),
-    .o_wdata_0_data(w_wdata_0_data),
-    .o_wdata_1_data(w_wdata_1_data),
-    .o_wdata_2_data(w_wdata_2_data),
-    .o_wdata_3_data(w_wdata_3_data)
+    // Cache line data (Read)
+     .i_rdata_0_data(w_read_cache_line[31+32*0:0+32*0]),
+     .i_rdata_1_data(w_read_cache_line[31+32*1:0+32*1]),
+     .i_rdata_2_data(w_read_cache_line[31+32*2:0+32*2]),
+     .i_rdata_3_data(w_read_cache_line[31+32*3:0+32*3]),
+     .i_rdata_4_data(w_read_cache_line[31+32*4:0+32*4]),
+     .i_rdata_5_data(w_read_cache_line[31+32*5:0+32*5]),
+     .i_rdata_6_data(w_read_cache_line[31+32*6:0+32*6]),
+     .i_rdata_7_data(w_read_cache_line[31+32*7:0+32*7]),
+     .i_rdata_8_data(w_read_cache_line[31+32*8:0+32*8]),
+     .i_rdata_9_data(w_read_cache_line[31+32*9:0+32*9]),
+    .i_rdata_10_data(w_read_cache_line[31+32*10:0+32*10]),
+    .i_rdata_11_data(w_read_cache_line[31+32*11:0+32*11]),
+    .i_rdata_12_data(w_read_cache_line[31+32*12:0+32*12]),
+    .i_rdata_13_data(w_read_cache_line[31+32*13:0+32*13]),
+    .i_rdata_14_data(w_read_cache_line[31+32*14:0+32*14]),
+    .i_rdata_15_data(w_read_cache_line[31+32*15:0+32*15]),
+    // Cache line data (Write)
+     .o_wdata_0_data(w_write_cache_line[31+32*0:0+32*0]),
+     .o_wdata_1_data(w_write_cache_line[31+32*1:0+32*1]),
+     .o_wdata_2_data(w_write_cache_line[31+32*2:0+32*2]),
+     .o_wdata_3_data(w_write_cache_line[31+32*3:0+32*3]),
+     .o_wdata_4_data(w_write_cache_line[31+32*4:0+32*4]),
+     .o_wdata_5_data(w_write_cache_line[31+32*5:0+32*5]),
+     .o_wdata_6_data(w_write_cache_line[31+32*6:0+32*6]),
+     .o_wdata_7_data(w_write_cache_line[31+32*7:0+32*7]),
+     .o_wdata_8_data(w_write_cache_line[31+32*8:0+32*8]),
+     .o_wdata_9_data(w_write_cache_line[31+32*9:0+32*9]),
+    .o_wdata_10_data(w_write_cache_line[31+32*10:0+32*10]),
+    .o_wdata_11_data(w_write_cache_line[31+32*11:0+32*11]),
+    .o_wdata_12_data(w_write_cache_line[31+32*12:0+32*12]),
+    .o_wdata_13_data(w_write_cache_line[31+32*13:0+32*13]),
+    .o_wdata_14_data(w_write_cache_line[31+32*14:0+32*14]),
+    .o_wdata_15_data(w_write_cache_line[31+32*15:0+32*15])
     );
 
     // Instantiation of devil-in-fpgs module
@@ -984,6 +1062,7 @@
         .i_arlen(arlen),
         .i_snoop_state(w_snoop_state),
         .o_fsm_devil_state(w_fsm_devil_state),
+        .o_fsm_devil_state_active(w_fsm_devil_state_active),
         .i_control_reg(w_control_reg),
         .i_read_status_reg(w_read_status_reg), // The Value that User Writes to Status Reg
         .o_write_status_reg(w_write_status_reg), // The Value that the this IP Writes to Status Reg 
@@ -997,17 +1076,37 @@
         .o_cdvalid(w_cdvalid),
         .o_cdlast(w_cdlast),
         .o_end(w_devil_end),
-        .i_trigger(w_trigger),
+        .i_trigger_passive_path(w_trigger_passive_path),
+        .i_trigger_active_path(w_trigger_active_path),
         .i_crready(crready),
         .o_reply(w_devil_reply),
         .o_busy(w_devil_busy),
         .i_cdready(cdready),
-        .i_wdata_0_data(w_wdata_0_data),
-        .i_wdata_1_data(w_wdata_1_data),
-        .i_wdata_2_data(w_wdata_2_data),
-        .i_wdata_3_data(w_wdata_3_data),
         .i_acaddr_snapshot(w_acaddr_snapshot),
         .i_acsnoop_snapshot(w_acsnoop_snapshot),
+        .o_ar_phase(w_devil_ar_phase),
+        .o_r_phase(w_devil_r_phase),
+        .o_rack_phase(w_devil_rack_phase),
+        .o_aw_phase(w_devil_aw_phase),
+        .o_w_phase(w_devil_w_phase),
+        .o_b_phase(w_devil_b_phase),
+        .o_wack_phase(w_devil_wack_phase),
+        .o_wlast(w_wlast),
+        .o_wdata(w_wdata),
+        .i_arready(arready),
+        .i_rready(rready),
+        .i_rvalid(rvalid),
+        .i_rdata(rdata),
+        .i_rlast(rlast),
+        .i_awready(awready),
+        .i_wready(wready),
+        .i_wvalid(wvalid),
+        .i_wlast(wlast),
+        .i_bresp(bresp),
+        .i_bvalid(bvalid),
+        .i_bready(bready),
+        .o_cache_line(w_read_cache_line),
+        .i_cache_line(w_write_cache_line),
         .o_counter(w_counter) // test porpuses
     );
 

@@ -201,34 +201,149 @@ void invaliInstCache(void *address) {
 
 int check_tamper = 0;
 
+unsigned int *ptr   = (unsigned int*)(0x40000000);
+unsigned int *ptr1  = (unsigned int*)(0x40000004);
+unsigned int *ptr2  = (unsigned int*)(0x40000008);
+unsigned int *ptr3  = (unsigned int*)(0x4000000C);
+unsigned int *ptr4  = (unsigned int*)(0x40000010);
+unsigned int *ptr5  = (unsigned int*)(0x40000014);
+unsigned int *ptr6  = (unsigned int*)(0x40000018);
+unsigned int *ptr7  = (unsigned int*)(0x4000001C);
+unsigned int *ptr8  = (unsigned int*)(0x40000100);
+unsigned int *ptr9  = (unsigned int*)(0x40000104);
+unsigned int *ptr10 = (unsigned int*)(0x40000108);
+unsigned int *ptr11 = (unsigned int*)(0x4000010C);
+unsigned int *ptr12 = (unsigned int*)(0x40000110);
+unsigned int *ptr13 = (unsigned int*)(0x40000114);
+unsigned int *ptr14 = (unsigned int*)(0x40000118);
+unsigned int *ptr15 = (unsigned int*)(0x4000011C);
+unsigned int *ptr8b  = (unsigned int*)(0x40000120);
+unsigned int *ptr9b  = (unsigned int*)(0x40000124);
+unsigned int *ptr10b = (unsigned int*)(0x40000128);
+unsigned int *ptr11b = (unsigned int*)(0x4000012C);
+unsigned int *ptr12b = (unsigned int*)(0x40000130);
+unsigned int *ptr13b = (unsigned int*)(0x40000134);
+unsigned int *ptr14b = (unsigned int*)(0x40000138);
+unsigned int *ptr15b = (unsigned int*)(0x4000013C);
+
+void data_tamper(void){
+    int counter = 0, init_value  = 0;
+
+    #ifdef DATA_TAMPERING
+        if(!counter)
+            init_value = *ptr;
+            
+        if (init_value == *ptr8) // wait for the other core
+        {
+            invalidateCache(ptr8);
+        }
+    #else
+        while(init_value == *ptr){
+            invalidateCache(0x40000000);
+        };
+    #endif
+
+    // invaliInstCache(0x200015c0);
+
+    #ifdef DATA_TAMPERING
+        spin_lock(&print_lock);
+        printf(" counter = %d\n", counter++);
+        // printf(" ptr    = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr, *ptr1, *ptr2, *ptr3);
+        printf(" ptr    = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr4, *ptr5, *ptr6, *ptr7);
+        printf(" ptr8   = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr8, *ptr9, *ptr10, *ptr11);
+        printf(" ptr12  = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr12, *ptr13, *ptr14, *ptr15);
+        printf(" ptr8b  = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr8b, *ptr9b, *ptr10b, *ptr11b);
+        printf(" ptr12b = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr12b, *ptr13b, *ptr14b, *ptr15b);
+        spin_unlock(&print_lock);
+    #endif
+    
+    for (size_t i = 0; i < 100000000; i++);   
+
+    __asm volatile("ldr x0, =0x40000000");
+    // IF 
+    __asm volatile("IF:");
+        __asm volatile("ldr x1, [x0]"); 
+        __asm volatile("cbz x1, ACC"); 
+    // ELse
+    __asm volatile("ELSE:");
+        __asm volatile("ldr x1, [x0]"); 
+        __asm volatile("b NO_ACC"); 
+
+    // IF statement
+    __asm volatile("ACC:"); 
+        printf("Access!!\n");
+        __asm volatile("b END"); 
+
+    // Else statement
+    __asm volatile("NO_ACC:"); 
+        printf("No Access\n");
+        
+    __asm volatile("END:"); 
+    
+    // __asm volatile("ldr x0, =check_tamper ");
+    // __asm volatile("mov x1, #0xBEEF");
+    // // // Trying to fill a cache line, for now the devil has only a cache granularity 
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    // __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
+    
+    // print result
+    // FIXME: Cannot use here the spin_lock, otherwise the system hangs/crashes
+    //when I do the instruction tampering. I don't know why!!! 
+    // spin_lock(&print_lock); 
+    // printf("Spin = 0x%08x\n", &print_lock);
+    // printf("0x%08x\n", check_tamper);
+    // spin_unlock(&print_lock);
+}
+
+/*
+* Test: Let the address be cached (and then I can change the address on the 
+* cache, assuming the cache is in a write back policy. The cache will be changed 
+* and the ddr not, so if the data leak is correct, it will read the most update 
+* value of that address) 
+*/
+void active_data_leak(){
+    *ptr = 0x12345678;
+    spin_lock(&print_lock);
+    printf("Ptr = 0x%08x\n", *ptr);
+    spin_unlock(&print_lock);
+    for (int i = 0; i < 100000000; i++);    
+}
+
+/*
+* Test: I can mmap on linux the var, as the mmap is not cacheable, I will see 
+* the data on DDR. Then I change the data through the AWSNOOP using the devil IP 
+* and if data tampering is correct, I should see the data change on the VM and on 
+* ddr, but when I write to memory, I should data only change on the linux app 
+* which is looking at the memory  
+*/
+void active_data_tampering(){
+    spin_lock(&print_lock);
+    printf("Ptr = 0x%08x\n", *ptr);
+    spin_unlock(&print_lock);
+    for (int i = 0; i < 100000000; i++); 
+}
+
 void main(void){
 
     static volatile bool master_done = false;
-    int beat = 0, key = 0;
-    unsigned int *ptr   = (unsigned int*)(0x40000000);
-    unsigned int *ptr1  = (unsigned int*)(0x40000004);
-    unsigned int *ptr2  = (unsigned int*)(0x40000008);
-    unsigned int *ptr3  = (unsigned int*)(0x4000000C);
-    unsigned int *ptr4  = (unsigned int*)(0x40000010);
-    unsigned int *ptr5  = (unsigned int*)(0x40000014);
-    unsigned int *ptr6  = (unsigned int*)(0x40000018);
-    unsigned int *ptr7  = (unsigned int*)(0x4000001C);
-    unsigned int *ptr8  = (unsigned int*)(0x40000100);
-    unsigned int *ptr9  = (unsigned int*)(0x40000104);
-    unsigned int *ptr10 = (unsigned int*)(0x40000108);
-    unsigned int *ptr11 = (unsigned int*)(0x4000010C);
-    unsigned int *ptr12 = (unsigned int*)(0x40000110);
-    unsigned int *ptr13 = (unsigned int*)(0x40000114);
-    unsigned int *ptr14 = (unsigned int*)(0x40000118);
-    unsigned int *ptr15 = (unsigned int*)(0x4000011C);
-    unsigned int *ptr8b  = (unsigned int*)(0x40000120);
-    unsigned int *ptr9b  = (unsigned int*)(0x40000124);
-    unsigned int *ptr10b = (unsigned int*)(0x40000128);
-    unsigned int *ptr11b = (unsigned int*)(0x4000012C);
-    unsigned int *ptr12b = (unsigned int*)(0x40000130);
-    unsigned int *ptr13b = (unsigned int*)(0x40000134);
-    unsigned int *ptr14b = (unsigned int*)(0x40000138);
-    unsigned int *ptr15b = (unsigned int*)(0x4000013C);
+    int beat = 0, key = 1;
 
     if(cpu_is_master()){
         spin_lock(&print_lock);
@@ -263,98 +378,11 @@ void main(void){
     //     for (size_t i = 0; i < 100000000; i++);        
     // }
 
-    // while (1)
-    // {
-    //     printf(" ctrl = 0%x\n", *ctrl);
-    //     printf(" base_addr = 0%x\n", *base_addr);
-    //     printf(" mem_size = 0%x\n", *mem_size);
-    //     // *ptr = 0xdeadbeef;
-    //     *base_addr = 0x4000000;
-    //     *mem_size = 0;
-    //     printf(" ptr = 0x%8x\n", *ptr);
-    //     *ctrl |= (1 << EN_pos); // Enable IP
-    //     // while (!(*ctrl & (1 << EN_pos)));
-    //     // *ctrl &= ~(1 << EN_pos); // Disable IP
-    //     printf(" ctrl = 0%x\n", *ctrl);
-    //     printf(" base_addr = 0%x\n", *base_addr);
-    //     printf(" mem_size = 0%x\n", *mem_size);
-    //     printf(" rdata1 = 0x%08x\n", *rdata1);
-    //     printf(" rdata2 = 0x%08x\n", *rdata2);
-    //     printf(" rdata3 = 0x%08x\n", *rdata3);
-    //     printf(" rdata4 = 0x%08x\n", *rdata4);
-    //     for (size_t i = 0; i < 100000000; i++);   
-    // }
-    int counter = 0, init_value  =0;
-    // ptr = &counter;
-    // ptr1 = ptr+1;
-    // ptr2 = ptr+2;
-    // ptr3 = ptr+0x10;
     while (1)
     {   
-
-        if(!counter)
-            init_value = *ptr;
-        
-        #ifdef DATA_TAMPERING
-            if (init_value == *ptr8) // wait for the other core
-            {
-                invalidateCache(ptr8);
-            }
-        #else
-            while(init_value == *ptr){
-                invalidateCache(0x40000000);
-            };
-        #endif
-
-
-        // invaliInstCache(0x200015c0);
-
-        spin_lock(&print_lock);
-        printf(" counter = %d\n", counter++);
-        // printf(" ptr    = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr, *ptr1, *ptr2, *ptr3);
-        printf(" ptr    = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr4, *ptr5, *ptr6, *ptr7);
-        printf(" ptr8   = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr8, *ptr9, *ptr10, *ptr11);
-        printf(" ptr12  = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr12, *ptr13, *ptr14, *ptr15);
-        printf(" ptr8b  = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr8b, *ptr9b, *ptr10b, *ptr11b);
-        printf(" ptr12b = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr12b, *ptr13b, *ptr14b, *ptr15b);
-        spin_unlock(&print_lock);
-        for (size_t i = 0; i < 100000000; i++);   
-
-        // if(!key)
-        //     printf("Access!!\n");
-        // else
-        //     printf("No Access\n");
-        __asm volatile("ldr x0, =check_tamper ");
-        __asm volatile("mov x1, #0xBEEF");
-        // // Trying to fill a cache line, for now the devil has only a cache granularity 
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]"); 
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-        __asm volatile("ldr x1, [x0]"); __asm volatile("ldr x1, [x0]");
-       
-        // print result
-        // FIXME: Cannot use here the spin_lock, otherwise the system hangs/crashes
-        //when I do the instruction tampering. I don't know why!!! 
-        // spin_lock(&print_lock); 
-        printf("Spin = 0x%08x\n", &print_lock);
-        printf("0x%08x\n", check_tamper);
-        // spin_unlock(&print_lock);
-
+        //active_data_leak();
+        active_data_tampering();
+        // data_tamper();
     }
 
     while(1) wfi();    

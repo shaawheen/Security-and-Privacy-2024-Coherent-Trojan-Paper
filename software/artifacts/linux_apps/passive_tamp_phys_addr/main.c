@@ -80,7 +80,7 @@ int main() {
     base_addr = map_base+4;
     mem_size = map_base+5;
     arsnoop = map_base+6;
-    l_araddr = map_base+8;
+    l_araddr = map_base+7;
     h_araddr = map_base+8;
     rdata_0 = map_base+9;
     rdata_1 = map_base+10;
@@ -106,9 +106,9 @@ int main() {
     *wdata_3 = 0xf9000001; // change the ldr to str
     // Address Filter
                     
-    // *base_addr  = 0x40000100; 
+    *base_addr  = 0x40000100; 
     // *base_addr  = 0x20001580; // without bao
-    *base_addr  = 0x038016c0; // with bao
+    // *base_addr  = 0x038016c0; // with bao
     *mem_size   = 0x4;
     // Snoop Filter
     *acsnoop = 0x1;
