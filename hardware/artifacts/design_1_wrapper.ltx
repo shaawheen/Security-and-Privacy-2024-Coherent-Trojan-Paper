@@ -2932,7 +2932,8 @@
                                 "nets": [
                                     {
                                         "name": "design_1_i/devil_ip/system_ila_0/inst/SLOT_0_ACEMM_wack_1",
-                                        "isBus": false
+                                        "isBus": false,
+                                        "parentNetId": 163
                                     }
                                 ]
                             },
@@ -3461,7 +3462,8 @@
                                 "nets": [
                                     {
                                         "name": "design_1_i/devil_ip/system_ila_0/inst/SLOT_0_ACEMM_wvalid_1",
-                                        "isBus": false
+                                        "isBus": false,
+                                        "parentNetId": 252
                                     }
                                 ]
                             },
@@ -3990,7 +3992,8 @@
                                 "nets": [
                                     {
                                         "name": "design_1_i/devil_ip/system_ila_0/inst/SLOT_0_ACEMM_bready_1",
-                                        "isBus": false
+                                        "isBus": false,
+                                        "parentNetId": 393
                                     }
                                 ]
                             },
@@ -6113,6 +6116,185 @@
                                     {
                                         "name": "design_1_i/vio_0_probe_out0",
                                         "isBus": false
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "parent_nets": [
+                    {
+                        "id": 163,
+                        "name": "design_1_i/devil_ip/backstabber_0/inst/devil_in_fpga_inst/active_devil_inst/Q[4]",
+                        "state_reg": [
+                            {
+                                "name": "design_1_i/devil_ip/backstabber_0/inst/devil_in_fpga_inst/active_devil_inst/FSM_onehot_fsm_devil_state_active_reg[10]",
+                                "states": [
+                                    {
+                                        "name": "DEVIL_IDLE",
+                                        "val": "000000000001"
+                                    },
+                                    {
+                                        "name": "DEVIL_RACK",
+                                        "val": "000000100000"
+                                    },
+                                    {
+                                        "name": "DEVIL_W_PHASE",
+                                        "val": "000100000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_R_PHASE",
+                                        "val": "000000010000"
+                                    },
+                                    {
+                                        "name": "DEVIL_AW_PHASE",
+                                        "val": "000010000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_AR_PHASE",
+                                        "val": "000000001000"
+                                    },
+                                    {
+                                        "name": "DEVIL_WRITE_SNOOP",
+                                        "val": "000001000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_READ_SNOOP",
+                                        "val": "000000000100"
+                                    },
+                                    {
+                                        "name": "DEVIL_END_OP",
+                                        "val": "100000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_WACK",
+                                        "val": "010000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_B_PHASE",
+                                        "val": "001000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_FUNCTION",
+                                        "val": "000000000010"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 252,
+                        "name": "design_1_i/devil_ip/backstabber_0/inst/devil_in_fpga_inst/active_devil_inst/Q[2]",
+                        "state_reg": [
+                            {
+                                "name": "design_1_i/devil_ip/backstabber_0/inst/devil_in_fpga_inst/active_devil_inst/FSM_onehot_fsm_devil_state_active_reg[8]",
+                                "states": [
+                                    {
+                                        "name": "DEVIL_IDLE",
+                                        "val": "000000000001"
+                                    },
+                                    {
+                                        "name": "DEVIL_RACK",
+                                        "val": "000000100000"
+                                    },
+                                    {
+                                        "name": "DEVIL_W_PHASE",
+                                        "val": "000100000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_R_PHASE",
+                                        "val": "000000010000"
+                                    },
+                                    {
+                                        "name": "DEVIL_AW_PHASE",
+                                        "val": "000010000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_AR_PHASE",
+                                        "val": "000000001000"
+                                    },
+                                    {
+                                        "name": "DEVIL_WRITE_SNOOP",
+                                        "val": "000001000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_READ_SNOOP",
+                                        "val": "000000000100"
+                                    },
+                                    {
+                                        "name": "DEVIL_END_OP",
+                                        "val": "100000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_WACK",
+                                        "val": "010000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_B_PHASE",
+                                        "val": "001000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_FUNCTION",
+                                        "val": "000000000010"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": 393,
+                        "name": "design_1_i/devil_ip/backstabber_0/inst/devil_in_fpga_inst/active_devil_inst/Q[3]",
+                        "state_reg": [
+                            {
+                                "name": "design_1_i/devil_ip/backstabber_0/inst/devil_in_fpga_inst/active_devil_inst/FSM_onehot_fsm_devil_state_active_reg[9]",
+                                "states": [
+                                    {
+                                        "name": "DEVIL_IDLE",
+                                        "val": "000000000001"
+                                    },
+                                    {
+                                        "name": "DEVIL_RACK",
+                                        "val": "000000100000"
+                                    },
+                                    {
+                                        "name": "DEVIL_W_PHASE",
+                                        "val": "000100000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_R_PHASE",
+                                        "val": "000000010000"
+                                    },
+                                    {
+                                        "name": "DEVIL_AW_PHASE",
+                                        "val": "000010000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_AR_PHASE",
+                                        "val": "000000001000"
+                                    },
+                                    {
+                                        "name": "DEVIL_WRITE_SNOOP",
+                                        "val": "000001000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_READ_SNOOP",
+                                        "val": "000000000100"
+                                    },
+                                    {
+                                        "name": "DEVIL_END_OP",
+                                        "val": "100000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_WACK",
+                                        "val": "010000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_B_PHASE",
+                                        "val": "001000000000"
+                                    },
+                                    {
+                                        "name": "DEVIL_FUNCTION",
+                                        "val": "000000000010"
                                     }
                                 ]
                             }
