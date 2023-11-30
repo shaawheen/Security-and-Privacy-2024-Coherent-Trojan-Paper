@@ -143,7 +143,7 @@
     passive_devil #(
 		.C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
         .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
-        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
+        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH)
     ) passive_devil_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
@@ -193,7 +193,7 @@
     active_devil #(
 		.C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
         .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
-        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
+        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH)
     ) active_devil_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
