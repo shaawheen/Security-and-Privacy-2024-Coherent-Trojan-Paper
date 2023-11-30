@@ -685,65 +685,6 @@
             else
                 snoop_state <= snoop_state;
         end
-
-
-        // else if (snoop_state == DEVIL_AR_PHASE) 
-        // begin
-        //     if (arready)  
-        //         snoop_state <= DEVIL_R_PHASE;
-        //     else
-        //         snoop_state <= snoop_state;
-        // end
-        // else if (snoop_state == DEVIL_R_PHASE) 
-        // begin
-        //     if (rready && rvalid) begin 
-        //         r_index <= r_index + 1;
-        //         r_buff[r_index] <= rdata;
-        //     end
-
-        //     if (rready && rvalid && rlast) 
-        //         snoop_state <= DEVIL_RACK;
-        //     else
-        //         snoop_state <= snoop_state;
-        // end
-        // else if (snoop_state == DEVIL_RACK) 
-        // begin
-        //         snoop_state <= IDLE;
-        // end
-
-
-        // else if (snoop_state == DEVIL_AW_PHASE) 
-        // begin
-        //     if (awready)  
-        //         snoop_state <= DEVIL_W_PHASE;
-        //     else
-        //         snoop_state <= snoop_state;
-        // end
-        // else if (snoop_state == DEVIL_W_PHASE) 
-        // begin
-        //     if (wready && wvalid) begin 
-        //         r_index <= r_index + 1;
-        //         if(r_index == 3) // to assert wlast for 1 clock
-        //             r_index <= 0;
-        //     end
-
-        //     if (wready && wvalid && wlast) 
-        //         snoop_state <= DEVIL_B_PHASE;
-        //     else
-        //         snoop_state <= snoop_state;
-        // end
-        // else if (snoop_state == DEVIL_B_PHASE) 
-        // begin
-        //     if ((bresp == `OKAY) && bvalid && bready) 
-        //         snoop_state <= DEVIL_WACK;
-        //     else
-        //         snoop_state <= snoop_state;
-        // end
-        // else if (snoop_state == DEVIL_WACK) 
-        // begin
-        //         snoop_state <= IDLE;
-        // end
-
         // Backstabber
         else if (snoop_state == NON_REPLY_OR_DVM_OP_LAST)
         begin
