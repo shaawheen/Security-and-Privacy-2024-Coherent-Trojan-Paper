@@ -19,12 +19,12 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+`include "devil_in_fpga.vh"
 
 module passive_devil #(
         parameter integer C_S_AXI_DATA_WIDTH    = 32, 
         parameter integer C_ACE_DATA_WIDTH      = 128,
         parameter integer C_ACE_ADDR_WIDTH      = 44,
-        parameter integer DEVIL_EN              = 10,
         parameter integer DEVIL_STATE_SIZE      = 5 // 32 states
         )
         (
@@ -34,8 +34,7 @@ module passive_devil #(
         input  wire       [C_ACE_ADDR_WIDTH-1:0] acaddr,
         input  wire                        [7:0] i_arlen,
         input  wire                        [3:0] i_snoop_state,
-        output wire       [DEVIL_STATE_SIZE-1:0] o_fsm_devil_state,
-        output wire       [DEVIL_STATE_SIZE-1:0] o_fsm_devil_state_active,
+        output wire       [DEVIL_STATE_SIZE-1:0] o_fsm_devil_state_passive,
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_control_reg,
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_read_status_reg,
         output wire     [C_S_AXI_DATA_WIDTH-1:0] o_write_status_reg,
@@ -57,15 +56,6 @@ module passive_devil #(
         input  wire                              i_cdready,
         input  wire       [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
         input  wire                        [3:0] i_acsnoop_snapshot,
-        output wire                              o_ar_phase,
-        output wire                              o_r_phase,
-        output wire                              o_rack_phase,
-        output wire                              o_aw_phase,
-        output wire                              o_w_phase,
-        output wire                              o_b_phase,
-        output wire                              o_wack_phase,
-        output wire                              o_wlast,
-        output wire       [C_ACE_DATA_WIDTH-1:0] o_wdata,
         input wire                               i_arready,
         input wire                               i_rready,
         input wire                               i_rvalid,
@@ -75,40 +65,30 @@ module passive_devil #(
         input wire                               i_wready,
         input wire                               i_wvalid,
         input wire                               i_wlast,
-        input wire                               i_bresp,
+        input wire                         [1:0] i_bresp,
         input wire                               i_bvalid,
         input wire                               i_bready,
-        output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
         output wire                       [63:0] o_counter // test porpuses
     );
 
-parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
-                                        DEVIL_ONE_SHOT_DELAY        = 1,
-                                        DEVIL_CONTINUOS_DELAY       = 2,
-                                        DEVIL_RESPONSE              = 3,
-                                        DEVIL_DELAY                 = 4,
-                                        DEVIL_FILTER                = 5,
-                                        DEVIL_FUNCTION              = 6,
-                                        DEVIL_END_OP                = 7,
-                                        DEVIL_DUMMY_REPLY           = 8,
-                                        DEVIL_END_REPLY             = 9,
-                                        DEVIL_ACTIVE_DATA_LEAK      = 10, // migrate to active FSM
-                                        DEVIL_ACTIVE_DATA_TAMP      = 11, // migrate to active FSM
-                                        DEVIL_PASSIVE_DATA_TAMP     = 12,
-                                        // Active Path States 
-                                        DEVIL_AR_PHASE              = 13,
-                                        DEVIL_R_PHASE               = 14,
-                                        DEVIL_RACK                  = 15,
-                                        DEVIL_AW_PHASE              = 16,
-                                        DEVIL_W_PHASE               = 17,
-                                        DEVIL_B_PHASE               = 18,
-                                        DEVIL_WACK                  = 19;
+    parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE              = 0,
+                                        DEVIL_ONE_SHOT_DELAY    = 1,
+                                        DEVIL_CONTINUOS_DELAY   = 2,
+                                        DEVIL_RESPONSE          = 3,
+                                        DEVIL_DELAY             = 4,
+                                        DEVIL_FILTER            = 5,
+                                        DEVIL_FUNCTION          = 6,
+                                        DEVIL_END_OP            = 7,
+                                        DEVIL_DUMMY_REPLY       = 8,
+                                        DEVIL_END_REPLY         = 9,
+                                        DEVIL_REPLY             = 10,
+                                        DEVIL_MONITOR_TRANS     = 11,
+                                        DEVIL_TAKE_ACTIONS      = 12;
 
 
     reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
-    reg   [DEVIL_STATE_SIZE-1:0] fsm_devil_state_passive;        
-    reg   [DEVIL_STATE_SIZE-1:0] fsm_devil_state_active;        
+    reg   [DEVIL_STATE_SIZE-1:0] fsm_devil_state_passive;          
     reg                    [4:0] r_crresp;
     reg                          r_crvalid;
     reg                          r_cdvalid;
@@ -116,29 +96,11 @@ parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
     reg   [C_ACE_DATA_WIDTH-1:0] r_rdata;
     reg                   [63:0] r_counter; 
     reg                          r_end_op;
-    reg                          r_end_op_active;
     reg                          r_reply;
-    reg                          r_reply_active;
-    reg                    [3:0] r_return;
+    reg   [DEVIL_STATE_SIZE-1:0] r_return;
     reg                    [7:0] r_burst_cnt;
-    reg                  [127:0] r_buff[3:0]; // 4 elements of 16 bytes
-    reg                    [1:0] r_index_active;
 
-    assign o_cache_line = {r_buff[3], r_buff[2], r_buff[1], r_buff[0]};
-    assign o_wdata = r_index_active == 1 ? i_cache_line[127+128*1:0+128*1]: 
-                     r_index_active == 2 ? i_cache_line[127+128*2:0+128*2]: 
-                     r_index_active == 3 ? i_cache_line[127+128*3:0+128*3]: 
-                     i_cache_line[127+128*0:0+128*0]; // 128 bits
-
-    // Devil-in-the-fpga snoop request handshake
-    // wire handshake;
-    // wire w_acready;
-    // assign w_acready = (fsm_devil_state_passive == DEVIL_RESPONSE) || (fsm_devil_state_passive == DEVIL_DUMMY_REPLY);
-    // assign w_acready = (fsm_devil_state_passive == DEVIL_IDLE);
-    // assign handshake = w_acready && i_acvalid;
-
-    assign o_fsm_devil_state = fsm_devil_state_passive; 
-    assign o_fsm_devil_state_active = fsm_devil_state_active; 
+    assign o_fsm_devil_state_passive = fsm_devil_state_passive;  
     assign o_write_status_reg = r_status_reg;
     assign o_crresp = r_crresp;
     assign o_crvalid = r_crvalid;
@@ -148,45 +110,8 @@ parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
     assign o_end = r_end_op;
     // assign o_acready = w_acready;
     assign o_counter = r_counter;
-    assign o_reply = (r_reply || r_reply_active);
+    assign o_reply = r_reply;
     assign o_busy = (fsm_devil_state_passive != DEVIL_IDLE);
-
-    `define NUM_OF_CYCLES   1 // 7 ns  -> 1/150Mhz
-    // `define NUM_OF_CYCLES   150 // 1 us 
-    `define OKAY                2'b00
-
-    // Read and Write channel Flags (Active Path)
-    assign o_ar_phase   = (fsm_devil_state_active == DEVIL_AR_PHASE)   ? 1:0;
-    assign o_r_phase    = (fsm_devil_state_active == DEVIL_R_PHASE)    ? 1:0;
-    assign o_rack_phase = (fsm_devil_state_active == DEVIL_RACK)       ? 1:0;
-    assign o_aw_phase   = (fsm_devil_state_active == DEVIL_AW_PHASE)   ? 1:0;
-    assign o_w_phase    = (fsm_devil_state_active == DEVIL_W_PHASE)    ? 1:0;
-    assign o_b_phase    = (fsm_devil_state_active == DEVIL_B_PHASE)    ? 1:0;
-    assign o_wack_phase = (fsm_devil_state_active == DEVIL_WACK)       ? 1:0;
-
-    // Read Channel Signals
-
-    // Write Channel Signals
-    assign o_wlast = (r_index_active == 3);
-
-    // Devil-in-the-fpga Functions
-    `define OSH    4'b0000 
-    `define CON    4'b0001 
-    `define ADL    4'b0010 
-    `define ADT    4'b0011 
-    `define PDT    4'b0100 
-
-    // Devil-in-the-fpga Tests
-    `define FUZZING                   4'b0000
-    `define REPLY_WITH_DELAY_CRVALID  4'b0001
-    `define REPLY_WITH_DELAY_CDVALID  4'b0010
-    `define REPLY_WITH_DELAY_CDLAST   4'b0011   
-
-    // Filters
-    `define NO_FILTER       2'b00
-    `define AC_FILTER       2'b01
-    `define ADDR_FILTER     2'b10
-    `define AC_ADDR_FILTER  2'b11  
 
     wire w_ac_filter;
     wire w_addr_filter;
@@ -196,6 +121,7 @@ parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
     assign w_addr_filter    = (i_acaddr_snapshot[31:0] >= i_base_addr_reg[31:0]) && (i_acaddr_snapshot[31:0] < (i_base_addr_reg[31:0] + i_addr_size_reg[31:0])) ? 1 : 0;
 
 // Devil-in-the-fpga Control Reg parameters/bits
+// TODO: Put this in a common file with the bits in 
     wire       w_en;
     wire [3:0] w_test;
     wire [3:0] w_func;
@@ -311,7 +237,7 @@ parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
                         `PDT  :
                         begin
                             if (w_pdt_en)
-                                fsm_devil_state_passive <= DEVIL_PASSIVE_DATA_TAMP;  
+                                fsm_devil_state_passive <= DEVIL_REPLY;  
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
@@ -347,7 +273,7 @@ parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
                     else
                         fsm_devil_state_passive <= fsm_devil_state_passive;
                 end
-            DEVIL_PASSIVE_DATA_TAMP: // 12
+            DEVIL_REPLY: // 12
                 begin
                     if (i_crready)                                      
                     begin                            
@@ -383,7 +309,7 @@ parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
                         end
 
                         r_crresp <= w_crresp[4:0];
-                        r_rdata <= w_crresp[4:0]; // outputing w_crresp just to check if it is right
+                        // r_rdata <= w_crresp[4:0]; // outputing w_crresp just to check if it is right
 
                         case (w_test[3:0])
                             `FUZZING: 
@@ -510,146 +436,5 @@ parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
         end
     end      
 
-
-    // // Active Path -> Issue Write and Read Snoops
-    // always @(posedge ace_aclk)
-    // begin
-    // if(~ace_aresetn)
-    //     begin
-    //     r_index_active <= 0;
-    //     r_reply_active <= 0;
-    //     r_end_op_active <= 0;
-    //     fsm_devil_state_active <= DEVIL_IDLE;
-    //     end 
-    // else
-    //     begin
-    //         case (fsm_devil_state_active)                                                                                                                                 
-    //         DEVIL_IDLE: 
-    //             begin
-    //                 r_reply_active <= 0;
-    //                 r_index_active <= 0;
-
-    //                 if(i_trigger_active_path)
-    //                     fsm_devil_state_active <= DEVIL_FUNCTION;     
-    //                 else 
-    //                     fsm_devil_state_active <= DEVIL_IDLE;
-
-    //                 if(r_end_op_active && !w_en)
-    //                 begin
-    //                     // Clean the end bit when the user disbales the IP
-    //                     // Forces the user to set the end bit to 0 before using
-    //                     // the IP again
-    //                     r_end_op_active <= 0;    
-    //                 end                  
-    //             end
-    //         DEVIL_FUNCTION: // 6
-    //             begin
-    //                 case (w_func[3:0])
-    //                     `OSH  : 
-    //                     begin
-    //                         fsm_devil_state_active <= DEVIL_END_OP;
-    //                     end
-    //                     `CON  : 
-    //                     begin
-    //                         fsm_devil_state_active <= DEVIL_END_OP;
-    //                     end
-    //                     `ADL  :
-    //                     begin
-    //                         if (w_adl_en)
-    //                             fsm_devil_state_active <= DEVIL_ACTIVE_DATA_LEAK;  
-    //                         else
-    //                             fsm_devil_state_active <= DEVIL_END_OP;
-    //                     end
-    //                     `ADT  :
-    //                     begin
-    //                         if (w_adt_en)
-    //                             fsm_devil_state_active <= DEVIL_ACTIVE_DATA_TAMP;  
-    //                         else
-    //                             fsm_devil_state_active <= DEVIL_END_OP;
-    //                     end
-    //                     `PDT  :
-    //                     begin
-    //                         fsm_devil_state_active <= DEVIL_END_OP;
-    //                     end
-    //                     default : fsm_devil_state_active <= DEVIL_END_OP; 
-    //                 endcase                                                      
-    //             end
-    //         DEVIL_ACTIVE_DATA_LEAK: // 10
-    //             begin
-    //                 fsm_devil_state_active <= DEVIL_AR_PHASE;                                                  
-    //                 // TO IMPLEMENT
-    //             end
-    //         DEVIL_ACTIVE_DATA_TAMP: // 11
-    //             begin
-    //                 fsm_devil_state_active <= DEVIL_AW_PHASE;                                                  
-    //                 // TO IMPLEMENT
-    //             end
-    //         DEVIL_AR_PHASE: //13
-    //             begin
-    //                 if (i_arready)  
-    //                     fsm_devil_state_active <= DEVIL_R_PHASE;
-    //                 else
-    //                     fsm_devil_state_active <= fsm_devil_state_active;
-    //             end
-    //         DEVIL_R_PHASE: //14
-    //             begin
-    //                 if (i_rready && i_rvalid) begin 
-    //                     r_index_active <= r_index_active + 1;
-    //                     r_buff[r_index_active] <= i_rdata;
-    //                 end
-
-    //                 if (i_rready && i_rvalid && i_rlast) 
-    //                     fsm_devil_state_active <= DEVIL_RACK;
-    //                 else
-    //                     fsm_devil_state_active <= fsm_devil_state_active;
-    //             end
-    //         DEVIL_RACK: //15
-    //             begin
-    //                 fsm_devil_state_active <= DEVIL_END_OP;
-    //             end
-    //         DEVIL_AW_PHASE: //16
-    //             begin
-    //                 if (i_awready)  
-    //                     fsm_devil_state_active <= DEVIL_W_PHASE;
-    //                 else
-    //                     fsm_devil_state_active <= fsm_devil_state_active;
-    //                     end
-    //         DEVIL_W_PHASE: //17
-    //             begin
-    //                 if (i_wready && i_wvalid) begin 
-    //                     r_index_active <= r_index_active + 1;
-    //                     if(r_index_active == 3) // to assert wlast for 1 clock
-    //                         r_index_active <= 0;
-    //                 end
-
-    //                 if (i_wready && i_wvalid && i_wlast) 
-    //                     fsm_devil_state_active <= DEVIL_B_PHASE;
-    //                 else
-    //                     fsm_devil_state_active <= fsm_devil_state_active;
-    //             end
-    //         DEVIL_B_PHASE: //18
-    //             begin
-    //                 if ((i_bresp == `OKAY) && i_bvalid && i_bready) 
-    //                     fsm_devil_state_active <= DEVIL_WACK;
-    //                 else
-    //                     fsm_devil_state_active <= fsm_devil_state_active;
-    //             end
-    //         DEVIL_WACK: //19
-    //             begin
-    //                 fsm_devil_state_active <= DEVIL_END_OP;
-    //             end
-    //         DEVIL_END_OP: // 7 
-    //             begin 
-    //                 r_end_op_active <= 1;
-    //                 r_reply_active <= 1;
-    //                 fsm_devil_state_active <= DEVIL_IDLE;                                                  
-    //             end
-    //         default :                                                                
-    //             begin                                                                  
-    //                 fsm_devil_state_active <= DEVIL_IDLE;                                     
-    //             end                                                                    
-    //         endcase            
-    //     end
-    // end        
-
 endmodule
+

@@ -339,7 +339,6 @@
         assign m00_axi_wdata   = s00_axi_wdata;
         assign m00_axi_wstrb   = s00_axi_wstrb;
         assign m00_axi_wlast   = s00_axi_wlast;
-        assign s00_axi_wuser   = m00_axi_wuser;
         assign m00_axi_wvalid  = s00_axi_wvalid;
         assign s00_axi_wready  = m00_axi_wready;
         assign s00_axi_bid     = m00_axi_bid;
@@ -371,10 +370,6 @@
         assign s00_axi_awready = 0;
         assign m00_axi_wdata   = 0;
         assign m00_axi_wstrb   = 0;
-        assign s00_axi_wlast   = 0;
-        assign s00_axi_wuser   = 0;
-        assign s00_axi_wvalid  = 0;
-        assign m00_axi_wready  = 0;
         assign s00_axi_bid     = 0;
         assign s00_axi_bresp   = 0;
         assign s00_axi_buser   = 0;
@@ -580,7 +575,7 @@
     assign awqos    = 0;
     assign awregion = 0;
     assign awsize   = 4'b100; //Size of each burst is 16B (data-bus of 128 bits )
-    assign awsnoop  = (w_devil_aw_phase && awready) ? w_awsnoop_Data : 0; //Refer to page 166 of manual. 
+    assign awsnoop  = (w_devil_aw_phase && awready) ? w_awsnoop_Data[2:0] : 3'b000; //Refer to page 166 of manual. 
     assign awuser   = 0;
     assign awvalid  = w_devil_aw_phase && awready; 
 
@@ -1016,12 +1011,12 @@
         .o_crvalid(w_crvalid),
         .o_cdvalid(w_cdvalid),
         .o_cdlast(w_cdlast),
-        .o_end(w_devil_end),
+        .o_end_passive(w_devil_end),
         .i_trigger_passive_path(w_trigger_passive_path),
         .i_trigger_active_path(w_trigger_active_path),
         .i_crready(crready),
         .o_reply(w_devil_reply),
-        .o_busy(w_devil_busy),
+        .o_busy_passive(w_devil_busy),
         .i_cdready(cdready),
         .i_acaddr_snapshot(w_acaddr_snapshot),
         .i_acsnoop_snapshot(w_acsnoop_snapshot),
@@ -1048,6 +1043,10 @@
         .i_bready(bready),
         .o_cache_line(w_read_cache_line),
         .i_cache_line(w_write_cache_line),
+        // .o_end_active(),
+        // .o_busy_active(),
+        // .o_end_passive(),
+        // .o_busy_passive(),
         .o_counter(w_counter) // test porpuses
     );
 
