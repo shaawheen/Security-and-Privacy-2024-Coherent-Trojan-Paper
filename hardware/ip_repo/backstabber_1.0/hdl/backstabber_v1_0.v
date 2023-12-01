@@ -460,6 +460,58 @@
     wire w_devil_w_phase;
     wire w_devil_b_phase;
     wire w_devil_wack_phase;
+    wire w_snooping;
+    wire [C_ACE_ADDR_WIDTH-1:0] w_araddr;
+    wire [3:0] w_arsnoop;
+
+    // Register File Signals
+    wire w_control_EN;
+    wire [3:0] w_control_TEST;
+    wire [3:0] w_control_FUNC;
+    wire [4:0] w_control_CRRESP;
+    wire w_control_ACFLT;
+    wire w_control_ADDRFLT;
+    wire w_control_OSHEN;
+    wire w_control_CONEN;
+    wire w_control_ADLEN;
+    wire w_control_ADTEN;
+    wire w_control_PDTEN;
+    wire w_control_MONEN;
+    wire w_status_OSH_END;
+    wire w_status_OSH_END_hw_set;
+    wire [31:0] w_delay_data;
+    wire [3:0] w_acsnoop_type;
+    wire [31:0] w_base_addr_Data;
+    wire [31:0] w_mem_size_Data;
+    wire [31:0] w_wdata_0_data;
+    wire [31:0] w_wdata_1_data;
+    wire [31:0] w_wdata_2_data;
+    wire [31:0] w_wdata_3_data;
+    wire [31:0] w_wdata_4_data;
+    wire [31:0] w_wdata_5_data;
+    wire [31:0] w_wdata_6_data;
+    wire [31:0] w_wdata_7_data;
+    wire [31:0] w_wdata_8_data;
+    wire [31:0] w_wdata_9_data;
+    wire [31:0] w_wdata_10_data;
+    wire [31:0] w_wdata_11_data;
+    wire [31:0] w_wdata_12_data;
+    wire [31:0] w_wdata_13_data;
+    wire [31:0] w_wdata_14_data;
+    wire [31:0] w_wdata_15_data;
+
+    assign w_control_reg = {w_control_MONEN,    // bit 21
+                            w_control_PDTEN,    // bit 20
+                            w_control_ADTEN,    // bit 19
+                            w_control_ADLEN,    // bit 18
+                            w_control_CONEN,    // bit 17 
+                            w_control_OSHEN,    // bit 16
+                            w_control_ADDRFLT,  // bit 15
+                            w_control_ACFLT,    // bit 14
+                            w_control_CRRESP,   // bit 13:9
+                            w_control_FUNC,     // bit 8:5
+                            w_control_TEST,     // bit 4:1
+                            w_control_EN};      // bit 0
                       
 //******************************************************************************
 //******************************************************************************
@@ -483,14 +535,6 @@
     localparam DVM_OP_WAIT              = 8;
     localparam REPLY                    = 9; 
     localparam DEVIL_EN                 = 10; 
-    // localparam DEVIL_AR_PHASE           = 11; 
-    // localparam DEVIL_R_PHASE            = 12; 
-    // localparam DEVIL_RACK               = 13;
-    // localparam DEVIL_AW_PHASE           = 14;
-    // localparam DEVIL_W_PHASE            = 15;
-    // localparam DEVIL_B_PHASE            = 16;
-    // localparam DEVIL_WACK               = 17;
-    
 
     reg   [4 : 0] snoop_state;
     assign w_snoop_state = snoop_state;
@@ -541,21 +585,23 @@
                       ((snoop_state == REPLY) && crready);
     
     // ACE AR Channel (Read address phase)
-    assign araddr   = (w_devil_ar_phase && arready) ? {w_h_araddr_Data[7:0], w_l_araddr_Data} : 0;
+    assign araddr   = (w_devil_ar_phase && arready) ? w_araddr : 0;
     assign arbar    = 1'b0;
-    assign arburst  = (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ?  `WRAP : `INCR; //Should be calculated based on the acaddr inc or wrap?
+    assign arburst  = (w_snooping) ?  `WRAP : `INCR; //Should be calculated based on the acaddr inc or wrap?
     assign arcache  = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
     assign ardomain = (w_devil_ar_phase && arready) ? 2'b10 : 2'b00; // outer shareable  
     assign arid     = 0;
-    assign arlen    = (w_devil_ar_phase && arready) | (w_control_ADLEN | w_control_ADTEN | w_control_PDTEN) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
+    assign arlen    = (w_devil_ar_phase && arready) || (w_snooping) ? 7'h3: 7'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
     assign arlock   = 0;
     assign arprot   = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged
     assign arqos    = 0;
     assign arregion = 0;
     assign arsize   = 4'b100; //Size of each burst is 16B
-    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? `DVM_COMPLETE : ((w_devil_ar_phase && arready) ? w_arsnoop_Data : 0); //Means arbar and ardomain have to be 0
+    assign arsnoop  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) ? 
+                        `DVM_COMPLETE : ((w_devil_ar_phase && arready) ? w_arsnoop : 0); 
     assign aruser   = 0;
-    assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) || (w_devil_ar_phase && arready); //acvalid & is_in_range & ace_enable;
+    assign arvalid  = ((snoop_state == DVM_SYNC_LAST) && crready && arready) 
+                    || (w_devil_ar_phase && arready); //acvalid & is_in_range & ace_enable;
 
     // ACE R Channel (Read data phase)
     assign rready       = (snoop_state == DVM_SYNC_READ) || w_devil_ar_phase  || w_devil_r_phase;
@@ -666,8 +712,8 @@
                 snoop_state <= REPLY;
             else begin
                 snoop_state <= snoop_state;
-                r_trigger_passive_path <= r_trigger_passive_path; 
-                r_trigger_active_path <= r_trigger_active_path;
+                r_trigger_passive_path <= 0; 
+                r_trigger_active_path <= 0;
             end
         end
         // DEVIL
@@ -815,87 +861,6 @@
         .memory_out(buffer)
     );
 
-    // // Instantiation of Axi-Lite Bus Interface s01_AXI
-	// fuzzing_ACE_v1_0_S01_AXI # ( 
-	// 	.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
-	// 	.C_S_AXI_ADDR_WIDTH(C_S01_AXI_ADDR_WIDTH)
-	// ) fuzzing_ACE_v1_0_s01_AXI_inst (
-	// 	.S_AXI_ACLK(s01_axi_aclk),
-	// 	.S_AXI_ARESETN(s01_axi_aresetn),
-	// 	.S_AXI_AWADDR(s01_axi_awaddr),
-	// 	.S_AXI_AWPROT(s01_axi_awprot),
-	// 	.S_AXI_AWVALID(s01_axi_awvalid),
-	// 	.S_AXI_AWREADY(s01_axi_awready),
-	// 	.S_AXI_WDATA(s01_axi_wdata),
-	// 	.S_AXI_WSTRB(s01_axi_wstrb),
-	// 	.S_AXI_WVALID(s01_axi_wvalid),
-	// 	.S_AXI_WREADY(s01_axi_wready),
-	// 	.S_AXI_BRESP(s01_axi_bresp),
-	// 	.S_AXI_BVALID(s01_axi_bvalid),
-	// 	.S_AXI_BREADY(s01_axi_bready),
-	// 	.S_AXI_ARADDR(s01_axi_araddr),
-	// 	.S_AXI_ARPROT(s01_axi_arprot),
-	// 	.S_AXI_ARVALID(s01_axi_arvalid),
-	// 	.S_AXI_ARREADY(s01_axi_arready),
-	// 	.S_AXI_RDATA(s01_axi_rdata),
-	// 	.S_AXI_RRESP(s01_axi_rresp),
-	// 	.S_AXI_RVALID(s01_axi_rvalid),
-	// 	.S_AXI_RREADY(s01_axi_rready),
-    //     .o_control_reg(w_control_reg),
-    //     .i_status_reg(w_write_status_reg), // The Value that the this IP Writes to Status Reg 
-    //     .o_status_reg(w_read_status_reg), // The Value that User Writes to Status Reg
-    //     .o_delay_reg(w_delay_reg),
-    //     .o_acsnoop_reg(w_acsnoop_reg),
-    //     .o_base_addr_reg(w_base_addr_reg),
-    //     .o_addr_size_reg(w_addr_size_reg)
-	// );
-
-    wire w_control_EN;
-    wire [3:0] w_control_TEST;
-    wire [3:0] w_control_FUNC;
-    wire [4:0] w_control_CRRESP;
-    wire w_control_ACFLT;
-    wire w_control_ADDRFLT;
-    wire w_control_OSHEN;
-    wire w_control_CONEN;
-    wire w_control_ADLEN;
-    wire w_control_ADTEN;
-    wire w_control_PDTEN;
-    wire w_status_OSH_END;
-    wire w_status_OSH_END_hw_set;
-    wire [31:0] w_delay_data;
-    wire [3:0] w_acsnoop_type;
-    wire [31:0] w_base_addr_Data;
-    wire [31:0] w_mem_size_Data;
-    wire [31:0] w_wdata_0_data;
-    wire [31:0] w_wdata_1_data;
-    wire [31:0] w_wdata_2_data;
-    wire [31:0] w_wdata_3_data;
-    wire [31:0] w_wdata_4_data;
-    wire [31:0] w_wdata_5_data;
-    wire [31:0] w_wdata_6_data;
-    wire [31:0] w_wdata_7_data;
-    wire [31:0] w_wdata_8_data;
-    wire [31:0] w_wdata_9_data;
-    wire [31:0] w_wdata_10_data;
-    wire [31:0] w_wdata_11_data;
-    wire [31:0] w_wdata_12_data;
-    wire [31:0] w_wdata_13_data;
-    wire [31:0] w_wdata_14_data;
-    wire [31:0] w_wdata_15_data;
-
-    assign w_control_reg = {w_control_PDTEN,    // bit 20
-                            w_control_ADTEN,    // bit 19
-                            w_control_ADLEN,    // bit 18
-                            w_control_CONEN,    // bit 17 
-                            w_control_OSHEN,    // bit 16
-                            w_control_ADDRFLT,  // bit 15
-                            w_control_ACFLT,    // bit 14
-                            w_control_CRRESP,   // bit 13:9
-                            w_control_FUNC,     // bit 8:5
-                            w_control_TEST,     // bit 4:1
-                            w_control_EN};      // bit 0
-
     // Instantiation of devil register file 
     devil_register_file #(
         .ADDRESS_WIDTH(C_S01_AXI_ADDR_WIDTH) 
@@ -934,6 +899,7 @@
     .o_control_ADLEN(w_control_ADLEN),
     .o_control_ADTEN(w_control_ADTEN),
     .o_control_PDTEN(w_control_PDTEN),
+    .o_control_MONEN(w_control_MONEN),
     .o_status_OSH_END(w_read_status_reg),
     .i_status_OSH_END_hw_set(w_write_status_reg),
     .i_status_BUSY_hw_set(w_devil_busy),
@@ -1012,8 +978,8 @@
         .o_cdvalid(w_cdvalid),
         .o_cdlast(w_cdlast),
         .o_end_passive(w_devil_end),
-        .i_trigger_passive_path(w_trigger_passive_path),
-        .i_trigger_active_path(w_trigger_active_path),
+        .i_trigger_passive(w_trigger_passive_path),
+        .i_trigger_active(w_trigger_active_path),
         .i_crready(crready),
         .o_reply(w_devil_reply),
         .o_busy_passive(w_devil_busy),
@@ -1029,6 +995,10 @@
         .o_wack_phase(w_devil_wack_phase),
         .o_wlast(w_wlast),
         .o_wdata(w_wdata),
+        .o_araddr(w_araddr),
+        .i_external_araddr({w_h_araddr_Data[7:0], w_l_araddr_Data}),
+        .o_arsnoop(w_arsnoop),
+        .i_external_arsnoop(w_arsnoop_Data),
         .i_arready(arready),
         .i_rready(rready),
         .i_rvalid(rvalid),
@@ -1042,7 +1012,8 @@
         .i_bvalid(bvalid),
         .i_bready(bready),
         .o_cache_line(w_read_cache_line),
-        .i_cache_line(w_write_cache_line),
+        .i_external_cache_line(w_write_cache_line),
+        .o_snooping(w_snooping),
         // .o_end_active(),
         // .o_busy_active(),
         // .o_end_passive(),

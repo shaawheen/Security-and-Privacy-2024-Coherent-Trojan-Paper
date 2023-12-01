@@ -43,8 +43,7 @@ module active_devil #(
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_addr_size_reg,  
         output wire                              o_end,
         input  wire                              i_crready,
-        input  wire                              i_trigger_passive_path,
-        input  wire                              i_trigger_active_path,
+        input  wire                              i_trigger_active,
         output wire                              o_reply,
         output wire                              o_busy,
         input  wire                              i_cdready,
@@ -71,6 +70,7 @@ module active_devil #(
         input wire                         [1:0] i_bresp,
         input wire                               i_bvalid,
         input wire                               i_bready,
+        output wire                              o_snooping,
         output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line
     );
@@ -89,6 +89,8 @@ module active_devil #(
                                         DEVIL_WACK              = 11;
 
 
+
+    // Internal Registers
     reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;     
     reg   [DEVIL_STATE_SIZE-1:0] fsm_devil_state_active;        
     reg                          r_end_op_active;
@@ -117,8 +119,9 @@ module active_devil #(
     assign o_b_phase    = (fsm_devil_state_active == DEVIL_B_PHASE)    ? 1:0;
     assign o_wack_phase = (fsm_devil_state_active == DEVIL_WACK)       ? 1:0;
 
-    // Read Channel Signals
-
+    assign o_snooping   =   (fsm_devil_state_active != DEVIL_IDLE)
+                        &&  (fsm_devil_state_active != DEVIL_FUNCTION)
+                        &&  (fsm_devil_state_active != DEVIL_END_OP );
     // Write Channel Signals
     assign o_wlast = (r_index_active == 3);
 
@@ -134,6 +137,7 @@ module active_devil #(
     wire       w_adl_en; // Active Data Leak Enable    
     wire       w_adt_en; // Active Data Tampering Enable   
     wire       w_pdt_en; // Passive Data Tampering Enable
+
     assign w_en = i_control_reg[0];
     assign w_test = i_control_reg[4:1];
     assign w_func = i_control_reg[8:5];
@@ -162,18 +166,16 @@ module active_devil #(
             DEVIL_IDLE: 
                 begin
                     r_reply_active <= 0;
-                    r_index_active <= 0;
+                    r_index_active <= 0; 
 
-                    if(i_trigger_active_path)
+                    if(i_trigger_active && !r_end_op_active)
                         fsm_devil_state_active <= DEVIL_FUNCTION;     
                     else 
                         fsm_devil_state_active <= DEVIL_IDLE;
 
-                    if(r_end_op_active && !w_en)
+                    if(!i_trigger_active)
                     begin
-                        // Clean the end bit when the user disbales the IP
-                        // Forces the user to set the end bit to 0 before using
-                        // the IP again
+                        // To avoid retriggring the module
                         r_end_op_active <= 0;    
                     end                  
                 end

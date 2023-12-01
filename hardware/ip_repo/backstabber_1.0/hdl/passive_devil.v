@@ -49,8 +49,8 @@ module passive_devil #(
         output wire                              o_cdlast,
         output wire                              o_end,
         input  wire                              i_crready,
-        input  wire                              i_trigger_passive_path,
-        input  wire                              i_trigger_active_path,
+        input  wire                              i_trigger_passive,
+        output wire                              o_trigger_active,
         output wire                              o_reply,
         output wire                              o_busy,
         input  wire                              i_cdready,
@@ -61,6 +61,8 @@ module passive_devil #(
         input wire                               i_rvalid,
         input wire        [C_ACE_DATA_WIDTH-1:0] i_rdata,
         input wire                               i_rlast,
+        output wire       [C_ACE_ADDR_WIDTH-1:0] o_araddr,
+        output wire                        [3:0] o_arsnoop,
         input wire                               i_awready,
         input wire                               i_wready,
         input wire                               i_wvalid,
@@ -68,7 +70,11 @@ module passive_devil #(
         input wire                         [1:0] i_bresp,
         input wire                               i_bvalid,
         input wire                               i_bready,
+        output wire                              o_responding,
+        input wire                               i_active_end,
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
+        output wire                              o_action_taken,
+        output wire                              o_trans_monitored,
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -99,6 +105,11 @@ module passive_devil #(
     reg                          r_reply;
     reg   [DEVIL_STATE_SIZE-1:0] r_return;
     reg                    [7:0] r_burst_cnt;
+    reg   [C_ACE_ADDR_WIDTH-1:0] r_araddr;
+    reg                    [3:0] r_arsnoop;
+    reg                          r_trigger_active;
+    reg                          r_action_taken;
+    reg                          r_trans_monitored;
 
     assign o_fsm_devil_state_passive = fsm_devil_state_passive;  
     assign o_write_status_reg = r_status_reg;
@@ -112,6 +123,12 @@ module passive_devil #(
     assign o_counter = r_counter;
     assign o_reply = r_reply;
     assign o_busy = (fsm_devil_state_passive != DEVIL_IDLE);
+    assign o_responding = (fsm_devil_state_passive == DEVIL_REPLY);
+    assign o_araddr = r_araddr;
+    assign o_arsnoop = r_arsnoop;
+    assign o_trigger_active = r_trigger_active;
+    assign o_action_taken = r_action_taken;
+    assign o_trans_monitored = r_trans_monitored;
 
     wire w_ac_filter;
     wire w_addr_filter;
@@ -133,6 +150,7 @@ module passive_devil #(
     wire       w_adl_en; // Active Data Leak Enable    
     wire       w_adt_en; // Active Data Tampering Enable   
     wire       w_pdt_en; // Passive Data Tampering Enable
+    wire       w_mon_en; // Enable Transactions Monitor
     assign w_en = i_control_reg[0];
     assign w_test = i_control_reg[4:1];
     assign w_func = i_control_reg[8:5];
@@ -144,6 +162,7 @@ module passive_devil #(
     assign w_adl_en = i_control_reg[18]; // Active Data Leak Enable   
     assign w_adt_en = i_control_reg[19]; // Active Data Tampering Enable
     assign w_pdt_en = i_control_reg[20]; // Passive Data Tampering Enable
+    assign w_mon_en = i_control_reg[21]; // Passive Data Tampering Enable
 
     always @(posedge ace_aclk)
     begin
@@ -154,11 +173,16 @@ module passive_devil #(
         r_cdlast <= 0;
         r_crresp <= 0;
         r_rdata  <= 0;
+        r_araddr <= 0;
         r_crvalid <= 0;
         r_cdvalid <= 0;
         r_counter <= 0;
+        r_arsnoop <= 0;
         r_burst_cnt <= 0;
         r_status_reg <= 0;
+        r_action_taken <= 0; 
+        r_trigger_active <= 0;
+        r_trans_monitored <= 0;
         fsm_devil_state_passive <= DEVIL_IDLE;
         end 
     else
@@ -168,7 +192,7 @@ module passive_devil #(
                 begin
                     r_reply <= 0;
                     
-                    if(i_trigger_passive_path)
+                    if(i_trigger_passive)
                         fsm_devil_state_passive <= DEVIL_FILTER;     
                     else 
                         fsm_devil_state_passive <= DEVIL_IDLE;
@@ -184,30 +208,56 @@ module passive_devil #(
             DEVIL_FILTER: // 5
                 begin
                     case ({w_addr_flt, w_acf_lt})
-                        `NO_FILTER  : fsm_devil_state_passive <= DEVIL_FUNCTION;
+                        `NO_FILTER  : 
+                        begin
+                            fsm_devil_state_passive <= w_mon_en ? DEVIL_MONITOR_TRANS : DEVIL_TAKE_ACTIONS;
+                        end
                         `AC_FILTER  : 
                         begin
                             if(w_ac_filter)
-                                fsm_devil_state_passive <= DEVIL_FUNCTION;  
+                                fsm_devil_state_passive <= w_mon_en ? DEVIL_MONITOR_TRANS : DEVIL_TAKE_ACTIONS;
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
                         `ADDR_FILTER  : 
                         begin
                             if(w_addr_filter)
-                                fsm_devil_state_passive <= DEVIL_FUNCTION;  
+                                fsm_devil_state_passive <= w_mon_en ? DEVIL_MONITOR_TRANS : DEVIL_TAKE_ACTIONS;  
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
                         `AC_ADDR_FILTER  : 
                         begin
                             if(w_addr_filter && w_ac_filter)
-                                fsm_devil_state_passive <= DEVIL_FUNCTION;  
+                                fsm_devil_state_passive <= w_mon_en ? DEVIL_MONITOR_TRANS : DEVIL_TAKE_ACTIONS;  
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
                         default : fsm_devil_state_passive <= DEVIL_DUMMY_REPLY; 
                     endcase                                                     
+                end
+            DEVIL_MONITOR_TRANS:
+                begin
+                    r_araddr <= i_acaddr_snapshot;
+                    r_arsnoop <= i_acsnoop_snapshot;
+                    r_trigger_active <= 1;
+                    r_trans_monitored <= 1;
+                    if (i_active_end)
+                    begin
+                        r_trigger_active <= 0;
+                        fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;
+                    end                           
+                    else
+                        fsm_devil_state_passive <= fsm_devil_state_passive;
+                end
+            DEVIL_TAKE_ACTIONS:
+                begin
+                    fsm_devil_state_passive  <= DEVIL_FUNCTION;  
+                    r_araddr <= 0;
+                    r_arsnoop <= 0;     
+                    // No action
+                    r_action_taken <= 0; 
+                    // TO IMPLEMENT
                 end
             DEVIL_FUNCTION: // 6
                 begin
@@ -415,6 +465,8 @@ module passive_devil #(
                     r_status_reg[0] <= 0;    
                     r_end_op <= 1;
                     r_reply <= 1;
+                    r_action_taken <= 0; 
+                    r_trans_monitored <= 0;
                     fsm_devil_state_passive <= DEVIL_IDLE;                                                  
                 end
             DEVIL_END_REPLY: // 9 State to signal the End of a reply
@@ -426,6 +478,8 @@ module passive_devil #(
                     r_burst_cnt <= 0;
                     r_status_reg[0] <= 0;    
                     r_reply <= 1;
+                    r_trans_monitored <= 0;
+                    r_action_taken <= 0; 
                     fsm_devil_state_passive <= DEVIL_IDLE;                                                  
                 end
             default :                                                                

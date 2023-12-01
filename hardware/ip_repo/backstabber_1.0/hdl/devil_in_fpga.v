@@ -48,8 +48,8 @@
         output wire                              o_cdvalid,
         output wire                              o_cdlast,
         input  wire                              i_crready,
-        input  wire                              i_trigger_passive_path,
-        input  wire                              i_trigger_active_path,
+        input  wire                              i_trigger_passive,
+        input  wire                              i_trigger_active,
         output wire                              o_reply,
         input  wire                              i_cdready,
         input  wire       [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
@@ -63,6 +63,10 @@
         output wire                              o_wack_phase,
         output wire                              o_wlast,
         output wire       [C_ACE_DATA_WIDTH-1:0] o_wdata,
+        output wire       [C_ACE_ADDR_WIDTH-1:0] o_araddr,
+        input wire        [C_ACE_ADDR_WIDTH-1:0] i_external_araddr,
+        output wire                        [3:0] o_arsnoop,
+        input wire                         [3:0] i_external_arsnoop,
         input wire                               i_arready,
         input wire                               i_rready,
         input wire                               i_rvalid,
@@ -76,14 +80,16 @@
         input wire                               i_bvalid,
         input wire                               i_bready,
         output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
-        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
+        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line, 
         output wire                              o_end_active,
         output wire                              o_busy_active,
         output wire                              o_end_passive,
         output wire                              o_busy_passive,
+        output wire                              o_snooping,
         output wire                       [63:0] o_counter // test porpuses
     );
 
+    // Output Siginals
     wire       [DEVIL_STATE_SIZE-1:0] w_fsm_devil_state;
     wire       [DEVIL_STATE_SIZE-1:0] w_fsm_devil_state_active;
     wire     [C_S_AXI_DATA_WIDTH-1:0] w_write_status_reg;
@@ -111,7 +117,10 @@
     wire                              w_busy_active;
     wire                              w_end_passive; 
     wire                              w_busy_passive;
-
+    wire                              w_snooping;
+    wire                              w_responding;
+    wire       [C_ACE_ADDR_WIDTH-1:0] w_internal_araddr;
+    wire                        [3:0] w_internal_arsnoop;
 
     assign o_fsm_devil_state =  w_fsm_devil_state;
     assign o_fsm_devil_state_active =  w_fsm_devil_state_active;
@@ -137,7 +146,21 @@
     assign o_busy_active = w_busy_active;
     assign o_end_passive = w_end_passive; 
     assign o_busy_passive = w_busy_passive;
+    assign o_snooping = w_snooping || w_responding;
+    assign o_araddr  = (w_trigger_from_passive ? w_internal_araddr  : i_external_araddr);
+    assign o_arsnoop = (w_trigger_from_passive ? w_internal_arsnoop : i_external_arsnoop);
 
+    // Internal Signals
+    wire w_trigger_active;
+    wire w_trigger_from_passive;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_internal_cache_line;
+    // TODO: implent set do signal
+    wire w_action_taken; // set signal on take action passive state
+    wire w_trans_monitored; // set signal on monitor transaction passive state
+
+    assign w_trigger_active = i_trigger_active || w_trigger_from_passive ;
+    assign w_cache_line = (w_action_taken || w_trans_monitored) ? w_internal_cache_line : i_external_cache_line;
 
     // Instantiation Passive devil module
     passive_devil #(
@@ -165,8 +188,8 @@
         .o_cdvalid(w_cdvalid),
         .o_cdlast(w_cdlast),
         .o_end(w_end_passive),
-        .i_trigger_passive_path(i_trigger_passive_path),
-        .i_trigger_active_path(i_trigger_active_path),
+        .i_trigger_passive(i_trigger_passive),
+        .o_trigger_active(w_trigger_from_passive),
         .i_crready(i_crready),
         .o_reply(w_reply),
         .o_busy(w_busy_passive),
@@ -178,6 +201,8 @@
         .i_rvalid(i_rvalid),
         .i_rdata(i_rdata),
         .i_rlast(i_rlast),
+        .o_araddr(w_internal_araddr),
+        .o_arsnoop(w_internal_arsnoop),
         .i_awready(i_awready),
         .i_wready(i_wready),
         .i_wvalid(i_wvalid),
@@ -185,10 +210,14 @@
         .i_bresp(i_bresp),
         .i_bvalid(i_bvalid),
         .i_bready(i_bready),
-        .i_cache_line(i_cache_line),
+        .i_cache_line(w_cache_line),
+        .o_responding(w_responding),
+        .i_active_end(w_end_active),
+        .o_action_taken(w_action_taken),
+        .o_trans_monitored(w_trans_monitored),
         .o_counter(w_counter) // test porpuses
     );
-
+    
     // Instantiation Active devil module
     active_devil #(
 		.C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
@@ -209,8 +238,7 @@
         .i_base_addr_reg(i_base_addr_reg),
         .i_addr_size_reg(i_addr_size_reg),
         .o_end(w_end_active),  
-        .i_trigger_passive_path(i_trigger_passive_path),
-        .i_trigger_active_path(i_trigger_active_path),
+        .i_trigger_active(w_trigger_active),
         .i_crready(i_crready),
         .o_reply(w_reply_active),
         .o_busy(w_busy_active), 
@@ -238,8 +266,9 @@
         .i_bresp(i_bresp),
         .i_bvalid(i_bvalid),
         .i_bready(i_bready),
-        .o_cache_line(w_read_cache_line),       
-        .i_cache_line(i_cache_line)
+        .o_cache_line(w_internal_cache_line),       
+        .o_snooping(w_snooping),
+        .i_cache_line(w_cache_line)
     );
                            
 
