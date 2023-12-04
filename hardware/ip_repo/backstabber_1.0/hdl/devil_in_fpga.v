@@ -86,6 +86,7 @@
         output wire                              o_end_passive,
         output wire                              o_busy_passive,
         output wire                              o_snooping,
+        output wire                              o_external_mode,
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -123,6 +124,9 @@
     wire                        [3:0] w_internal_arsnoop; 
     wire                        [3:0] w_func; 
     wire                        [3:0] w_internal_func; 
+    wire                              w_external_mode;
+    wire                              w_internal_adl_en;
+    wire                              w_internal_adt_en;
 
     assign o_fsm_devil_state =  w_fsm_devil_state;
     assign o_fsm_devil_state_active =  w_fsm_devil_state_active;
@@ -132,7 +136,7 @@
     assign o_crvalid =  w_crvalid;
     assign o_cdvalid =  w_cdvalid;
     assign o_cdlast =  w_cdlast;
-    assign o_reply =  (w_reply || w_reply_active);;
+    assign o_reply = (w_external_mode ? w_reply_active : w_reply);   
     assign o_ar_phase =  w_ar_phase;
     assign o_r_phase =  w_r_phase;
     assign o_rack_phase =  w_rack_phase;
@@ -152,13 +156,13 @@
     assign o_araddr  = (w_trigger_from_passive ? w_internal_araddr  : i_external_araddr);
     assign o_arsnoop = (w_trigger_from_passive ? w_internal_arsnoop : i_external_arsnoop);
     assign w_func = (w_trigger_from_passive ? w_internal_func : i_control_reg[8:5]);
+    assign o_external_mode = w_external_mode;
 
     // Internal Signals
     wire w_trigger_active;
     wire w_trigger_from_passive;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_internal_cache_line;
-    // TODO: implent set do signal
     wire w_action_taken; // set signal on take action passive state
     wire w_trans_monitored; // set signal on monitor transaction passive state
 
@@ -219,6 +223,9 @@
         .o_action_taken(w_action_taken),
         .o_trans_monitored(w_trans_monitored),
         .o_internal_func(w_internal_func),
+        .o_external_mode(w_external_mode),
+        .o_internal_adl_en(w_internal_adl_en),
+        .o_internal_adt_en(w_internal_adt_en),
         .o_counter(w_counter) // test porpuses
     );
     
@@ -271,6 +278,8 @@
         .i_bvalid(i_bvalid),
         .i_bready(i_bready),
         .i_func(w_func),
+        .i_internal_adl_en(w_internal_adl_en),
+        .i_internal_adt_en(w_internal_adt_en),
         .o_cache_line(w_internal_cache_line),       
         .o_snooping(w_snooping),
         .i_cache_line(w_cache_line)

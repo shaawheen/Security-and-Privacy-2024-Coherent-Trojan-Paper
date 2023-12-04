@@ -449,6 +449,7 @@
     wire     [C_ACE_DATA_WIDTH-1:0] w_buff_3;      
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
+    wire                            w_external_mode;
 
     wire   w_en;
     assign w_en = w_control_reg[0];
@@ -691,7 +692,7 @@
                 r_trigger_active_path <= 0; // Issue a snoop
 
             end
-            else if((acsnoop != `DVM_MESSAGE) && w_en && !r_one_shot) 
+            else if((acsnoop != `DVM_MESSAGE) && w_en && w_external_mode && !r_one_shot) 
             begin
                 // snoop_state <= DEVIL_AR_PHASE;
                 // snoop_state <= DEVIL_AW_PHASE;
@@ -1014,6 +1015,7 @@
         .o_cache_line(w_read_cache_line),
         .i_external_cache_line(w_write_cache_line),
         .o_snooping(w_snooping),
+        .o_external_mode(w_external_mode),
         // .o_end_active(),
         // .o_busy_active(),
         // .o_end_passive(),

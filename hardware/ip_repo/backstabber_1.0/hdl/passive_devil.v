@@ -76,6 +76,9 @@ module passive_devil #(
         output wire                              o_action_taken,
         output wire                              o_trans_monitored, 
         output wire                        [3:0] o_internal_func, 
+        output wire                              o_external_mode,
+        output wire                              o_internal_adl_en,
+        output wire                              o_internal_adt_en,
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -93,6 +96,33 @@ module passive_devil #(
                                         DEVIL_MONITOR_TRANS     = 11,
                                         DEVIL_TAKE_ACTIONS      = 12;
 
+    // Devil-in-the-fpga Control Reg parameters/bits
+    // TODO: Put this in a common file with the bits in 
+    wire       w_en;
+    wire [3:0] w_test;
+    wire [3:0] w_func;
+    wire [4:0] w_crresp;
+    wire       w_acf_lt;    
+    wire       w_addr_flt;    
+    wire       w_con_en;    
+    wire       w_osh_en;    
+    wire       w_adl_en; // Active Data Leak Enable    
+    wire       w_adt_en; // Active Data Tampering Enable   
+    wire       w_pdt_en; // Passive Data Tampering Enable
+    wire       w_mon_en; // Enable Transactions Monitor
+
+    assign w_en = i_control_reg[0];
+    assign w_test = i_control_reg[4:1];
+    assign w_func = i_control_reg[8:5];
+    assign w_crresp = i_control_reg[13:9];
+    assign w_acf_lt = i_control_reg[14];
+    assign w_addr_flt = i_control_reg[15];
+    assign w_osh_en = i_control_reg[16];
+    assign w_con_en = i_control_reg[17];
+    assign w_adl_en = i_control_reg[18]; // Active Data Leak Enable   
+    assign w_adt_en = i_control_reg[19]; // Active Data Tampering Enable
+    assign w_pdt_en = i_control_reg[20]; // Passive Data Tampering Enable
+    assign w_mon_en = i_control_reg[21]; // Passive Data Tampering Enable
 
     reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
     reg   [DEVIL_STATE_SIZE-1:0] fsm_devil_state_passive;          
@@ -112,6 +142,8 @@ module passive_devil #(
     reg                          r_action_taken;
     reg                          r_trans_monitored;
     reg                    [3:0] r_func;
+    reg                          r_internal_adl_en;
+    reg                          r_internal_adt_en;
 
     assign o_fsm_devil_state_passive = fsm_devil_state_passive;  
     assign o_write_status_reg = r_status_reg;
@@ -132,6 +164,9 @@ module passive_devil #(
     assign o_action_taken = r_action_taken;
     assign o_trans_monitored = r_trans_monitored;
     assign o_internal_func = r_func;
+    assign o_external_mode =  (w_adl_en || w_adt_en); // Informes when an action is trigger by PS 
+    assign o_internal_adl_en = r_internal_adl_en;
+    assign o_internal_adt_en = r_internal_adt_en;
 
     wire w_ac_filter;
     wire w_addr_filter;
@@ -140,32 +175,6 @@ module passive_devil #(
     assign w_ac_filter      = (i_acsnoop_snapshot[3:0] == i_acsnoop_reg[3:0]) ? 1 : 0;
     assign w_addr_filter    = (i_acaddr_snapshot[31:0] >= i_base_addr_reg[31:0]) && (i_acaddr_snapshot[31:0] < (i_base_addr_reg[31:0] + i_addr_size_reg[31:0])) ? 1 : 0;
 
-// Devil-in-the-fpga Control Reg parameters/bits
-// TODO: Put this in a common file with the bits in 
-    wire       w_en;
-    wire [3:0] w_test;
-    wire [3:0] w_func;
-    wire [4:0] w_crresp;
-    wire       w_acf_lt;    
-    wire       w_addr_flt;    
-    wire       w_con_en;    
-    wire       w_osh_en;    
-    wire       w_adl_en; // Active Data Leak Enable    
-    wire       w_adt_en; // Active Data Tampering Enable   
-    wire       w_pdt_en; // Passive Data Tampering Enable
-    wire       w_mon_en; // Enable Transactions Monitor
-    assign w_en = i_control_reg[0];
-    assign w_test = i_control_reg[4:1];
-    assign w_func = i_control_reg[8:5];
-    assign w_crresp = i_control_reg[13:9];
-    assign w_acf_lt = i_control_reg[14];
-    assign w_addr_flt = i_control_reg[15];
-    assign w_osh_en = i_control_reg[16];
-    assign w_con_en = i_control_reg[17];
-    assign w_adl_en = i_control_reg[18]; // Active Data Leak Enable   
-    assign w_adt_en = i_control_reg[19]; // Active Data Tampering Enable
-    assign w_pdt_en = i_control_reg[20]; // Passive Data Tampering Enable
-    assign w_mon_en = i_control_reg[21]; // Passive Data Tampering Enable
 
     always @(posedge ace_aclk)
     begin
@@ -186,6 +195,8 @@ module passive_devil #(
         r_status_reg <= 0;
         r_action_taken <= 0; 
         r_trigger_active <= 0;
+        r_internal_adl_en <= 0;
+        r_internal_adt_en <= 0;
         r_trans_monitored <= 0;
         fsm_devil_state_passive <= DEVIL_IDLE;
         end 
@@ -246,10 +257,13 @@ module passive_devil #(
                     r_arsnoop <= i_acsnoop_snapshot;
                     r_trigger_active <= 1;
                     r_trans_monitored <= 1;
+                    r_internal_adl_en <= 1; // Enable Read Snoop (internal trigger)
+                    // r_internal_adt_en <= 0; // En Write Snoop (internal trigger)
                     r_func <= `ADL; // Read snoop
                     if (i_active_end)
                     begin
                         r_trigger_active <= 0;
+                        r_internal_adl_en <= 0;
                         fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;
                     end                           
                     else

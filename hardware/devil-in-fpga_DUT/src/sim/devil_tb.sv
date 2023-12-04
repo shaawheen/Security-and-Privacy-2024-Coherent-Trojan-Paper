@@ -120,8 +120,8 @@ module devil_tb();
          .crvalid_0(crvalid),
          .acaddr_0(acaddr),
          .acsnoop_0(acsnoop),
-         .acvalid_0(0),
-        //  .acvalid_0(acvalid),
+        //  .acvalid_0(0),
+         .acvalid_0(acvalid),
          .cdready_0(1),
          .crready_0(1)
         );

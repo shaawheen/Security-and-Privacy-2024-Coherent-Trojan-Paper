@@ -72,6 +72,8 @@ module active_devil #(
         input wire                               i_bready,
         input wire                         [3:0] i_func,
         output wire                              o_snooping,
+        input wire                               i_internal_adl_en,
+        input wire                               i_internal_adt_en,
         output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line
     );
@@ -194,14 +196,14 @@ module active_devil #(
                         end
                         `ADL  :
                         begin
-                            if (w_adl_en)
+                            if (w_adl_en || i_internal_adl_en) 
                                 fsm_devil_state_active <= DEVIL_READ_SNOOP;  
                             else
                                 fsm_devil_state_active <= DEVIL_END_OP;
                         end
                         `ADT  :
                         begin
-                            if (w_adt_en)
+                            if (w_adt_en || i_internal_adt_en)
                                 fsm_devil_state_active <= DEVIL_WRITE_SNOOP;  
                             else
                                 fsm_devil_state_active <= DEVIL_END_OP;
