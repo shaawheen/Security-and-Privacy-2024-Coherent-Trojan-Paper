@@ -120,7 +120,9 @@
     wire                              w_snooping;
     wire                              w_responding;
     wire       [C_ACE_ADDR_WIDTH-1:0] w_internal_araddr;
-    wire                        [3:0] w_internal_arsnoop;
+    wire                        [3:0] w_internal_arsnoop; 
+    wire                        [3:0] w_func; 
+    wire                        [3:0] w_internal_func; 
 
     assign o_fsm_devil_state =  w_fsm_devil_state;
     assign o_fsm_devil_state_active =  w_fsm_devil_state_active;
@@ -149,6 +151,7 @@
     assign o_snooping = w_snooping || w_responding;
     assign o_araddr  = (w_trigger_from_passive ? w_internal_araddr  : i_external_araddr);
     assign o_arsnoop = (w_trigger_from_passive ? w_internal_arsnoop : i_external_arsnoop);
+    assign w_func = (w_trigger_from_passive ? w_internal_func : i_control_reg[8:5]);
 
     // Internal Signals
     wire w_trigger_active;
@@ -215,6 +218,7 @@
         .i_active_end(w_end_active),
         .o_action_taken(w_action_taken),
         .o_trans_monitored(w_trans_monitored),
+        .o_internal_func(w_internal_func),
         .o_counter(w_counter) // test porpuses
     );
     
@@ -266,6 +270,7 @@
         .i_bresp(i_bresp),
         .i_bvalid(i_bvalid),
         .i_bready(i_bready),
+        .i_func(w_func),
         .o_cache_line(w_internal_cache_line),       
         .o_snooping(w_snooping),
         .i_cache_line(w_cache_line)

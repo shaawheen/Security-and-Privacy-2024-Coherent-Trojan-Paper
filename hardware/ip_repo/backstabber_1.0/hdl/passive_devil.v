@@ -74,7 +74,8 @@ module passive_devil #(
         input wire                               i_active_end,
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
         output wire                              o_action_taken,
-        output wire                              o_trans_monitored,
+        output wire                              o_trans_monitored, 
+        output wire                        [3:0] o_internal_func, 
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -110,6 +111,7 @@ module passive_devil #(
     reg                          r_trigger_active;
     reg                          r_action_taken;
     reg                          r_trans_monitored;
+    reg                    [3:0] r_func;
 
     assign o_fsm_devil_state_passive = fsm_devil_state_passive;  
     assign o_write_status_reg = r_status_reg;
@@ -129,6 +131,7 @@ module passive_devil #(
     assign o_trigger_active = r_trigger_active;
     assign o_action_taken = r_action_taken;
     assign o_trans_monitored = r_trans_monitored;
+    assign o_internal_func = r_func;
 
     wire w_ac_filter;
     wire w_addr_filter;
@@ -168,6 +171,7 @@ module passive_devil #(
     begin
     if(~ace_aresetn)
         begin
+        r_func <= 0;
         r_reply <= 0;
         r_end_op <= 0;
         r_cdlast <= 0;
@@ -242,6 +246,7 @@ module passive_devil #(
                     r_arsnoop <= i_acsnoop_snapshot;
                     r_trigger_active <= 1;
                     r_trans_monitored <= 1;
+                    r_func <= `ADL; // Read snoop
                     if (i_active_end)
                     begin
                         r_trigger_active <= 0;

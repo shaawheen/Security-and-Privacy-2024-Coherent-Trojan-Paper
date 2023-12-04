@@ -175,7 +175,8 @@ module devil_tb();
     slv_agent.mem_model.set_memory_fill_policy(XIL_AXI_MEMORY_FILL_RANDOM);      
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
-    data_leak_FMS_new_devil();
+    monitor_transation_devil();
+    // data_leak_FMS_new_devil();
     // data_tampering_FSM_devil();
     // test_data_regs();
     // data_leak_FMS_devil();
@@ -193,6 +194,19 @@ module devil_tb();
     $display("END Simulation");
     $finish;
     end 
+
+    task monitor_transation_devil();
+        acaddr = 44'h00040000000;  // Emulae Snoop Address
+        reg_ctrl = (`FUNC_PDT << `FUNC_pos) // active data leak
+                    | (1 << `MONEN_pos)               
+                    | (1 << `EN_pos);
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+        reg_ctrl =  (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+
+    endtask :monitor_transation_devil
 
     task data_leak_FMS_new_devil();
         reg_l_araddr = 32'h40000000;

@@ -70,6 +70,7 @@ module active_devil #(
         input wire                         [1:0] i_bresp,
         input wire                               i_bvalid,
         input wire                               i_bready,
+        input wire                         [3:0] i_func,
         output wire                              o_snooping,
         output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line
@@ -140,7 +141,8 @@ module active_devil #(
 
     assign w_en = i_control_reg[0];
     assign w_test = i_control_reg[4:1];
-    assign w_func = i_control_reg[8:5];
+    assign w_func = i_func;
+    // assign w_func = i_control_reg[8:5];
     assign w_crresp = i_control_reg[13:9];
     assign w_acf_lt = i_control_reg[14];
     assign w_addr_flt = i_control_reg[15];
