@@ -30,9 +30,80 @@ module passive_devil #(
         (
         input  wire                              ace_aclk,
         input  wire                              ace_aresetn,
-        input  wire                        [3:0] acsnoop,
-        input  wire       [C_ACE_ADDR_WIDTH-1:0] acaddr,
-        input  wire                        [7:0] i_arlen,
+        // ACE AC Channel (Snoop)
+        input  wire       [C_ACE_ADDR_WIDTH-1:0] i_acaddr,
+        input  wire                        [2:0] i_acprot,
+        output wire                              o_acready,
+        input  wire                        [3:0] i_acsnoop,
+        input  wire                              i_acvalid,
+        // ACE CD Channel (Snoop data)
+        output wire       [C_ACE_DATA_WIDTH-1:0] o_cddata,
+        output wire                              o_cdlast,
+        input  wire                              i_cdready,
+        output wire                              o_cdvalid,
+        // ACE CR Channel (Snoop response)
+        input  wire                              i_crready,
+        output wire                        [4:0] o_crresp,
+        output wire                              o_crvalid,
+        // ACE AR Channel (Read address phase)
+        output wire       [C_ACE_ADDR_WIDTH-1:0] o_araddr,
+        output wire                        [1:0] o_arbar,
+        output wire                        [1:0] o_arburst,
+        output wire                        [3:0] o_arcache,
+        output wire                        [1:0] o_ardomain,
+        output wire                        [5:0] o_arid,
+        output wire                        [7:0] o_arlen,
+        output wire                              o_arlock,
+        output wire                        [2:0] o_arprot,
+        output wire                        [3:0] o_arqos,
+        input  wire                              i_arready,
+        output wire                        [3:0] o_arregion,
+        output wire                        [2:0] o_arsize,
+        output wire                        [3:0] o_arsnoop,
+        output wire                       [15:0] o_aruser,
+        output wire                              o_arvalid,
+        // ACE R Channel (Read data phase)
+        output wire                              o_rack,
+        input  wire       [C_ACE_DATA_WIDTH-1:0] i_rdata,
+        input  wire                        [5:0] i_rid,
+        input  wire                              i_rlast,
+        output wire                              o_rready,
+        input  wire                        [3:0] i_rresp,
+        input  wire                              i_ruser,
+        input  wire                              i_rvalid,
+        // ACE AW channel (Write address phase)
+        output wire       [C_ACE_ADDR_WIDTH-1:0] o_awaddr,
+        output wire                        [1:0] o_awbar,
+        output wire                        [1:0] o_awburst,
+        output wire                        [3:0] o_awcache,
+        output wire                        [1:0] o_awdomain,
+        output wire                        [5:0] o_awid,
+        output wire                        [7:0] o_awlen,
+        output wire                              o_awlock,
+        output wire                        [2:0] o_awprot,
+        output wire                        [3:0] o_awqos,
+        input  wire                              i_awready,
+        output wire                        [3:0] o_awregion,
+        output wire                        [2:0] o_awsize,
+        output wire                        [2:0] o_awsnoop,
+        output wire                       [15:0] o_awuser,
+        output wire                              o_awvalid,
+        // ACE W channel (Write data phase)
+        output wire                              o_wack,
+        output wire       [C_ACE_DATA_WIDTH-1:0] o_wdata,
+        output wire                        [5:0] o_wid,
+        output wire                              o_wlast,
+        input  wire                              i_wready,
+        output wire                       [15:0] o_wstrb,
+        output wire                              o_wuser,
+        output wire                              o_wvalid,
+        // ACE B channel (Write response)
+        input  wire                        [5:0] i_bid,
+        output wire                              o_bready,
+        input  wire                        [1:0] i_bresp,
+        input  wire                              i_buser,
+        input  wire                              i_bvalid,
+        
         input  wire                        [3:0] i_snoop_state,
         output wire       [DEVIL_STATE_SIZE-1:0] o_fsm_devil_state_passive,
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_control_reg,
@@ -42,46 +113,36 @@ module passive_devil #(
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_acsnoop_reg,  
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_base_addr_reg,  
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_addr_size_reg,  
-        output wire       [C_ACE_DATA_WIDTH-1:0] o_rdata,
-        output wire                        [4:0] o_crresp,
-        output wire                              o_crvalid,
-        output wire                              o_cdvalid,
-        output wire                              o_cdlast,
         output wire                              o_end,
-        input  wire                              i_crready,
         input  wire                              i_trigger_passive,
         output wire                              o_trigger_active,
         output wire                              o_reply,
         output wire                              o_busy,
-        input  wire                              i_cdready,
         input  wire       [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
         input  wire                        [3:0] i_acsnoop_snapshot,
-        input wire                               i_arready,
-        input wire                               i_rready,
-        input wire                               i_rvalid,
-        input wire        [C_ACE_DATA_WIDTH-1:0] i_rdata,
-        input wire                               i_rlast,
-        output wire       [C_ACE_ADDR_WIDTH-1:0] o_araddr,
-        output wire                        [3:0] o_arsnoop,
-        input wire                               i_awready,
-        input wire                               i_wready,
-        input wire                               i_wvalid,
-        input wire                               i_wlast,
-        input wire                         [1:0] i_bresp,
-        input wire                               i_bvalid,
-        input wire                               i_bready,
         output wire                              o_responding,
         input wire                               i_active_end,
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
         output wire                              o_action_taken,
         output wire                              o_trans_monitored, 
+
+        // Internal Signals, from Devil Passive to Devil Active
         output wire                        [3:0] o_internal_func, 
-        output wire                              o_external_mode,
+        output wire       [C_ACE_ADDR_WIDTH-1:0] o_internal_araddr,
+        output wire                        [3:0] o_internal_arsnoop,
+        output wire       [C_ACE_ADDR_WIDTH-1:0] o_internal_awaddr,
+        output wire                        [2:0] o_internal_awsnoop,
+        output wire                        [1:0] o_internal_ardomain,
         output wire                              o_internal_adl_en,
         output wire                              o_internal_adt_en,
+        output wire                              o_external_mode,
+
         output wire                       [63:0] o_counter // test porpuses
     );
 
+//------------------------------------------------------------------------------
+// FSM STATES AND DEFINES
+//------------------------------------------------------------------------------
     parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE              = 0,
                                         DEVIL_ONE_SHOT_DELAY    = 1,
                                         DEVIL_CONTINUOS_DELAY   = 2,
@@ -96,6 +157,118 @@ module passive_devil #(
                                         DEVIL_MONITOR_TRANS     = 11,
                                         DEVIL_TAKE_ACTIONS      = 12;
 
+    `define WRAP                2'b10
+    `define INCR                2'b01
+
+//------------------------------------------------------------------------------
+// WIRES
+//------------------------------------------------------------------------------
+    wire        w_ac_filter;
+    wire        w_addr_filter;
+    wire  [7:0] w_arlen;
+
+//------------------------------------------------------------------------------
+// REGISTERS
+//------------------------------------------------------------------------------
+    reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
+    reg   [DEVIL_STATE_SIZE-1:0] fsm_devil_state_passive;          
+    reg                    [4:0] r_crresp;
+    reg                          r_crvalid;
+    reg                          r_cdvalid;
+    reg                          r_cdlast;
+    reg   [C_ACE_DATA_WIDTH-1:0] r_rdata;
+    reg                   [63:0] r_counter; 
+    reg                          r_end_op;
+    reg                          r_reply;
+    reg   [DEVIL_STATE_SIZE-1:0] r_return;
+    reg                    [7:0] r_burst_cnt;
+    reg                          r_trigger_active;
+    reg                          r_action_taken;
+    reg                          r_trans_monitored;
+    reg                    [3:0] r_func;
+    reg                          r_internal_adl_en;
+    reg                          r_internal_adt_en;
+    reg   [C_ACE_ADDR_WIDTH-1:0] r_araddr;
+    reg                    [3:0] r_arsnoop;
+    reg   [C_ACE_ADDR_WIDTH-1:0] r_awaddr;
+    reg                    [2:0] r_awsnoop;
+    reg                    [1:0] r_ardomain;
+
+//------------------------------------------------------------------------------
+// ACE INTERFACE 
+//------------------------------------------------------------------------------
+    // ACE AC Channel (Snoop)
+    // (Not used for now!)
+    assign o_acready    = 0;
+
+    // ACE CD Channel (Snoop data)
+    assign o_cddata     = r_rdata;
+    assign o_cdlast     = r_cdlast;
+    assign o_cdvalid    = r_cdvalid;
+
+    // ACE CR Channel (Snoop response)
+    assign o_crresp     = r_crresp;
+    assign o_crvalid    = r_crvalid;
+    
+    // ACE AR Channel (Read address phase)
+    // (Not used for now!)
+    assign o_araddr     = 0; 
+    assign o_arbar      = 0;
+    assign o_arburst    = `WRAP;
+    assign o_arcache    = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
+    assign o_ardomain   = 2'b10;  // outer shareable
+    assign o_arid       = 0;
+    assign o_arlen      = w_arlen; 
+    assign w_arlen      = 8'h3; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
+    assign o_arlock     = 0;
+    assign o_arprot     = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged
+    assign o_arqos      = 0;
+    assign o_arregion   = 0;
+    assign o_arsize     = 3'b100; //Size of each burst is 16B 
+    assign o_arsnoop    = 0;
+    assign o_aruser     = 0;
+    assign o_arvalid    = 0;
+
+    // ACE R Channel (Read data phase)
+    // (Not used for now!)
+    assign o_rack   = 0;
+    assign o_rready = 0;
+
+    // ACE AW channel (Wri0te address phase)
+    // (Not used for now!)
+    assign o_awaddr     = 0;
+    assign o_awbar      = 0;
+    assign o_awburst    = 0;
+    assign o_awcache    = 0;
+    assign o_awdomain   = 0;
+    assign o_awid       = 0;
+    assign o_awlen      = 0;
+    assign o_awlock     = 0;
+    assign o_awprot     = 0;
+    assign o_awqos      = 0;
+    assign o_awregion   = 0;
+    assign o_awsize     = 0;
+    assign o_awsnoop    = 0;
+    assign o_awuser     = 0;
+    assign o_awvalid    = 0;
+
+    // ACE W channel (Write data phase)
+    // (Not used for now!)
+    assign o_wack   = 0;
+    assign o_wdata  = 0;
+    assign o_wid    = 0;
+    assign o_wlast  = 0;
+    assign o_wstrb  = 0;
+    assign o_wuser  = 0;
+    assign o_wvalid = 0;
+
+    // ACE B channel (Write response) 
+    // (Not used for now!)
+    assign o_bready = 0;
+
+//------------------------------------------------------------------------------
+// DEVIL-IN-THE-FPGA CONTROL REGISTERS
+//------------------------------------------------------------------------------
     // Devil-in-the-fpga Control Reg parameters/bits
     // TODO: Put this in a common file with the bits in 
     wire       w_en;
@@ -124,58 +297,39 @@ module passive_devil #(
     assign w_pdt_en = i_control_reg[20]; // Passive Data Tampering Enable
     assign w_mon_en = i_control_reg[21]; // Passive Data Tampering Enable
 
-    reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;
-    reg   [DEVIL_STATE_SIZE-1:0] fsm_devil_state_passive;          
-    reg                    [4:0] r_crresp;
-    reg                          r_crvalid;
-    reg                          r_cdvalid;
-    reg                          r_cdlast;
-    reg   [C_ACE_DATA_WIDTH-1:0] r_rdata;
-    reg                   [63:0] r_counter; 
-    reg                          r_end_op;
-    reg                          r_reply;
-    reg   [DEVIL_STATE_SIZE-1:0] r_return;
-    reg                    [7:0] r_burst_cnt;
-    reg   [C_ACE_ADDR_WIDTH-1:0] r_araddr;
-    reg                    [3:0] r_arsnoop;
-    reg                          r_trigger_active;
-    reg                          r_action_taken;
-    reg                          r_trans_monitored;
-    reg                    [3:0] r_func;
-    reg                          r_internal_adl_en;
-    reg                          r_internal_adt_en;
+//------------------------------------------------------------------------------
+// GENERIC OUTPUT SIGNALS
+//------------------------------------------------------------------------------
+    assign o_fsm_devil_state_passive    = fsm_devil_state_passive;  
+    assign o_write_status_reg           = r_status_reg;
+    assign o_internal_araddr            = r_araddr;
+    assign o_internal_arsnoop           = r_arsnoop;
+    assign o_internal_awaddr            = r_awaddr;
+    assign o_internal_awsnoop           = r_awsnoop;
+    assign o_internal_ardomain          = r_ardomain; 
+    assign o_end                        = r_end_op;
 
-    assign o_fsm_devil_state_passive = fsm_devil_state_passive;  
-    assign o_write_status_reg = r_status_reg;
-    assign o_crresp = r_crresp;
-    assign o_crvalid = r_crvalid;
-    assign o_cdvalid = r_cdvalid;
-    assign o_cdlast = r_cdlast;
-    assign o_rdata = r_rdata;
-    assign o_end = r_end_op;
-    // assign o_acready = w_acready;
-    assign o_counter = r_counter;
-    assign o_reply = r_reply;
-    assign o_busy = (fsm_devil_state_passive != DEVIL_IDLE);
+    assign o_counter    = r_counter;
+    assign o_reply      = r_reply;
+    assign o_busy       = (fsm_devil_state_passive != DEVIL_IDLE);
     assign o_responding = (fsm_devil_state_passive == DEVIL_REPLY);
-    assign o_araddr = r_araddr;
-    assign o_arsnoop = r_arsnoop;
-    assign o_trigger_active = r_trigger_active;
-    assign o_action_taken = r_action_taken;
-    assign o_trans_monitored = r_trans_monitored;
-    assign o_internal_func = r_func;
-    assign o_external_mode =  (w_adl_en || w_adt_en); // Informes when an action is trigger by PS 
-    assign o_internal_adl_en = r_internal_adl_en;
-    assign o_internal_adt_en = r_internal_adt_en;
 
-    wire w_ac_filter;
-    wire w_addr_filter;
+    assign o_internal_func      = r_func;
+    assign o_trigger_active     = r_trigger_active;
+    assign o_action_taken       = r_action_taken;
+    assign o_trans_monitored    = r_trans_monitored;
+    assign o_external_mode      = (w_adl_en || w_adt_en); // Informes when an action is trigger by PS 
+    assign o_internal_adl_en    = r_internal_adl_en;
+    assign o_internal_adt_en    = r_internal_adt_en;
+
     // ac and addr filters are applied to the acaddr and acsnoop at the time of
     //the achandshake, bacause once the handshake happens, a new snoop is generated
     assign w_ac_filter      = (i_acsnoop_snapshot[3:0] == i_acsnoop_reg[3:0]) ? 1 : 0;
     assign w_addr_filter    = (i_acaddr_snapshot[31:0] >= i_base_addr_reg[31:0]) && (i_acaddr_snapshot[31:0] < (i_base_addr_reg[31:0] + i_addr_size_reg[31:0])) ? 1 : 0;
 
-
+//------------------------------------------------------------------------------
+// FSM
+//------------------------------------------------------------------------------
     always @(posedge ace_aclk)
     begin
     if(~ace_aresetn)
@@ -187,10 +341,13 @@ module passive_devil #(
         r_crresp <= 0;
         r_rdata  <= 0;
         r_araddr <= 0;
+        r_awaddr <= 0;
         r_crvalid <= 0;
         r_cdvalid <= 0;
         r_counter <= 0;
         r_arsnoop <= 0;
+        r_awsnoop <= 0;
+        r_ardomain <= 0;
         r_burst_cnt <= 0;
         r_status_reg <= 0;
         r_action_taken <= 0; 
@@ -258,6 +415,9 @@ module passive_devil #(
                     r_trigger_active <= 1;
                     r_trans_monitored <= 1;
                     r_internal_adl_en <= 1; // Enable Read Snoop (internal trigger)
+                    // ReadNoSnoop , ardomain = 2'b00 and arsnoop = 4'b0000
+                    r_ardomain <= 2'b00; 
+                    r_arsnoop <= 4'b0000; 
                     // r_internal_adt_en <= 0; // En Write Snoop (internal trigger)
                     r_func <= `ADL; // Read snoop
                     if (i_active_end)
@@ -273,7 +433,10 @@ module passive_devil #(
                 begin
                     fsm_devil_state_passive  <= DEVIL_FUNCTION;  
                     r_araddr <= 0;
-                    r_arsnoop <= 0;     
+                    r_arsnoop <= 0;   
+                    r_awsnoop <= 0;
+                    r_ardomain <= 2'b10; // outer shareable
+                    r_awaddr <= 0;  
                     // No action
                     r_action_taken <= 0; 
                     // TO IMPLEMENT
@@ -355,7 +518,7 @@ module passive_devil #(
                                         r_burst_cnt == 2 ? i_cache_line[127+128*2:0+128*2]: 
                                         r_burst_cnt == 3 ? i_cache_line[127+128*3:0+128*3]: 
                                         i_cache_line[127+128*0:0+128*0]; 
-                            if( (i_arlen == 0) || (r_burst_cnt == i_arlen)) 
+                            if( (w_arlen == 0) || (r_burst_cnt == w_arlen)) 
                             begin // last reply
                                 r_cdlast <= 1;                                
                                 fsm_devil_state_passive  <= DEVIL_END_OP;  
