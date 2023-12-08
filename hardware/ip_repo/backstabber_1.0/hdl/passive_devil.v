@@ -520,8 +520,11 @@ module passive_devil #(
                                         i_cache_line[127+128*0:0+128*0]; 
                             if( (w_arlen == 0) || (r_burst_cnt == w_arlen)) 
                             begin // last reply
-                                r_cdlast <= 1;                                
-                                fsm_devil_state_passive  <= DEVIL_END_OP;  
+                                r_cdlast <= 1;   
+                                if(!w_pdt_en) // Passive Data Tampering Disable                           
+                                    fsm_devil_state_passive  <= DEVIL_END_OP;  
+                                else
+                                    fsm_devil_state_passive  <= DEVIL_END_REPLY;  
                             end
                             else
                                 fsm_devil_state_passive <= fsm_devil_state_passive;
