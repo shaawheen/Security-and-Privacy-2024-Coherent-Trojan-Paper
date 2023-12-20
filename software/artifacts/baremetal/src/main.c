@@ -233,22 +233,14 @@ void data_tamper(void){
         if(!counter)
             init_value = *ptr;
             
-        if (init_value == *ptr8) // wait for the other core
+        if (init_value == *ptr8) 
         {
             invalidateCache(ptr8);
         }
-    #else
-        while(init_value == *ptr){
-            invalidateCache(0x40000000);
-        };
-    #endif
 
-    // invaliInstCache(0x200015c0);
-
-    #ifdef DATA_TAMPERING
         spin_lock(&print_lock);
         printf(" counter = %d\n", counter++);
-        // printf(" ptr    = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr, *ptr1, *ptr2, *ptr3);
+        printf(" ptr    = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr, *ptr1, *ptr2, *ptr3);
         printf(" ptr    = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr4, *ptr5, *ptr6, *ptr7);
         printf(" ptr8   = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr8, *ptr9, *ptr10, *ptr11);
         printf(" ptr12  = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr12, *ptr13, *ptr14, *ptr15);
@@ -256,29 +248,11 @@ void data_tamper(void){
         printf(" ptr12b = 0x%08x | 0x%08x | 0x%08x | 0x%08x \n", *ptr12b, *ptr13b, *ptr14b, *ptr15b);
         spin_unlock(&print_lock);
     #endif
-    
-    for (size_t i = 0; i < 100000000; i++);   
+        // while(init_value == *ptr){
+        //     invalidateCache(0x40000000);
+        // };
 
-    __asm volatile("ldr x0, =0x40000000");
-    // IF 
-    __asm volatile("IF:");
-        __asm volatile("ldr x1, [x0]"); 
-        __asm volatile("cbz x1, ACC"); 
-    // ELse
-    __asm volatile("ELSE:");
-        __asm volatile("ldr x1, [x0]"); 
-        __asm volatile("b NO_ACC"); 
-
-    // IF statement
-    __asm volatile("ACC:"); 
-        printf("Access!!\n");
-        __asm volatile("b END"); 
-
-    // Else statement
-    __asm volatile("NO_ACC:"); 
-        printf("No Access\n");
-        
-    __asm volatile("END:"); 
+    // invaliInstCache(0x200015c0);
     
     // __asm volatile("ldr x0, =check_tamper ");
     // __asm volatile("mov x1, #0xBEEF");
@@ -320,10 +294,15 @@ void data_tamper(void){
 */
 void active_data_leak(){
     *ptr = 0x12345678;
+    *ptr1 = *ptr1 + 1; 
     spin_lock(&print_lock);
     printf("Ptr = 0x%08x\n", *ptr);
+    printf("Ptr1 = 0x%08x\n", *ptr1);
+    printf("\n");
     spin_unlock(&print_lock);
-    for (int i = 0; i < 100000000; i++);    
+    invalidateCache(ptr);
+    for (int i = 0; i < 1000000000; i++);    
+    
 }
 
 /*
@@ -337,7 +316,7 @@ void active_data_tampering(){
     spin_lock(&print_lock);
     printf("Ptr = 0x%08x\n", *ptr);
     spin_unlock(&print_lock);
-    for (int i = 0; i < 100000000; i++); 
+    for (int i = 0; i < 1500000000; i++); 
 }
 
 void main(void){
@@ -380,9 +359,33 @@ void main(void){
 
     while (1)
     {   
-        //active_data_leak();
-        active_data_tampering();
+        active_data_leak();
+        // active_data_tampering();
         // data_tamper();
+        // for (size_t i = 0; i < 2000000000; i++);  
+
+        // #ifndef DATA_TAMPERING
+        //     __asm volatile("ldr x0, =0x40000000");
+        //     // IF 
+        //     __asm volatile("IF:");
+        //         __asm volatile("ldr x1, [x0]"); 
+        //         __asm volatile("cbz x1, ACC"); 
+        //     // ELse
+        //     __asm volatile("ELSE:");
+        //         __asm volatile("ldr x1, [x0]"); 
+        //         __asm volatile("b NO_ACC"); 
+
+        //     // IF statement
+        //     __asm volatile("ACC:"); 
+        //         printf("Access!!\n");
+        //         __asm volatile("b END"); 
+
+        //     // Else statement
+        //     __asm volatile("NO_ACC:"); 
+        //         printf("No Access\n");
+                
+        //     __asm volatile("END:"); 
+        // #endif
     }
 
     while(1) wfi();    
