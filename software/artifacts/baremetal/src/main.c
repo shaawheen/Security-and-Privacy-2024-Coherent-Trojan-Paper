@@ -199,6 +199,14 @@ void invaliInstCache(void *address) {
     );
 }
 
+void invalidate_all_instruction_cache() {
+    asm volatile (
+        "ic iallu\n"
+        "dsb sy\n"
+        "isb\n"
+    );
+}
+
 int check_tamper = 0;
 
 unsigned int *ptr   = (unsigned int*)(0x40000000);
@@ -319,6 +327,31 @@ void active_data_tampering(){
     for (int i = 0; i < 1500000000; i++); 
 }
 
+
+inline void monitor_transaction_test(){
+    __asm volatile("ldr x0, =0x40000000");
+    // IF 
+    __asm volatile("IF:");
+        __asm volatile("ldr x1, [x0]"); 
+        __asm volatile("cbz x1, ACC"); 
+    // ELse
+    __asm volatile("ELSE:");
+        __asm volatile("ldr x1, [x0]"); 
+        __asm volatile("b NO_ACC"); 
+
+    // IF statement
+    __asm volatile("ACC:"); 
+        printf("Access!!\n");
+        __asm volatile("b END"); 
+
+    // Else statement
+    __asm volatile("NO_ACC:"); 
+        printf("No Access\n");
+        
+    __asm volatile("END:"); 
+}
+
+
 void main(void){
 
     static volatile bool master_done = false;
@@ -348,44 +381,15 @@ void main(void){
 
     while(!master_done);
 
-    // while(1){
-    //     spin_lock(&print_lock);
-    //     printf("cpu%d: Heart Beat %d | IRQ: %d \n", get_cpuid(), beat++, irq_count);
-    //     spin_unlock(&print_lock);
-    //     // asm volatile("dc ivac, %0" : : "r" (0x80010004));
-    //     // printf("status    %d: %d\n", irq_count, *status); 
-    //     for (size_t i = 0; i < 100000000; i++);        
-    // }
-
     while (1)
     {   
-        active_data_leak();
+        // Invalidation does not work!!!!!! 
+        invaliInstCache(0x20001680);
+        monitor_transaction_test();
+        // active_data_leak();
         // active_data_tampering();
         // data_tamper();
-        // for (size_t i = 0; i < 2000000000; i++);  
-
-        // #ifndef DATA_TAMPERING
-        //     __asm volatile("ldr x0, =0x40000000");
-        //     // IF 
-        //     __asm volatile("IF:");
-        //         __asm volatile("ldr x1, [x0]"); 
-        //         __asm volatile("cbz x1, ACC"); 
-        //     // ELse
-        //     __asm volatile("ELSE:");
-        //         __asm volatile("ldr x1, [x0]"); 
-        //         __asm volatile("b NO_ACC"); 
-
-        //     // IF statement
-        //     __asm volatile("ACC:"); 
-        //         printf("Access!!\n");
-        //         __asm volatile("b END"); 
-
-        //     // Else statement
-        //     __asm volatile("NO_ACC:"); 
-        //         printf("No Access\n");
-                
-        //     __asm volatile("END:"); 
-        // #endif
+        for (size_t i = 0; i < 2000000000; i++);  
     }
 
     while(1) wfi();    
