@@ -82,7 +82,13 @@ register_blocks:
             0: Disables Passive Data Tampering
             1: Enables Passive Data Tampering
       - <<:
-        - { name:  Res, bit_assignment:  { width: 11 }, type: reserved}
+        - { name:  MONEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - comment: |
+            Enable or disable the **Mon**itoring Transactions
+            0: Disables Transactions' Monitoring
+            1: Enables Transactions' Monitoring
+      - <<:
+        - { name:  Res, bit_assignment:  { width: 10 }, type: reserved}
 
 ################################################################           
     - name: status

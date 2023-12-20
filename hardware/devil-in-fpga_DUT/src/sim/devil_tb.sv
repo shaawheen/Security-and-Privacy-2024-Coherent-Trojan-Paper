@@ -78,6 +78,7 @@ import design_1_axi_vip_1_0_pkg::*;
 `define ADLEN_pos   18
 `define ADTEN_pos   19
 `define PDTEN_pos   20
+`define MONEN_pos   21
 
 
 module devil_tb();
@@ -119,8 +120,8 @@ module devil_tb();
          .crvalid_0(crvalid),
          .acaddr_0(acaddr),
          .acsnoop_0(acsnoop),
-         .acvalid_0(0),
-        //  .acvalid_0(acvalid),
+        //  .acvalid_0(0),
+         .acvalid_0(acvalid),
          .cdready_0(1),
          .crready_0(1)
         );
@@ -174,8 +175,10 @@ module devil_tb();
     slv_agent.mem_model.set_memory_fill_policy(XIL_AXI_MEMORY_FILL_RANDOM);      
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
+    monitor_transation_devil();
+    // data_leak_FMS_new_devil();
     // data_tampering_FSM_devil();
-    test_data_regs();
+    // test_data_regs();
     // data_leak_FMS_devil();
     // PDT_devil();
     // data_tampering_devil();
@@ -191,6 +194,47 @@ module devil_tb();
     $display("END Simulation");
     $finish;
     end 
+
+    task monitor_transation_devil();
+        acaddr = 44'h00040000000;  // Emulae Snoop Address
+        reg_ctrl = (`FUNC_PDT << `FUNC_pos) // active data leak
+                    | (1 << `PDTEN_pos) 
+                    // | (1 << `MONEN_pos)               
+                    | (1 << `EN_pos);
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+        reg_ctrl =  (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+
+    endtask :monitor_transation_devil
+
+    task data_leak_FMS_new_devil();
+        reg_l_araddr = 32'h40000000;
+        reg_h_araddr = 8'h00;
+        reg_arsnoop = `READ_ONCE;
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_ARADDR,prot,reg_l_araddr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`H_ARADDR,prot,reg_h_araddr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`ARSNOOP,prot,reg_arsnoop,resp); 
+
+        reg_ctrl = (`FUNC_ADL << `FUNC_pos) // active data leak
+                    | (1 << `ADLEN_pos)               
+                    | (1 << `EN_pos);
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+        reg_ctrl =  (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA1,prot,reg_rdata,resp);
+        $display("RDATA1 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA2,prot,reg_rdata,resp);
+        $display("RDATA2 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA3,prot,reg_rdata,resp);
+        $display("RDATA3 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA4,prot,reg_rdata,resp);
+        $display("RDATA4 = %h",reg_rdata);
+    endtask :data_leak_FMS_new_devil
 
     task test_data_regs();
         reg_wdata = 32'hFFFFFFFF;
