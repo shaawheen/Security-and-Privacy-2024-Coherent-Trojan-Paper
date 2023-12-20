@@ -155,7 +155,8 @@ module passive_devil #(
                                         DEVIL_END_REPLY         = 9,
                                         DEVIL_REPLY             = 10,
                                         DEVIL_MONITOR_TRANS     = 11,
-                                        DEVIL_TAKE_ACTIONS      = 12;
+                                        DEVIL_TAKE_ACTIONS      = 12,
+                                        DEVIL_REPLY_DATA        = 13;
 
     `define WRAP                2'b10
     `define INCR                2'b01
@@ -505,12 +506,22 @@ module passive_devil #(
                     else
                         fsm_devil_state_passive <= fsm_devil_state_passive;
                 end
-            DEVIL_REPLY: // 12
+            DEVIL_REPLY: // A (10)
+                begin
+                    if (i_crready) 
+                    begin                                     
+                        r_crvalid <= 1;
+                        r_crresp <= w_crresp[4:0];
+                        fsm_devil_state_passive <= DEVIL_REPLY_DATA;
+                    end else 
+                        fsm_devil_state_passive <= fsm_devil_state_passive;
+                end
+            DEVIL_REPLY_DATA: // D (13)
                 begin
                     if (i_crready)                                      
                     begin                            
-                        r_crresp <= w_crresp[4:0];
-                        r_crvalid <= 1;
+                        r_crvalid <= 0;
+                        r_crresp <= 0;
                         r_cdvalid <= 1; 
                         if(i_cdready) begin // cdvalid/ data must not change until cdready is asserted   
                             r_burst_cnt <= r_burst_cnt + 1;
