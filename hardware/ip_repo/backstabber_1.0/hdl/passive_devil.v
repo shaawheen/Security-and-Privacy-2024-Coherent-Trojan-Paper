@@ -313,7 +313,7 @@ module passive_devil #(
     assign o_counter    = r_counter;
     assign o_reply      = r_reply;
     assign o_busy       = (fsm_devil_state_passive != DEVIL_IDLE);
-    assign o_responding = (fsm_devil_state_passive == DEVIL_REPLY);
+    assign o_responding = (fsm_devil_state_passive == DEVIL_SNOOP_RESPONSE || fsm_devil_state_passive == DEVIL_REPLY);
 
     assign o_internal_func      = r_func;
     assign o_trigger_active     = r_trigger_active;
@@ -470,7 +470,7 @@ module passive_devil #(
                         `PDT  :
                         begin
                             if (w_pdt_en)
-                                fsm_devil_state_passive <= DEVIL_REPLY;  
+                                fsm_devil_state_passive <= DEVIL_SNOOP_RESPONSE;  
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
@@ -506,17 +506,17 @@ module passive_devil #(
                     else
                         fsm_devil_state_passive <= fsm_devil_state_passive;
                 end
-            DEVIL_REPLY: // A (10)
+            DEVIL_SNOOP_RESPONSE: // D (13)
                 begin
                     if (i_crready) 
                     begin                                     
                         r_crvalid <= 1;
                         r_crresp <= w_crresp[4:0];
-                        fsm_devil_state_passive <= DEVIL_REPLY_DATA;
+                        fsm_devil_state_passive <= DEVIL_REPLY;
                     end else 
                         fsm_devil_state_passive <= fsm_devil_state_passive;
                 end
-            DEVIL_REPLY_DATA: // D (13)
+            DEVIL_REPLY: // A (10)
                 begin
                     if (i_crready)                                      
                     begin                            
