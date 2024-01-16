@@ -125,6 +125,7 @@ module passive_devil #(
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
         output wire                              o_action_taken,
         output wire                              o_trans_monitored, 
+        output wire                              o_pattern_match, 
 
         // Internal Signals, from Devil Passive to Devil Active
         output wire                        [3:0] o_internal_func, 
@@ -187,6 +188,7 @@ module passive_devil #(
     reg                    [7:0] r_burst_cnt;
     reg                          r_trigger_active;
     reg                          r_action_taken;
+    reg                          r_pattern_match;
     reg                          r_trans_monitored;
     reg                    [3:0] r_func;
     reg                          r_internal_adl_en;
@@ -321,6 +323,7 @@ module passive_devil #(
     assign o_trigger_active     = r_trigger_active;
     assign o_action_taken       = r_action_taken;
     assign o_trans_monitored    = r_trans_monitored;
+    assign o_pattern_match      = r_pattern_match;
     assign o_external_mode      = (w_adl_en || w_adt_en); // Informes when an action is trigger by PS 
     assign o_internal_adl_en    = r_internal_adl_en;
     assign o_internal_adt_en    = r_internal_adt_en;
@@ -354,6 +357,7 @@ module passive_devil #(
         r_burst_cnt <= 0;
         r_status_reg <= 0;
         r_action_taken <= 0; 
+        r_pattern_match <= 0;
         r_trigger_active <= 0;
         r_internal_adl_en <= 0;
         r_internal_adt_en <= 0;
@@ -428,7 +432,10 @@ module passive_devil #(
                         r_trigger_active <= 0;
                         r_internal_adl_en <= 0;
                         if(i_cache_line_2_monitor == i_cache_line) // just for test porpuses
-                            fsm_devil_state_passive  <= DEVIL_TEST_MONITOR; // just for test porpuses
+                            begin 
+                                r_pattern_match <= 1;
+                                fsm_devil_state_passive  <= DEVIL_TEST_MONITOR; // just for test porpuses
+                            end
                         else
                             fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;
                     end                           
@@ -443,6 +450,7 @@ module passive_devil #(
             DEVIL_TAKE_ACTIONS:
                 begin
                     fsm_devil_state_passive  <= DEVIL_FUNCTION;  
+                    r_pattern_match <= 0;
                     r_araddr <= 0;
                     r_arsnoop <= 0;   
                     r_awsnoop <= 0;

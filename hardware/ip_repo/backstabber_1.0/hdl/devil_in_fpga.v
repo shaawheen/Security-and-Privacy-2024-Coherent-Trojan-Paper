@@ -130,6 +130,7 @@
         output wire                              o_end_passive,
         output wire                              o_busy_passive,
         output wire                              o_external_mode,
+        output wire                              o_pattern_match,
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -312,6 +313,15 @@
     wire                              w_internal_adl_en;
     wire                              w_internal_adt_en;
 
+    // Internal Signals
+    wire w_trigger_active;
+    wire w_trigger_from_passive;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_internal_cache_line;
+    wire w_action_taken; // set signal on take action passive state
+    wire w_trans_monitored; // set signal on monitor transaction passive state
+    wire w_pattern_match; // signal ON when there is a pattern match
+
     assign o_fsm_devil_state        =  w_fsm_devil_state;
     assign o_fsm_devil_state_active =  w_fsm_devil_state_active;
     assign o_write_status_reg       =  w_write_status_reg;
@@ -324,14 +334,7 @@
     assign o_busy_passive           = w_busy_passive;
     assign w_func                   = (w_trigger_from_passive ? w_internal_func : i_control_reg[8:5]);
     assign o_external_mode          = w_external_mode;
-
-    // Internal Signals
-    wire w_trigger_active;
-    wire w_trigger_from_passive;
-    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line;
-    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_internal_cache_line;
-    wire w_action_taken; // set signal on take action passive state
-    wire w_trans_monitored; // set signal on monitor transaction passive state
+    assign o_pattern_match          = w_pattern_match;
 
     assign w_trigger_active = i_trigger_active || w_trigger_from_passive ;
     assign w_cache_line = (w_action_taken || w_trans_monitored) ? w_internal_cache_line : i_external_cache_line;
@@ -439,6 +442,7 @@
         .i_active_end(w_end_active),
         .o_action_taken(w_action_taken),
         .o_trans_monitored(w_trans_monitored),
+        .o_pattern_match(w_pattern_match),
         
         // Internal Signals, from Devil Passive to Devil Active
         .o_internal_func(w_internal_func),

@@ -32,7 +32,8 @@ module devil_controller#(
         input  wire                       [3:0] i_cmd,
         input  wire                             i_trigger,
         output wire      [DEVIL_STATE_SIZE-1:0] o_fsm_devil_controller,
-        output wire  [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line_2_monitor
+        output wire  [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line_2_monitor,
+        input  wire                             i_pattern_match
     );
 
 //------------------------------------------------------------------------------
@@ -146,7 +147,16 @@ module devil_controller#(
                 end
             DEVIL_CMD_LEAK:  
                 begin 
-                    fsm_devil_controller <= DEVIL_END_OP;                                                  
+                    if(i_pattern_match)
+                    begin
+                        // issue the read snoop, for the passive devil to take action
+                        // and issue a read cache line to active devil
+                        // addr = X
+                        // snoop = Y
+                        fsm_devil_controller <= DEVIL_END_OP; 
+                    end
+                    else
+                        fsm_devil_controller <= fsm_devil_controller;                                               
                 end
             DEVIL_CMD_POISON:  
                 begin 

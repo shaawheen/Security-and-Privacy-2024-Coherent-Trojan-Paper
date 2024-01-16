@@ -453,6 +453,7 @@
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
     wire                            w_external_mode;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
+    wire                            w_pattern_match;
 
 
     wire    w_en;
@@ -1025,10 +1026,11 @@
     ) devil_controller_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
-        .i_cmd(0),
+        .i_cmd(1),
         .i_trigger(w_trigger_devil_controller),
         .o_fsm_devil_controller(w_fsm_devil_controller), 
-        .o_cache_line_2_monitor(w_cache_line_2_monitor)
+        .o_cache_line_2_monitor(w_cache_line_2_monitor),
+        .i_pattern_match(w_pattern_match)
     );
 
     // Instantiation of devil-in-fpgs module
@@ -1139,6 +1141,7 @@
         .i_external_cache_line(w_write_cache_line),
         .o_external_mode(w_external_mode),
         .i_cache_line_2_monitor(w_cache_line_2_monitor),
+        .o_pattern_match(w_pattern_match),
         // .o_end_active(),
         // .o_busy_active(),
         // .o_end_passive(),
