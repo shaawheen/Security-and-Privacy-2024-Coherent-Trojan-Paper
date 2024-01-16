@@ -199,7 +199,7 @@ module devil_tb();
         acaddr = 44'h00040000000;  // Emulae Snoop Address
         reg_ctrl = (`FUNC_PDT << `FUNC_pos) // active data leak
                     | (1 << `PDTEN_pos) 
-                    // | (1 << `MONEN_pos)               
+                    | (1 << `MONEN_pos)               
                     | (1 << `EN_pos);
 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 

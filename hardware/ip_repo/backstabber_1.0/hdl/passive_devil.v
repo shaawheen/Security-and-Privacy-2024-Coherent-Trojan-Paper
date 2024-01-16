@@ -156,7 +156,8 @@ module passive_devil #(
                                         DEVIL_REPLY             = 10,
                                         DEVIL_MONITOR_TRANS     = 11,
                                         DEVIL_TAKE_ACTIONS      = 12,
-                                        DEVIL_REPLY_DATA        = 13;
+                                        DEVIL_SNOOP_RESPONSE    = 13, 
+                                        DEVIL_TEST_MONITOR      = 14;
 
     `define WRAP                2'b10
     `define INCR                2'b01
@@ -168,6 +169,46 @@ module passive_devil #(
     wire        w_addr_filter;
     wire  [7:0] w_arlen;
 
+    // just for test porpuses (pattern to search for)
+    wire   [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
+    assign w_cache_line_2_monitor[31+32*0:0+32*0] = 32'hDEEDBEEF;  
+    assign w_cache_line_2_monitor[31+32*1:0+32*1] = 32'h1FFFFFFF; 
+    assign w_cache_line_2_monitor[31+32*2:0+32*2] = 32'hDEEDBEEF;
+    assign w_cache_line_2_monitor[31+32*3:0+32*3] = 32'h2FFFFFFF;
+    assign w_cache_line_2_monitor[31+32*4:0+32*4] = 32'hDEEDBEEF; 
+    assign w_cache_line_2_monitor[31+32*5:0+32*5] = 32'h3FFFFFFF; 
+    assign w_cache_line_2_monitor[31+32*6:0+32*6] = 32'hDEEDBEEF;
+    assign w_cache_line_2_monitor[31+32*7:0+32*7] = 32'h4FFFFFFF; 
+    assign w_cache_line_2_monitor[31+32*8:0+32*8] = 32'hDEEDBEEF; 
+    assign w_cache_line_2_monitor[31+32*9:0+32*9] = 32'h5FFFFFFF; 
+    assign w_cache_line_2_monitor[31+32*10:0+32*10] = 32'hDEEDBEEF;
+    assign w_cache_line_2_monitor[31+32*11:0+32*11] = 32'h6FFFFFFF;
+    assign w_cache_line_2_monitor[31+32*12:0+32*12] = 32'hDEEDBEEF; 
+    assign w_cache_line_2_monitor[31+32*13:0+32*13] = 32'h7FFFFFFF; 
+    assign w_cache_line_2_monitor[31+32*14:0+32*14] = 32'hDEEDBEEF;
+    assign w_cache_line_2_monitor[31+32*15:0+32*15] = 32'h8FFFFFFF;
+
+    // //fe16863c bbaf7e47 dcd5db54 d54783c2
+    // assign w_cache_line_2_monitor[31+32*0:0+32*0]   = 32'hd54783c2;  
+    // assign w_cache_line_2_monitor[31+32*1:0+32*1]   = 32'hdcd5db54; 
+    // assign w_cache_line_2_monitor[31+32*2:0+32*2]   = 32'hbbaf7e47;
+    // assign w_cache_line_2_monitor[31+32*3:0+32*3]   = 32'hfe16863c;
+    // //cd197260 f65b9c92 d260d0b8 d206ceac
+    // assign w_cache_line_2_monitor[31+32*4:0+32*4]   = 32'hd206ceac; 
+    // assign w_cache_line_2_monitor[31+32*5:0+32*5]   = 32'hd260d0b8; 
+    // assign w_cache_line_2_monitor[31+32*6:0+32*6]   = 32'hf65b9c92;
+    // assign w_cache_line_2_monitor[31+32*7:0+32*7]   = 32'hcd197260; 
+    // //1cd9b232 893d8de5 1443e896 fcb01399
+    // assign w_cache_line_2_monitor[31+32*8:0+32*8]   = 32'hfcb01399; 
+    // assign w_cache_line_2_monitor[31+32*9:0+32*9]   = 32'h1443e896; 
+    // assign w_cache_line_2_monitor[31+32*10:0+32*10] = 32'h893d8de5;
+    // assign w_cache_line_2_monitor[31+32*11:0+32*11] = 32'h1cd9b232;
+    // //eb624e0d ff78efa1 1ec5cf46 c8772659
+    // assign w_cache_line_2_monitor[31+32*12:0+32*12] = 32'hc8772659; 
+    // assign w_cache_line_2_monitor[31+32*13:0+32*13] = 32'h1ec5cf46; 
+    // assign w_cache_line_2_monitor[31+32*14:0+32*14] = 32'hff78efa1;
+    // assign w_cache_line_2_monitor[31+32*15:0+32*15] = 32'heb624e0d;  
+ 
 //------------------------------------------------------------------------------
 // REGISTERS
 //------------------------------------------------------------------------------
@@ -425,10 +466,18 @@ module passive_devil #(
                     begin
                         r_trigger_active <= 0;
                         r_internal_adl_en <= 0;
-                        fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;
+                        if(w_cache_line_2_monitor == i_cache_line) // just for test porpuses
+                            fsm_devil_state_passive  <= DEVIL_TEST_MONITOR; // just for test porpuses
+                        else
+                            fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;
                     end                           
                     else
                         fsm_devil_state_passive <= fsm_devil_state_passive;
+                end
+            // just for test porpuses, to see that there was a match
+            DEVIL_TEST_MONITOR:
+                begin
+                    fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;  
                 end
             DEVIL_TAKE_ACTIONS:
                 begin

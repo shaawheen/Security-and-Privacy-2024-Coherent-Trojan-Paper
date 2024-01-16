@@ -14,15 +14,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="485.417 ns"></ZoomStartTime>
-      <ZoomEndTime time="518.768 ns"></ZoomEndTime>
-      <Cursor1Time time="505.000 ns"></Cursor1Time>
+      <ZoomStartTime time="506.343 ns"></ZoomStartTime>
+      <ZoomEndTime time="519.132 ns"></ZoomEndTime>
+      <Cursor1Time time="521.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="229"></NameColumnWidth>
-      <ValueColumnWidth column_width="103"></ValueColumnWidth>
+      <ValueColumnWidth column_width="95"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="32" />
+   <WVObjectSize size="34" />
    <wvobject type="protoinst" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/s01_axi">
       <obj_property name="children_use_element_short_name">true</obj_property>
       <obj_property name="WaveformStyle">STYLE_ENUM_TRANSACTION</obj_property>
@@ -231,6 +231,15 @@
          <obj_property name="ElementShortName">acvalid</obj_property>
          <obj_property name="ObjectShortName">acvalid</obj_property>
       </wvobject>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/rdata">
+      <obj_property name="ElementShortName">rdata[127:0]</obj_property>
+      <obj_property name="ObjectShortName">rdata[127:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_in_fpga_inst/passive_devil_inst/w_cache_line_2_monitor">
+      <obj_property name="ElementShortName">w_cache_line_2_monitor[511:0]</obj_property>
+      <obj_property name="ObjectShortName">w_cache_line_2_monitor[511:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/cddata">
       <obj_property name="ElementShortName">cddata[127:0]</obj_property>
