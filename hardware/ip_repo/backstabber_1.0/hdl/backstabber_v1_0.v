@@ -294,8 +294,9 @@
 		input wire                                           s01_axi_rready,
         // Debug (temporary) IO
         output wire                                    [4:0] debug_snoop_state,
-        output wire                                    [4:0] debug_devil_state,
-        output wire                                    [4:0] debug_devil_state_active,
+        output wire                                    [4:0] debug_devil_passive_state,
+        output wire                                    [4:0] debug_devil_active_state,
+        output wire                                    [4:0] debug_devil_controller_state,
         output wire                                   [63:0] debug_counter,
         output wire                                   [31:0] debug_delay_reg,
         output wire                                   [31:0] debug_status,
@@ -436,6 +437,7 @@
     wire                      [3:0] w_snoop_state;
     wire                      [4:0] w_fsm_devil_state;
     wire                      [4:0] w_fsm_devil_state_active;
+    wire                      [4:0] w_fsm_devil_controller;
     wire                            w_devil_end;
     wire                            w_acready;
     wire                            w_devil_reply;
@@ -450,6 +452,8 @@
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
     wire                            w_external_mode;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
+
 
     wire    w_en;
     assign  w_en = w_control_reg[0];
@@ -549,6 +553,7 @@
     wire w_trigger_passive_path;
     wire w_trigger_active_path;
     assign w_trigger_passive_path = r_trigger_passive_path;
+    assign w_trigger_devil_controller = r_trigger_passive_path;
     assign w_trigger_active_path = r_trigger_active_path;
 
 
@@ -711,16 +716,17 @@
     assign dvm_sync_last_condition        = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 0);
     assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
 
-    assign debug_snoop_state        = snoop_state;
-    assign debug_devil_state        = w_fsm_devil_state;
-    assign debug_devil_state_active = w_fsm_devil_state_active;
-    assign debug_counter            = w_counter;
-    assign debug_delay_reg          = w_delay_reg;
-    assign debug_status             = w_write_status_reg;
-    assign debug_buff_0             = w_buff_0;
-    assign debug_buff_1             = w_buff_1;
-    assign debug_buff_2             = w_buff_2;
-    assign debug_buff_3             = w_buff_3;
+    assign debug_snoop_state            = snoop_state;
+    assign debug_devil_active_state     = w_fsm_devil_state;
+    assign debug_devil_passive_state    = w_fsm_devil_state_active;
+    assign debug_devil_controller_state = w_fsm_devil_controller;
+    assign debug_counter                = w_counter;
+    assign debug_delay_reg              = w_delay_reg;
+    assign debug_status                 = w_write_status_reg;
+    assign debug_buff_0                 = w_buff_0;
+    assign debug_buff_1                 = w_buff_1;
+    assign debug_buff_2                 = w_buff_2;
+    assign debug_buff_3                 = w_buff_3;
 
 	//main state-machine
 	always @(posedge ace_aclk)
@@ -1010,6 +1016,21 @@
     .o_wdata_15_data(w_write_cache_line[31+32*15:0+32*15])
     );
 
+    // Instantiation of devil-controller module
+    devil_controller #(
+		.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
+        .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
+        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
+        .DEVIL_EN(DEVIL_EN)
+    ) devil_controller_inst(
+        .ace_aclk(ace_aclk),
+        .ace_aresetn(ace_aresetn),
+        .i_cmd(0),
+        .i_trigger(w_trigger_devil_controller),
+        .o_fsm_devil_controller(w_fsm_devil_controller), 
+        .o_cache_line_2_monitor(w_cache_line_2_monitor)
+    );
+
     // Instantiation of devil-in-fpgs module
     devil_in_fpga #(
 		.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
@@ -1117,6 +1138,7 @@
         .o_cache_line(w_read_cache_line),
         .i_external_cache_line(w_write_cache_line),
         .o_external_mode(w_external_mode),
+        .i_cache_line_2_monitor(w_cache_line_2_monitor),
         // .o_end_active(),
         // .o_busy_active(),
         // .o_end_passive(),

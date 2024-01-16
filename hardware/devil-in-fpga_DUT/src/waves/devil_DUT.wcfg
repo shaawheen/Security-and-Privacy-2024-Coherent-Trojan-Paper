@@ -14,15 +14,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="506.343 ns"></ZoomStartTime>
-      <ZoomEndTime time="519.132 ns"></ZoomEndTime>
+      <ZoomStartTime time="496.600 ns"></ZoomStartTime>
+      <ZoomEndTime time="530.751 ns"></ZoomEndTime>
       <Cursor1Time time="521.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="229"></NameColumnWidth>
-      <ValueColumnWidth column_width="95"></ValueColumnWidth>
+      <ValueColumnWidth column_width="87"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="34" />
+   <WVObjectSize size="33" />
    <wvobject type="protoinst" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/s01_axi">
       <obj_property name="children_use_element_short_name">true</obj_property>
       <obj_property name="WaveformStyle">STYLE_ENUM_TRANSACTION</obj_property>
@@ -114,10 +114,6 @@
       <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_snoop_state">
          <obj_property name="ElementShortName">debug_snoop_state[4:0]</obj_property>
          <obj_property name="ObjectShortName">debug_snoop_state[4:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_devil_state">
-         <obj_property name="ElementShortName">debug_devil_state[4:0]</obj_property>
-         <obj_property name="ObjectShortName">debug_devil_state[4:0]</obj_property>
       </wvobject>
       <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_status">
          <obj_property name="ElementShortName">debug_status[31:0]</obj_property>
@@ -236,10 +232,6 @@
       <obj_property name="ElementShortName">rdata[127:0]</obj_property>
       <obj_property name="ObjectShortName">rdata[127:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
-   </wvobject>
-   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_in_fpga_inst/passive_devil_inst/w_cache_line_2_monitor">
-      <obj_property name="ElementShortName">w_cache_line_2_monitor[511:0]</obj_property>
-      <obj_property name="ObjectShortName">w_cache_line_2_monitor[511:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/cddata">
       <obj_property name="ElementShortName">cddata[127:0]</obj_property>
@@ -499,13 +491,13 @@
       <obj_property name="ElementShortName">debug_snoop_state[4:0]</obj_property>
       <obj_property name="ObjectShortName">debug_snoop_state[4:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/debug_devil_state">
-      <obj_property name="ElementShortName">debug_devil_state[4:0]</obj_property>
-      <obj_property name="ObjectShortName">debug_devil_state[4:0]</obj_property>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_in_fpga_inst/passive_devil_inst/fsm_devil_state_passive">
+      <obj_property name="ElementShortName">fsm_devil_state_passive[4:0]</obj_property>
+      <obj_property name="ObjectShortName">fsm_devil_state_passive[4:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/debug_devil_state_active">
-      <obj_property name="ElementShortName">debug_devil_state_active[4:0]</obj_property>
-      <obj_property name="ObjectShortName">debug_devil_state_active[4:0]</obj_property>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/o_fsm_devil_controller">
+      <obj_property name="ElementShortName">o_fsm_devil_controller[4:0]</obj_property>
+      <obj_property name="ObjectShortName">o_fsm_devil_controller[4:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_in_fpga_inst/passive_devil_inst/r_func">
       <obj_property name="ElementShortName">r_func[3:0]</obj_property>

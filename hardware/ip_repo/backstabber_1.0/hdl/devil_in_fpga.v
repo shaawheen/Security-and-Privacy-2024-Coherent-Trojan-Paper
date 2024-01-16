@@ -124,6 +124,7 @@
         input wire                         [2:0] i_external_awsnoop,
         output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line, 
+        input wire    [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_2_monitor,
         output wire                              o_end_active,
         output wire                              o_busy_active,
         output wire                              o_end_passive,
@@ -449,6 +450,7 @@
         .o_internal_adl_en(w_internal_adl_en),
         .o_internal_adt_en(w_internal_adt_en),
         .o_external_mode(w_external_mode),
+        .i_cache_line_2_monitor(i_cache_line_2_monitor),
 
         // test porpuses
         .o_counter(w_counter) 
