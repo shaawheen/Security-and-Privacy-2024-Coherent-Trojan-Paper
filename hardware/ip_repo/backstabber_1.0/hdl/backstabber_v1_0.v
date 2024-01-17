@@ -402,14 +402,15 @@
 //******************************************************************************
 // Devil-in-the-fpga
 //******************************************************************************
-    `define READ_ONCE           4'b0000
-    `define WRITE_LINE_UNIQUE   3'b001
-    `define CLEAN_INVALID       4'b1001
-    `define DVM_COMPLETE        4'b1110
-    `define DVM_MESSAGE         4'b1111
-    `define OKAY                2'b00
-    `define WRAP                2'b10
-    `define INCR                2'b01
+    `define READ_ONCE               4'b0000
+    `define WRITE_LINE_UNIQUE       3'b001
+    `define CLEAN_INVALID           4'b1001
+    `define DVM_COMPLETE            4'b1110
+    `define DVM_MESSAGE             4'b1111
+    `define OKAY                    2'b00
+    `define WRAP                    2'b10
+    `define INCR                    2'b01
+    `define CTRL_OUT_SIGNAL_WIDTH   (C_ACE_ADDR_WIDTH + 4 + C_ACE_ADDR_WIDTH + 3 + 2 + 4 + 1)
     
 // Devil-in-the-fpga AXI-Lite
     wire [C_S01_AXI_DATA_WIDTH-1:0] w_control_reg;
@@ -453,9 +454,14 @@
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
     wire                            w_external_mode;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
+    wire                            w_end_active_devil; 
+    wire                            w_end_passive_devil; 
+    wire [`CTRL_OUT_SIGNAL_WIDTH-1:0] w_signals_from_controller;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_from_devil;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_active_devil;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_passive_devil;
     wire                            w_pattern_match;
-
-
+    
     wire    w_en;
     assign  w_en = w_control_reg[0];
     wire    w_devil_en;
@@ -482,22 +488,22 @@
     wire [3:0] w_acsnoop_type;
     wire [31:0] w_base_addr_Data;
     wire [31:0] w_mem_size_Data;
-    wire [31:0] w_wdata_0_data;
-    wire [31:0] w_wdata_1_data;
-    wire [31:0] w_wdata_2_data;
-    wire [31:0] w_wdata_3_data;
-    wire [31:0] w_wdata_4_data;
-    wire [31:0] w_wdata_5_data;
-    wire [31:0] w_wdata_6_data;
-    wire [31:0] w_wdata_7_data;
-    wire [31:0] w_wdata_8_data;
-    wire [31:0] w_wdata_9_data;
-    wire [31:0] w_wdata_10_data;
-    wire [31:0] w_wdata_11_data;
-    wire [31:0] w_wdata_12_data;
-    wire [31:0] w_wdata_13_data;
-    wire [31:0] w_wdata_14_data;
-    wire [31:0] w_wdata_15_data;
+    // wire [31:0] w_wdata_0_data;
+    // wire [31:0] w_wdata_1_data;
+    // wire [31:0] w_wdata_2_data;
+    // wire [31:0] w_wdata_3_data;
+    // wire [31:0] w_wdata_4_data;
+    // wire [31:0] w_wdata_5_data;
+    // wire [31:0] w_wdata_6_data;
+    // wire [31:0] w_wdata_7_data;
+    // wire [31:0] w_wdata_8_data;
+    // wire [31:0] w_wdata_9_data;
+    // wire [31:0] w_wdata_10_data;
+    // wire [31:0] w_wdata_11_data;
+    // wire [31:0] w_wdata_12_data;
+    // wire [31:0] w_wdata_13_data;
+    // wire [31:0] w_wdata_14_data;
+    // wire [31:0] w_wdata_15_data;
 
     assign w_control_reg = {w_control_MONEN,    // bit 21
                             w_control_PDTEN,    // bit 20
@@ -1022,7 +1028,7 @@
 		.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
         .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
         .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
-        .DEVIL_EN(DEVIL_EN)
+        .CTRL_OUT_SIGNAL_WIDTH(`CTRL_OUT_SIGNAL_WIDTH)
     ) devil_controller_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
@@ -1030,6 +1036,17 @@
         .i_trigger(w_trigger_devil_controller),
         .o_fsm_devil_controller(w_fsm_devil_controller), 
         .o_cache_line_2_monitor(w_cache_line_2_monitor),
+        
+        // Internal Signals, from devil to devil controller  
+        .i_end_active_devil(w_end_active_devil),
+        .i_end_passive_devil(w_devil_end),
+        .i_end_reply(w_devil_reply),
+        .i_cache_line_active_devil(w_cache_line_from_devil),
+        .o_cache_line_active_devil(w_cache_line_active_devil),
+        .o_cache_line_passive_devil(w_cache_line_passive_devil),
+
+        // Internal Signals, from devil controller to devil passive
+        .o_controller_signals(w_signals_from_controller),
         .i_pattern_match(w_pattern_match)
     );
 
@@ -1038,6 +1055,7 @@
 		.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
         .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
         .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
+        .CTRL_IN_SIGNAL_WIDTH(`CTRL_OUT_SIGNAL_WIDTH), // width changed, I Devil <-> O Controller
         .DEVIL_EN(DEVIL_EN)
     ) devil_in_fpga_inst(
         .ace_aclk(ace_aclk),
@@ -1116,6 +1134,10 @@
         .i_buser(buser),
         .i_bvalid(bvalid),
 
+        // Internal Signals, from devil controller to devil passive
+        .i_controller_signals(w_signals_from_controller),
+        .o_pattern_match(w_pattern_match),
+
         .i_snoop_state(w_snoop_state),
         .o_fsm_devil_state(w_fsm_devil_state),
         .o_fsm_devil_state_active(w_fsm_devil_state_active),
@@ -1141,11 +1163,11 @@
         .i_external_cache_line(w_write_cache_line),
         .o_external_mode(w_external_mode),
         .i_cache_line_2_monitor(w_cache_line_2_monitor),
-        .o_pattern_match(w_pattern_match),
-        // .o_end_active(),
+        .o_end_active(w_end_active_devil),
         // .o_busy_active(),
-        // .o_end_passive(),
-        // .o_busy_passive(),
+        .o_devil_cache_line(w_cache_line_from_devil),
+        .i_cache_line_active_devil(w_cache_line_active_devil),
+        .i_cache_line_passive_devil(w_cache_line_passive_devil),
         .o_counter(w_counter) // test porpuses
     );
 

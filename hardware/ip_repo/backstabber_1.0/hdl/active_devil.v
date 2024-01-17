@@ -25,6 +25,7 @@ module active_devil #(
         parameter integer C_S_AXI_DATA_WIDTH    = 32, 
         parameter integer C_ACE_DATA_WIDTH      = 128,
         parameter integer C_ACE_ADDR_WIDTH      = 44,
+        parameter integer CTRL_IN_SIGNAL_WIDTH  = 1, 
         parameter integer DEVIL_STATE_SIZE      = 5 // 32 states
         )
         (
@@ -134,6 +135,9 @@ module active_devil #(
         input wire        [C_ACE_ADDR_WIDTH-1:0] i_external_awaddr,
         input wire                         [2:0] i_internal_awsnoop,
         input wire                         [2:0] i_external_awsnoop,
+        
+        // Internal Signalas, from devil controller to devil passive
+        input wire    [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
 
         output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line
@@ -179,12 +183,12 @@ module active_devil #(
 //------------------------------------------------------------------------------
 // REGISTERS
 //------------------------------------------------------------------------------
-    reg [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;     
-    reg   [DEVIL_STATE_SIZE-1:0] fsm_devil_state_active;        
-    reg                          r_end_op_active;
-    reg                          r_reply_active;
-    reg                  [127:0] r_buff[3:0]; // 4 elements of 16 bytes
-    reg                    [1:0] r_index_active;
+    reg   [C_S_AXI_DATA_WIDTH-1:0] r_status_reg;     
+    reg     [DEVIL_STATE_SIZE-1:0] fsm_devil_state_active;        
+    reg                            r_end_op_active;
+    reg                            r_reply_active;
+    reg                    [127:0] r_buff[3:0]; // 4 elements of 16 bytes
+    reg                      [1:0] r_index_active;
 
 //------------------------------------------------------------------------------
 // ACE INTERFACE 
@@ -291,6 +295,34 @@ module active_devil #(
     assign w_snooping   =   (fsm_devil_state_active != DEVIL_IDLE)
                         &&  (fsm_devil_state_active != DEVIL_FUNCTION)
                         &&  (fsm_devil_state_active != DEVIL_END_OP );
+    
+//------------------------------------------------------------------------------
+// INPUT/OUTPUT SIGNALS - DEVIL CONTROLLER
+//-----------------------------------------------------------------------------
+    wire  [C_ACE_ADDR_WIDTH-1:0] w_from_ctrl_araddr;
+    wire                   [3:0] w_from_ctrl_arsnoop;
+    wire  [C_ACE_ADDR_WIDTH-1:0] w_from_ctrl_awaddr;
+    wire                   [2:0] w_from_ctrl_awsnoop;
+    wire                   [1:0] w_from_ctrl_ardomain;
+    wire                   [3:0] w_from_ctrl_active_func;
+    wire                         w_reply;
+
+    // Internal Signals, from devil controller to devil passive (Output)
+    parameter CTRL_SIGNAL1_WIDTH = C_ACE_ADDR_WIDTH;
+    parameter CTRL_SIGNAL2_WIDTH = (CTRL_SIGNAL1_WIDTH + 4);
+    parameter CTRL_SIGNAL3_WIDTH = (CTRL_SIGNAL2_WIDTH + C_ACE_ADDR_WIDTH);
+    parameter CTRL_SIGNAL4_WIDTH = (CTRL_SIGNAL3_WIDTH + 3);
+    parameter CTRL_SIGNAL5_WIDTH = (CTRL_SIGNAL4_WIDTH + 2);
+    parameter CTRL_SIGNAL6_WIDTH = (CTRL_SIGNAL5_WIDTH + 4);
+    parameter CTRL_SIGNAL7_WIDTH = (CTRL_SIGNAL6_WIDTH + 1);
+    
+    assign w_from_ctrl_araddr       = i_controller_signals[CTRL_SIGNAL1_WIDTH-1:0];
+    assign w_from_ctrl_arsnoop      = i_controller_signals[CTRL_SIGNAL2_WIDTH-1:CTRL_SIGNAL1_WIDTH];
+    assign w_from_ctrl_awaddr       = i_controller_signals[CTRL_SIGNAL3_WIDTH-1:CTRL_SIGNAL2_WIDTH];
+    assign w_from_ctrl_awsnoop      = i_controller_signals[CTRL_SIGNAL4_WIDTH-1:CTRL_SIGNAL3_WIDTH];
+    assign w_from_ctrl_ardomain     = i_controller_signals[CTRL_SIGNAL5_WIDTH-1:CTRL_SIGNAL4_WIDTH];
+    assign w_from_ctrl_active_func  = i_controller_signals[CTRL_SIGNAL6_WIDTH-1:CTRL_SIGNAL5_WIDTH];
+    assign w_reply                  = i_controller_signals[CTRL_SIGNAL7_WIDTH-1:CTRL_SIGNAL6_WIDTH];
 
 //------------------------------------------------------------------------------
 // DEVIL-IN-THE-FPGA CONTROL REGISTERS
@@ -329,6 +361,10 @@ module active_devil #(
     begin
     if(~ace_aresetn)
         begin
+        r_buff[0] <= 0;
+        r_buff[1] <= 0;
+        r_buff[2] <= 0;
+        r_buff[3] <= 0;
         r_index_active <= 0;
         r_reply_active <= 0;
         r_end_op_active <= 0;
@@ -353,6 +389,8 @@ module active_devil #(
                         r_end_op_active <= 0;    
                     end                  
                 end
+            // TODO: Change the name of the functions to read and write snoop, 
+            //       and also remove the unsued states
             DEVIL_FUNCTION: // 6
                 begin
                     case (w_func[3:0])
@@ -461,7 +499,7 @@ module active_devil #(
                 end                                                                    
             endcase            
         end
-    end        
+    end    
 
 endmodule
 

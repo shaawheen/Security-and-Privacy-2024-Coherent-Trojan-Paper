@@ -24,6 +24,7 @@
         parameter integer C_ACE_DATA_WIDTH      = 128,
         parameter integer C_ACE_ADDR_WIDTH      = 44,
         parameter integer DEVIL_EN              = 10,
+        parameter integer CTRL_IN_SIGNAL_WIDTH  = 1 ,
         parameter integer DEVIL_STATE_SIZE      = 5 // 32 states
         )
         (
@@ -103,6 +104,15 @@
         input  wire                              i_buser,
         input  wire                              i_bvalid,
 
+        // Internal Signals, from devil controller to devil passive
+        input  wire   [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
+        output wire                              o_pattern_match,
+
+        // Internal Signals, from Devil to Devil Controller
+        output wire [(C_ACE_DATA_WIDTH*4)-1:0] o_devil_cache_line,
+        input  wire [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_active_devil,
+        input  wire [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_passive_devil,
+
         input  wire                        [3:0] i_snoop_state,
         output wire       [DEVIL_STATE_SIZE-1:0] o_fsm_devil_state,
         output wire       [DEVIL_STATE_SIZE-1:0] o_fsm_devil_state_active,
@@ -130,7 +140,6 @@
         output wire                              o_end_passive,
         output wire                              o_busy_passive,
         output wire                              o_external_mode,
-        output wire                              o_pattern_match,
         output wire                       [63:0] o_counter // test porpuses
     );
 
@@ -314,13 +323,15 @@
     wire                              w_internal_adt_en;
 
     // Internal Signals
-    wire w_trigger_active;
-    wire w_trigger_from_passive;
-    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line;
-    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_internal_cache_line;
-    wire w_action_taken; // set signal on take action passive state
-    wire w_trans_monitored; // set signal on monitor transaction passive state
-    wire w_pattern_match; // signal ON when there is a pattern match
+    wire                             w_trigger_active;
+    wire                             w_trigger_from_passive;
+    wire  [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line;
+    wire  [(C_ACE_DATA_WIDTH*4)-1:0] w_active_devil_cache_line;
+    wire                             w_action_taken; // set signal on take action passive state
+    wire                             w_trans_monitored; // set signal on monitor transaction passive state
+    wire  [CTRL_IN_SIGNAL_WIDTH-1:0] w_to_ctrl_signals;
+    wire                             w_pattern_match;
+
 
     assign o_fsm_devil_state        =  w_fsm_devil_state;
     assign o_fsm_devil_state_active =  w_fsm_devil_state_active;
@@ -334,16 +345,21 @@
     assign o_busy_passive           = w_busy_passive;
     assign w_func                   = (w_trigger_from_passive ? w_internal_func : i_control_reg[8:5]);
     assign o_external_mode          = w_external_mode;
+    assign o_controller_signals     = w_to_ctrl_signals;
+    assign o_devil_cache_line       = w_active_devil_cache_line;
     assign o_pattern_match          = w_pattern_match;
 
     assign w_trigger_active = i_trigger_active || w_trigger_from_passive ;
-    assign w_cache_line = (w_action_taken || w_trans_monitored) ? w_internal_cache_line : i_external_cache_line;
+    // This line now is not used, the controller of the cache line to write is 
+    // delegated to the controller of the devil
+    // assign w_cache_line = (w_action_taken || w_trans_monitored) ? i_devil_cache_line : i_external_cache_line;
 
     // Instantiation Passive devil module
     passive_devil #(
 		.C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
         .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
-        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH)
+        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
+        .CTRL_IN_SIGNAL_WIDTH(CTRL_IN_SIGNAL_WIDTH)
     ) passive_devil_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
@@ -437,12 +453,10 @@
         .o_busy(w_busy_passive),
         .i_acaddr_snapshot(i_acaddr_snapshot),
         .i_acsnoop_snapshot(i_acsnoop_snapshot),
-        .i_cache_line(w_cache_line),
         .o_responding(w_responding),
         .i_active_end(w_end_active),
         .o_action_taken(w_action_taken),
         .o_trans_monitored(w_trans_monitored),
-        .o_pattern_match(w_pattern_match),
         
         // Internal Signals, from Devil Passive to Devil Active
         .o_internal_func(w_internal_func),
@@ -454,7 +468,15 @@
         .o_internal_adl_en(w_internal_adl_en),
         .o_internal_adt_en(w_internal_adt_en),
         .o_external_mode(w_external_mode),
+
+        // Internal Signalas, from devil controller to devil passive
+        .i_controller_signals(i_controller_signals),
+        .o_pattern_match(w_pattern_match),
+
         .i_cache_line_2_monitor(i_cache_line_2_monitor),
+
+        // Internal Signals, Controller In/Out Cache Line
+        .i_cache_line(i_cache_line_passive_devil),
 
         // test porpuses
         .o_counter(w_counter) 
@@ -464,7 +486,8 @@
     active_devil #(
 		.C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
         .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
-        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH)
+        .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
+        .CTRL_IN_SIGNAL_WIDTH(CTRL_IN_SIGNAL_WIDTH)
     ) active_devil_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
@@ -573,8 +596,12 @@
         .i_internal_ardomain(w_internal_ardomain),
         .i_external_ardomain(2'b10), // outer-shareable by default
 
-        .o_cache_line(w_internal_cache_line),       
-        .i_cache_line(w_cache_line)
+        // Internal Signalas, from devil controller to devil passive
+        .i_controller_signals(i_controller_signals),
+
+        // Internal Signals, Controller In/Out Cache Line
+        .o_cache_line(w_active_devil_cache_line),       
+        .i_cache_line(i_cache_line_active_devil)
     );                           
 
     endmodule

@@ -25,6 +25,7 @@ module passive_devil #(
         parameter integer C_S_AXI_DATA_WIDTH    = 32, 
         parameter integer C_ACE_DATA_WIDTH      = 128,
         parameter integer C_ACE_ADDR_WIDTH      = 44,
+        parameter integer CTRL_IN_SIGNAL_WIDTH  = 1, 
         parameter integer DEVIL_STATE_SIZE      = 5 // 32 states
         )
         (
@@ -122,10 +123,8 @@ module passive_devil #(
         input  wire                        [3:0] i_acsnoop_snapshot,
         output wire                              o_responding,
         input wire                               i_active_end,
-        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
         output wire                              o_action_taken,
         output wire                              o_trans_monitored, 
-        output wire                              o_pattern_match, 
 
         // Internal Signals, from Devil Passive to Devil Active
         output wire                        [3:0] o_internal_func, 
@@ -137,7 +136,14 @@ module passive_devil #(
         output wire                              o_internal_adl_en,
         output wire                              o_internal_adt_en,
         output wire                              o_external_mode,
+
+        // Internal Signalas, from devil controller to devil passive
+        input wire    [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_2_monitor, 
+        output wire                              o_pattern_match,
+
+        // Internal Signals, Controller In/Out Cache Line
+        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
 
         output wire                       [63:0] o_counter // test porpuses
     );
@@ -145,21 +151,21 @@ module passive_devil #(
 //------------------------------------------------------------------------------
 // FSM STATES AND DEFINES
 //------------------------------------------------------------------------------
-    parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE              = 0,
-                                        DEVIL_ONE_SHOT_DELAY    = 1,
-                                        DEVIL_CONTINUOS_DELAY   = 2,
-                                        DEVIL_RESPONSE          = 3,
-                                        DEVIL_DELAY             = 4,
-                                        DEVIL_FILTER            = 5,
-                                        DEVIL_FUNCTION          = 6,
-                                        DEVIL_END_OP            = 7,
-                                        DEVIL_DUMMY_REPLY       = 8,
-                                        DEVIL_END_REPLY         = 9,
-                                        DEVIL_REPLY             = 10,
-                                        DEVIL_MONITOR_TRANS     = 11,
-                                        DEVIL_TAKE_ACTIONS      = 12,
-                                        DEVIL_SNOOP_RESPONSE    = 13, 
-                                        DEVIL_TEST_MONITOR      = 14;
+    parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE                  = 0,
+                                        DEVIL_ONE_SHOT_DELAY        = 1,
+                                        DEVIL_CONTINUOS_DELAY       = 2,
+                                        DEVIL_RESPONSE              = 3,
+                                        DEVIL_DELAY                 = 4,
+                                        DEVIL_FILTER                = 5,
+                                        DEVIL_FUNCTION              = 6,
+                                        DEVIL_END_OP                = 7,
+                                        DEVIL_DUMMY_REPLY           = 8,
+                                        DEVIL_END_REPLY             = 9,
+                                        DEVIL_REPLY                 = 10,
+                                        DEVIL_MONITOR_TRANS         = 11,
+                                        DEVIL_TAKE_ACTIONS          = 12,
+                                        DEVIL_SNOOP_RESPONSE        = 13, 
+                                        DEVIL_MONITOR_TRANS_WAIT    = 14;
 
     `define WRAP                2'b10
     `define INCR                2'b01
@@ -188,9 +194,9 @@ module passive_devil #(
     reg                    [7:0] r_burst_cnt;
     reg                          r_trigger_active;
     reg                          r_action_taken;
-    reg                          r_pattern_match;
+    reg                          r_trans_mont_end;
     reg                          r_trans_monitored;
-    reg                    [3:0] r_func;
+    reg                    [3:0] r_active_func;
     reg                          r_internal_adl_en;
     reg                          r_internal_adt_en;
     reg   [C_ACE_ADDR_WIDTH-1:0] r_araddr;
@@ -319,11 +325,10 @@ module passive_devil #(
     assign o_busy       = (fsm_devil_state_passive != DEVIL_IDLE);
     assign o_responding = (fsm_devil_state_passive == DEVIL_SNOOP_RESPONSE || fsm_devil_state_passive == DEVIL_REPLY);
 
-    assign o_internal_func      = r_func;
+    assign o_internal_func      = r_active_func;
     assign o_trigger_active     = r_trigger_active;
     assign o_action_taken       = r_action_taken;
     assign o_trans_monitored    = r_trans_monitored;
-    assign o_pattern_match      = r_pattern_match;
     assign o_external_mode      = (w_adl_en || w_adt_en); // Informes when an action is trigger by PS 
     assign o_internal_adl_en    = r_internal_adl_en;
     assign o_internal_adt_en    = r_internal_adt_en;
@@ -334,13 +339,46 @@ module passive_devil #(
     assign w_addr_filter    = (i_acaddr_snapshot[31:0] >= i_base_addr_reg[31:0]) && (i_acaddr_snapshot[31:0] < (i_base_addr_reg[31:0] + i_addr_size_reg[31:0])) ? 1 : 0;
 
 //------------------------------------------------------------------------------
+// INPUT/OUTPUT SIGNALS - DEVIL CONTROLLER
+//-----------------------------------------------------------------------------
+    wire  [C_ACE_ADDR_WIDTH-1:0] w_from_ctrl_araddr;
+    wire                   [3:0] w_from_ctrl_arsnoop;
+    wire  [C_ACE_ADDR_WIDTH-1:0] w_from_ctrl_awaddr;
+    wire                   [2:0] w_from_ctrl_awsnoop;
+    wire                   [1:0] w_from_ctrl_ardomain;
+    wire                   [3:0] w_from_ctrl_active_func;
+    wire                         w_reply;
+
+    reg                            r_pattern_match;
+
+    // Internal Signals, from devil controller to devil passive (Output)
+    parameter CTRL_SIGNAL1_WIDTH = C_ACE_ADDR_WIDTH;
+    parameter CTRL_SIGNAL2_WIDTH = (CTRL_SIGNAL1_WIDTH + 4);
+    parameter CTRL_SIGNAL3_WIDTH = (CTRL_SIGNAL2_WIDTH + C_ACE_ADDR_WIDTH);
+    parameter CTRL_SIGNAL4_WIDTH = (CTRL_SIGNAL3_WIDTH + 3);
+    parameter CTRL_SIGNAL5_WIDTH = (CTRL_SIGNAL4_WIDTH + 2);
+    parameter CTRL_SIGNAL6_WIDTH = (CTRL_SIGNAL5_WIDTH + 4);
+    parameter CTRL_SIGNAL7_WIDTH = (CTRL_SIGNAL6_WIDTH + 1);
+    
+    assign w_from_ctrl_araddr       = i_controller_signals[CTRL_SIGNAL1_WIDTH-1:0];
+    assign w_from_ctrl_arsnoop      = i_controller_signals[CTRL_SIGNAL2_WIDTH-1:CTRL_SIGNAL1_WIDTH];
+    assign w_from_ctrl_awaddr       = i_controller_signals[CTRL_SIGNAL3_WIDTH-1:CTRL_SIGNAL2_WIDTH];
+    assign w_from_ctrl_awsnoop      = i_controller_signals[CTRL_SIGNAL4_WIDTH-1:CTRL_SIGNAL3_WIDTH];
+    assign w_from_ctrl_ardomain     = i_controller_signals[CTRL_SIGNAL5_WIDTH-1:CTRL_SIGNAL4_WIDTH];
+    assign w_from_ctrl_active_func  = i_controller_signals[CTRL_SIGNAL6_WIDTH-1:CTRL_SIGNAL5_WIDTH];
+    assign w_reply                  = i_controller_signals[CTRL_SIGNAL7_WIDTH-1:CTRL_SIGNAL6_WIDTH];
+
+    // Internal Signals, from devil passive to devil controller 
+    assign o_pattern_match          = r_pattern_match;
+
+//------------------------------------------------------------------------------
 // FSM
 //------------------------------------------------------------------------------
     always @(posedge ace_aclk)
     begin
     if(~ace_aresetn)
         begin
-        r_func <= 0;
+        r_active_func <= 0;
         r_reply <= 0;
         r_end_op <= 0;
         r_cdlast <= 0;
@@ -358,6 +396,7 @@ module passive_devil #(
         r_status_reg <= 0;
         r_action_taken <= 0; 
         r_pattern_match <= 0;
+        r_trans_mont_end <= 0;
         r_trigger_active <= 0;
         r_internal_adl_en <= 0;
         r_internal_adt_en <= 0;
@@ -419,6 +458,7 @@ module passive_devil #(
                 begin
                     r_araddr <= i_acaddr_snapshot;
                     r_arsnoop <= i_acsnoop_snapshot;
+                    r_trans_mont_end <= 0;
                     r_trigger_active <= 1;
                     r_trans_monitored <= 1;
                     r_internal_adl_en <= 1; // Enable Read Snoop (internal trigger)
@@ -426,40 +466,83 @@ module passive_devil #(
                     r_ardomain <= 2'b00; 
                     r_arsnoop <= 4'b0000; 
                     // r_internal_adt_en <= 0; // En Write Snoop (internal trigger)
-                    r_func <= `ADL; // Read snoop
+                    r_active_func <= `ADL; // Read snoop
+                    fsm_devil_state_passive <= DEVIL_MONITOR_TRANS_WAIT;
+                end
+            DEVIL_MONITOR_TRANS_WAIT:
+                begin
                     if (i_active_end)
                     begin
+                        r_trans_mont_end <= 1;
                         r_trigger_active <= 0;
                         r_internal_adl_en <= 0;
-                        if(i_cache_line_2_monitor == i_cache_line) // just for test porpuses
-                            begin 
-                                r_pattern_match <= 1;
-                                fsm_devil_state_passive  <= DEVIL_TEST_MONITOR; // just for test porpuses
-                            end
-                        else
-                            fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;
+                        fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;
                     end                           
                     else
                         fsm_devil_state_passive <= fsm_devil_state_passive;
                 end
-            // just for test porpuses, to see that there was a match
-            DEVIL_TEST_MONITOR:
-                begin
-                    fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;  
-                end
             DEVIL_TAKE_ACTIONS:
                 begin
-                    fsm_devil_state_passive  <= DEVIL_FUNCTION;  
-                    r_pattern_match <= 0;
-                    r_araddr <= 0;
-                    r_arsnoop <= 0;   
-                    r_awsnoop <= 0;
-                    r_ardomain <= 2'b10; // outer shareable
-                    r_awaddr <= 0;  
-                    // No action
-                    r_action_taken <= 0; 
-                    // TO IMPLEMENT
+                    if(!w_mon_en)
+                        fsm_devil_state_passive <= DEVIL_FUNCTION;
+                    else 
+                    begin
+                        // wait for the devil controller signal to keep going 
+                        if(w_reply) 
+                            fsm_devil_state_passive <= DEVIL_FUNCTION;
+                        else
+                            fsm_devil_state_passive <= fsm_devil_state_passive;
+                    end
                 end
+            // DEVIL_TAKE_ACTIONS:
+            //     begin
+            //         r_pattern_match <= 0;
+
+            //         // Config Active Devil ACE transaction
+            //         r_araddr <= w_from_ctrl_araddr;
+            //         r_arsnoop <= w_from_ctrl_arsnoop;
+            //         r_awaddr <= w_from_ctrl_awaddr;
+            //         r_awsnoop <= w_from_ctrl_awsnoop;
+            //         r_ardomain <= w_from_ctrl_ardomain;
+
+            //         // Type of active function to be performed
+            //         r_active_func <= w_from_ctrl_active_func; 
+
+            //         if(w_from_ctrl_active_func == `ADL)
+            //             begin
+            //                 r_trigger_active <= 1;
+            //                 r_internal_adl_en <= 1; // Enable Read Snoop (internal trigger)
+            //             end
+            //         else if(w_from_ctrl_active_func == `ADT)
+            //             begin
+            //                 r_trigger_active <= 1;
+            //                 r_internal_adt_en <= 1; // En Write Snoop (internal trigger)
+            //             end
+            //         else
+                    
+            //         // this register is used to inform that active devil performed 
+            //         // an action, e.g., read snoop. This signal is used to choose
+            //         // the source of the cache line, when zero, we are using a
+            //         // cache line sent by APU/PS, when one, we are using a cache
+            //         // line sent by active devil (i.e., that was snooped)
+            //         r_action_taken <= 0;       
+
+            //         fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS_WAIT;  
+            //     end
+            // DEVIL_TAKE_ACTIONS_WAIT:
+            //     begin
+            //         if (i_active_end)
+            //         begin
+            //             r_trigger_active <= 0;
+            //             r_internal_adl_en <= 0;
+            //             r_internal_adt_en <= 0;
+            //             fsm_devil_state_passive  <= DEVIL_FUNCTION;
+            //         end                           
+            //         else
+            //             fsm_devil_state_passive <= fsm_devil_state_passive;
+            //     end
+            // TODO: Change the name of the functions and also remove the unsued 
+            //      states
             DEVIL_FUNCTION: // 6
                 begin
                     case (w_func[3:0])
