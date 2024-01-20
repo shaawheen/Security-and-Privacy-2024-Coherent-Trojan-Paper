@@ -299,31 +299,8 @@ module active_devil #(
 //------------------------------------------------------------------------------
 // INPUT/OUTPUT SIGNALS - DEVIL CONTROLLER
 //-----------------------------------------------------------------------------
-    wire  [C_ACE_ADDR_WIDTH-1:0] w_from_ctrl_araddr;
-    wire                   [3:0] w_from_ctrl_arsnoop;
-    wire  [C_ACE_ADDR_WIDTH-1:0] w_from_ctrl_awaddr;
-    wire                   [2:0] w_from_ctrl_awsnoop;
-    wire                   [1:0] w_from_ctrl_ardomain;
-    wire                   [3:0] w_from_ctrl_active_func;
-    wire                         w_reply;
-
-    // Internal Signals, from devil controller to devil passive (Output)
-    parameter CTRL_SIGNAL1_WIDTH = C_ACE_ADDR_WIDTH;
-    parameter CTRL_SIGNAL2_WIDTH = (CTRL_SIGNAL1_WIDTH + 4);
-    parameter CTRL_SIGNAL3_WIDTH = (CTRL_SIGNAL2_WIDTH + C_ACE_ADDR_WIDTH);
-    parameter CTRL_SIGNAL4_WIDTH = (CTRL_SIGNAL3_WIDTH + 3);
-    parameter CTRL_SIGNAL5_WIDTH = (CTRL_SIGNAL4_WIDTH + 2);
-    parameter CTRL_SIGNAL6_WIDTH = (CTRL_SIGNAL5_WIDTH + 4);
-    parameter CTRL_SIGNAL7_WIDTH = (CTRL_SIGNAL6_WIDTH + 1);
+    `include "devil_ctrl_interfaces.vh"
     
-    assign w_from_ctrl_araddr       = i_controller_signals[CTRL_SIGNAL1_WIDTH-1:0];
-    assign w_from_ctrl_arsnoop      = i_controller_signals[CTRL_SIGNAL2_WIDTH-1:CTRL_SIGNAL1_WIDTH];
-    assign w_from_ctrl_awaddr       = i_controller_signals[CTRL_SIGNAL3_WIDTH-1:CTRL_SIGNAL2_WIDTH];
-    assign w_from_ctrl_awsnoop      = i_controller_signals[CTRL_SIGNAL4_WIDTH-1:CTRL_SIGNAL3_WIDTH];
-    assign w_from_ctrl_ardomain     = i_controller_signals[CTRL_SIGNAL5_WIDTH-1:CTRL_SIGNAL4_WIDTH];
-    assign w_from_ctrl_active_func  = i_controller_signals[CTRL_SIGNAL6_WIDTH-1:CTRL_SIGNAL5_WIDTH];
-    assign w_reply                  = i_controller_signals[CTRL_SIGNAL7_WIDTH-1:CTRL_SIGNAL6_WIDTH];
-
 //------------------------------------------------------------------------------
 // DEVIL-IN-THE-FPGA CONTROL REGISTERS
 //------------------------------------------------------------------------------
@@ -391,7 +368,7 @@ module active_devil #(
                 end
             // TODO: Change the name of the functions to read and write snoop, 
             //       and also remove the unsued states
-            DEVIL_FUNCTION: // 6
+            DEVIL_FUNCTION: // 1
                 begin
                     case (w_func[3:0])
                         `OSH  : 

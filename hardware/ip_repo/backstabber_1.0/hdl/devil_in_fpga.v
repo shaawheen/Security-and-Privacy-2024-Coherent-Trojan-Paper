@@ -106,12 +106,14 @@
 
         // Internal Signals, from devil controller to devil passive
         input  wire   [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
-        output wire                              o_pattern_match,
 
         // Internal Signals, from Devil to Devil Controller
         output wire [(C_ACE_DATA_WIDTH*4)-1:0] o_devil_cache_line,
         input  wire [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_active_devil,
         input  wire [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_passive_devil,
+        input  wire                            i_internal_adl_en,
+        input  wire                            i_internal_adt_en,
+        input  wire                            i_trigger_active,
 
         input  wire                        [3:0] i_snoop_state,
         output wire       [DEVIL_STATE_SIZE-1:0] o_fsm_devil_state,
@@ -124,7 +126,6 @@
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_base_addr_reg,  
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_addr_size_reg,  
         input  wire                              i_trigger_passive,
-        input  wire                              i_trigger_active,
         output wire                              o_reply,
         input  wire       [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
         input  wire                        [3:0] i_acsnoop_snapshot,
@@ -142,6 +143,13 @@
         output wire                              o_external_mode,
         output wire                       [63:0] o_counter // test porpuses
     );
+
+//------------------------------------------------------------------------------
+// INPUT/OUTPUT SIGNALS - DEVIL CONTROLLER
+//-----------------------------------------------------------------------------
+    `include "devil_ctrl_interfaces.vh"
+
+//-----------------------------------------------------------------------------
 
     wire w_ace_passive_module;
     wire w_ace_active_module;
@@ -301,7 +309,7 @@
     wire     [C_S_AXI_DATA_WIDTH-1:0] w_write_status_reg;
 
     wire                              w_end;
-    wire                              w_reply;
+    wire                              w_reply_passive;
     wire                              w_reply_active;
     wire                              w_busy;
     wire   [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
@@ -330,13 +338,11 @@
     wire                             w_action_taken; // set signal on take action passive state
     wire                             w_trans_monitored; // set signal on monitor transaction passive state
     wire  [CTRL_IN_SIGNAL_WIDTH-1:0] w_to_ctrl_signals;
-    wire                             w_pattern_match;
-
 
     assign o_fsm_devil_state        =  w_fsm_devil_state;
     assign o_fsm_devil_state_active =  w_fsm_devil_state_active;
     assign o_write_status_reg       =  w_write_status_reg;
-    assign o_reply                  = (w_external_mode ? w_reply_active : w_reply);   
+    assign o_reply                  = (w_external_mode ? w_reply_active : w_reply_passive);   
     assign o_cache_line             =  w_read_cache_line;
     assign o_counter                =  w_counter;
     assign o_end_active             = w_end_active; 
@@ -347,7 +353,6 @@
     assign o_external_mode          = w_external_mode;
     assign o_controller_signals     = w_to_ctrl_signals;
     assign o_devil_cache_line       = w_active_devil_cache_line;
-    assign o_pattern_match          = w_pattern_match;
 
     assign w_trigger_active = i_trigger_active || w_trigger_from_passive ;
     // This line now is not used, the controller of the cache line to write is 
@@ -449,7 +454,7 @@
         .o_end(w_end_passive),
         .i_trigger_passive(i_trigger_passive),
         .o_trigger_active(w_trigger_from_passive),
-        .o_reply(w_reply),
+        .o_reply(w_reply_passive),
         .o_busy(w_busy_passive),
         .i_acaddr_snapshot(i_acaddr_snapshot),
         .i_acsnoop_snapshot(i_acsnoop_snapshot),
@@ -471,7 +476,6 @@
 
         // Internal Signalas, from devil controller to devil passive
         .i_controller_signals(i_controller_signals),
-        .o_pattern_match(w_pattern_match),
 
         .i_cache_line_2_monitor(i_cache_line_2_monitor),
 
@@ -581,10 +585,10 @@
         .i_acsnoop_snapshot(i_acsnoop_snapshot),
 
         // Internal Signals, from Devil Passive to Devil Active
-        .i_func(w_func),
+        .i_func((i_trigger_active ? i_controller_signals[CTRL_SIGNAL6_WIDTH-1:CTRL_SIGNAL5_WIDTH] : w_func)),
         .i_trigger_from_passive(w_trigger_from_passive),
-        .i_internal_adl_en(w_internal_adl_en),
-        .i_internal_adt_en(w_internal_adt_en),
+        .i_internal_adl_en((w_internal_adl_en || i_internal_adl_en )),
+        .i_internal_adt_en((w_internal_adt_en || i_internal_adt_en )),
         .i_internal_araddr(w_internal_araddr),
         .i_external_araddr(i_external_araddr),
         .i_internal_arsnoop(w_internal_arsnoop),

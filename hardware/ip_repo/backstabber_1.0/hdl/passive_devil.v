@@ -140,7 +140,6 @@ module passive_devil #(
         // Internal Signalas, from devil controller to devil passive
         input wire    [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_2_monitor, 
-        output wire                              o_pattern_match,
 
         // Internal Signals, Controller In/Out Cache Line
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
@@ -341,35 +340,7 @@ module passive_devil #(
 //------------------------------------------------------------------------------
 // INPUT/OUTPUT SIGNALS - DEVIL CONTROLLER
 //-----------------------------------------------------------------------------
-    wire  [C_ACE_ADDR_WIDTH-1:0] w_from_ctrl_araddr;
-    wire                   [3:0] w_from_ctrl_arsnoop;
-    wire  [C_ACE_ADDR_WIDTH-1:0] w_from_ctrl_awaddr;
-    wire                   [2:0] w_from_ctrl_awsnoop;
-    wire                   [1:0] w_from_ctrl_ardomain;
-    wire                   [3:0] w_from_ctrl_active_func;
-    wire                         w_reply;
-
-    reg                            r_pattern_match;
-
-    // Internal Signals, from devil controller to devil passive (Output)
-    parameter CTRL_SIGNAL1_WIDTH = C_ACE_ADDR_WIDTH;
-    parameter CTRL_SIGNAL2_WIDTH = (CTRL_SIGNAL1_WIDTH + 4);
-    parameter CTRL_SIGNAL3_WIDTH = (CTRL_SIGNAL2_WIDTH + C_ACE_ADDR_WIDTH);
-    parameter CTRL_SIGNAL4_WIDTH = (CTRL_SIGNAL3_WIDTH + 3);
-    parameter CTRL_SIGNAL5_WIDTH = (CTRL_SIGNAL4_WIDTH + 2);
-    parameter CTRL_SIGNAL6_WIDTH = (CTRL_SIGNAL5_WIDTH + 4);
-    parameter CTRL_SIGNAL7_WIDTH = (CTRL_SIGNAL6_WIDTH + 1);
-    
-    assign w_from_ctrl_araddr       = i_controller_signals[CTRL_SIGNAL1_WIDTH-1:0];
-    assign w_from_ctrl_arsnoop      = i_controller_signals[CTRL_SIGNAL2_WIDTH-1:CTRL_SIGNAL1_WIDTH];
-    assign w_from_ctrl_awaddr       = i_controller_signals[CTRL_SIGNAL3_WIDTH-1:CTRL_SIGNAL2_WIDTH];
-    assign w_from_ctrl_awsnoop      = i_controller_signals[CTRL_SIGNAL4_WIDTH-1:CTRL_SIGNAL3_WIDTH];
-    assign w_from_ctrl_ardomain     = i_controller_signals[CTRL_SIGNAL5_WIDTH-1:CTRL_SIGNAL4_WIDTH];
-    assign w_from_ctrl_active_func  = i_controller_signals[CTRL_SIGNAL6_WIDTH-1:CTRL_SIGNAL5_WIDTH];
-    assign w_reply                  = i_controller_signals[CTRL_SIGNAL7_WIDTH-1:CTRL_SIGNAL6_WIDTH];
-
-    // Internal Signals, from devil passive to devil controller 
-    assign o_pattern_match          = r_pattern_match;
+    `include "devil_ctrl_interfaces.vh"
 
 //------------------------------------------------------------------------------
 // FSM
@@ -395,7 +366,6 @@ module passive_devil #(
         r_burst_cnt <= 0;
         r_status_reg <= 0;
         r_action_taken <= 0; 
-        r_pattern_match <= 0;
         r_trans_mont_end <= 0;
         r_trigger_active <= 0;
         r_internal_adl_en <= 0;

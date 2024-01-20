@@ -18,6 +18,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 `timescale 1 ns / 1 ps
+    
 
 	module backstabber_v1_0 #
 	(
@@ -306,7 +307,9 @@
         output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_3
 	);
 
-	wire                          ac_handshake;
+    `include "devil_ctrl_defines.vh"
+	
+    wire                          ac_handshake;
     wire                          r_handshake;
     wire                          dvm_operation_last_condition;
     wire                          dvm_operation_multi_condition;
@@ -410,7 +413,6 @@
     `define OKAY                    2'b00
     `define WRAP                    2'b10
     `define INCR                    2'b01
-    `define CTRL_OUT_SIGNAL_WIDTH   (C_ACE_ADDR_WIDTH + 4 + C_ACE_ADDR_WIDTH + 3 + 2 + 4 + 1)
     
 // Devil-in-the-fpga AXI-Lite
     wire [C_S01_AXI_DATA_WIDTH-1:0] w_control_reg;
@@ -460,7 +462,9 @@
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_from_devil;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_active_devil;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_passive_devil;
-    wire                            w_pattern_match;
+    wire                            w_internal_adl_en;
+    wire                            w_internal_adt_en;
+    wire                            w_trigger_active_from_ctrl;
     
     wire    w_en;
     assign  w_en = w_control_reg[0];
@@ -1044,10 +1048,12 @@
         .i_cache_line_active_devil(w_cache_line_from_devil),
         .o_cache_line_active_devil(w_cache_line_active_devil),
         .o_cache_line_passive_devil(w_cache_line_passive_devil),
+        .o_internal_adl_en(w_internal_adl_en),
+        .o_internal_adt_en(w_internal_adt_en),
+        .o_trigger_active(w_trigger_active_from_ctrl),
 
         // Internal Signals, from devil controller to devil passive
-        .o_controller_signals(w_signals_from_controller),
-        .i_pattern_match(w_pattern_match)
+        .o_controller_signals(w_signals_from_controller)
     );
 
     // Instantiation of devil-in-fpgs module
@@ -1136,7 +1142,11 @@
 
         // Internal Signals, from devil controller to devil passive
         .i_controller_signals(w_signals_from_controller),
-        .o_pattern_match(w_pattern_match),
+
+        // Internal Signals, from devil passive to devil controller
+        .i_internal_adl_en(w_internal_adl_en),
+        .i_internal_adt_en(w_internal_adt_en),
+        .i_trigger_active((w_trigger_active_from_ctrl || w_trigger_active_path)),
 
         .i_snoop_state(w_snoop_state),
         .o_fsm_devil_state(w_fsm_devil_state),
@@ -1150,7 +1160,6 @@
         .i_addr_size_reg(w_addr_size_reg),
         .o_end_passive(w_devil_end),
         .i_trigger_passive(w_trigger_passive_path),
-        .i_trigger_active(w_trigger_active_path),
         .o_reply(w_devil_reply),
         .o_busy_passive(w_devil_busy),
         .i_acaddr_snapshot(w_acaddr_snapshot),
