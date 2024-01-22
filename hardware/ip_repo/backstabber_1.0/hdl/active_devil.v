@@ -138,6 +138,7 @@ module active_devil #(
         
         // Internal Signalas, from devil controller to devil passive
         input wire    [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
+        input wire                               i_trigger_from_ctr,
 
         output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line
@@ -179,6 +180,11 @@ module active_devil #(
     wire                        w_wvalid;
     wire                        w_wlast;
     wire                        w_bready;
+    wire [C_ACE_ADDR_WIDTH-1:0] w_araddr;
+    wire                  [3:0] w_arsnoop;
+    wire [C_ACE_ADDR_WIDTH-1:0] w_awaddr;
+    wire                  [2:0] w_awsnoop;
+    wire                  [1:0] w_ardomain;
 
 //------------------------------------------------------------------------------
 // REGISTERS
@@ -189,6 +195,11 @@ module active_devil #(
     reg                            r_reply_active;
     reg                    [127:0] r_buff[3:0]; // 4 elements of 16 bytes
     reg                      [1:0] r_index_active;
+
+//------------------------------------------------------------------------------
+// INPUT/OUTPUT SIGNALS - DEVIL CONTROLLER
+//-----------------------------------------------------------------------------
+    `include "devil_ctrl_interfaces.vh"
 
 //------------------------------------------------------------------------------
 // ACE INTERFACE 
@@ -208,13 +219,18 @@ module active_devil #(
     assign o_crresp     = 0;
     assign o_crvalid    = 0;
     
+    assign w_araddr    = (i_trigger_from_ctr ?  w_from_ctrl_araddr  : ( i_trigger_from_passive ? i_internal_araddr     : i_external_araddr ))  ;
+    assign w_arsnoop   = (i_trigger_from_ctr ?  w_from_ctrl_arsnoop : ( i_trigger_from_passive ? i_internal_arsnoop    : i_external_arsnoop )) ;
+    assign w_awaddr    = (i_trigger_from_ctr ?  w_from_ctrl_awaddr  : ( i_trigger_from_passive ? i_internal_awaddr     : i_external_awaddr ))  ;
+    assign w_awsnoop   = (i_trigger_from_ctr ?  w_from_ctrl_awsnoop : ( i_trigger_from_passive ? i_internal_awsnoop    : i_external_awsnoop )) ;
+    assign w_ardomain  = (i_trigger_from_ctr ?  w_from_ctrl_ardomain: ( i_trigger_from_passive ? i_internal_ardomain   : i_external_ardomain ));
+
     // ACE AR Channel (Read address phase)
-    assign o_araddr     = (w_ar_phase && i_arready) ? ( i_trigger_from_passive ? i_internal_araddr : i_external_araddr ) : 0;
+    assign o_araddr     = (w_ar_phase && i_arready) ? w_araddr : 0;
     assign o_arbar      = 2'b0;
     assign o_arburst    = `WRAP;
     assign o_arcache    = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
-    // TODO: Change this -> o_ardomain
-    assign o_ardomain   = (w_ar_phase && i_arready) ? ( i_trigger_from_passive ? i_internal_ardomain : i_external_ardomain ) : 0;
+    assign o_ardomain   = (w_ar_phase && i_arready) ? w_ardomain : 0;
     assign o_arid       = 0;
     assign o_arlen      = (w_ar_phase && i_arready) || (w_snooping) ? 8'h3: 8'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
     assign o_arlock     = 0;
@@ -222,7 +238,7 @@ module active_devil #(
     assign o_arqos      = 0;
     assign o_arregion   = 0;
     assign o_arsize     = 3'b100; //Size of each burst is 16B
-    assign o_arsnoop    = (w_ar_phase && i_arready) ? ( i_trigger_from_passive ? i_internal_arsnoop : i_external_arsnoop ) : 0;
+    assign o_arsnoop    = (w_ar_phase && i_arready) ? w_arsnoop : 0;
     assign o_aruser     = 0;
     assign o_arvalid    = (w_ar_phase && i_arready);
 
@@ -232,7 +248,7 @@ module active_devil #(
     assign w_rready = w_ar_phase  || w_r_phase;
 
     // ACE AW channel (Write address phase)
-    assign o_awaddr = (w_aw_phase && i_awready) ? ( i_trigger_from_passive ? i_internal_awaddr : i_external_awaddr ) : 0;
+    assign o_awaddr = (w_aw_phase && i_awready) ? w_awaddr : 0;
     assign o_awbar    = 2'b0;
     assign o_awburst  = `INCR;  
     assign o_awcache  = 4'b1111; // Write-back Write-allocate, Refer to page 65 of manual. 
@@ -244,7 +260,7 @@ module active_devil #(
     assign o_awqos    = 0;
     assign o_awregion = 0;
     assign o_awsize   = 3'b100; //Size of each burst is 16B (data-bus of 128 bits )
-    assign o_awsnoop  = (w_aw_phase && i_awready) ? (i_trigger_from_passive ? i_internal_awsnoop : i_external_awsnoop ) : 0;
+    assign o_awsnoop  = (w_aw_phase && i_awready) ? w_awsnoop : 0;
     assign o_awuser   = 0;
     assign o_awvalid  = w_aw_phase && i_awready; 
 
@@ -295,12 +311,7 @@ module active_devil #(
     assign w_snooping   =   (fsm_devil_state_active != DEVIL_IDLE)
                         &&  (fsm_devil_state_active != DEVIL_FUNCTION)
                         &&  (fsm_devil_state_active != DEVIL_END_OP );
-    
-//------------------------------------------------------------------------------
-// INPUT/OUTPUT SIGNALS - DEVIL CONTROLLER
-//-----------------------------------------------------------------------------
-    `include "devil_ctrl_interfaces.vh"
-    
+        
 //------------------------------------------------------------------------------
 // DEVIL-IN-THE-FPGA CONTROL REGISTERS
 //------------------------------------------------------------------------------

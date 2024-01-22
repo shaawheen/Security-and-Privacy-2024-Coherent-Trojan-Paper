@@ -1142,6 +1142,7 @@
 
         // Internal Signals, from devil controller to devil passive
         .i_controller_signals(w_signals_from_controller),
+        .i_trigger_from_ctr(w_trigger_active_from_ctrl),
 
         // Internal Signals, from devil passive to devil controller
         .i_internal_adl_en(w_internal_adl_en),

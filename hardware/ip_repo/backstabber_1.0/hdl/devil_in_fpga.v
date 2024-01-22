@@ -106,6 +106,7 @@
 
         // Internal Signals, from devil controller to devil passive
         input  wire   [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
+        input  wire                              i_trigger_from_ctr,
 
         // Internal Signals, from Devil to Devil Controller
         output wire [(C_ACE_DATA_WIDTH*4)-1:0] o_devil_cache_line,
@@ -332,7 +333,7 @@
 
     // Internal Signals
     wire                             w_trigger_active;
-    wire                             w_trigger_from_passive;
+    wire                             w_trigger_from_passive; 
     wire  [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line;
     wire  [(C_ACE_DATA_WIDTH*4)-1:0] w_active_devil_cache_line;
     wire                             w_action_taken; // set signal on take action passive state
@@ -587,6 +588,7 @@
         // Internal Signals, from Devil Passive to Devil Active
         .i_func((i_trigger_active ? i_controller_signals[CTRL_SIGNAL6_WIDTH-1:CTRL_SIGNAL5_WIDTH] : w_func)),
         .i_trigger_from_passive(w_trigger_from_passive),
+        .i_trigger_from_ctr(i_trigger_from_ctr),
         .i_internal_adl_en((w_internal_adl_en || i_internal_adl_en )),
         .i_internal_adt_en((w_internal_adt_en || i_internal_adt_en )),
         .i_internal_araddr(w_internal_araddr),
@@ -600,7 +602,7 @@
         .i_internal_ardomain(w_internal_ardomain),
         .i_external_ardomain(2'b10), // outer-shareable by default
 
-        // Internal Signalas, from devil controller to devil passive
+        // Internal Signals, from devil controller to devil passive
         .i_controller_signals(i_controller_signals),
 
         // Internal Signals, Controller In/Out Cache Line
