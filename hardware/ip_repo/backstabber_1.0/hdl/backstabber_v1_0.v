@@ -728,8 +728,8 @@
     assign dvm_sync_multi_condition       = ac_handshake && (acsnoop == `DVM_MESSAGE) && (acaddr[15:12] == 4'b1100) && (acaddr[0] == 1);
 
     assign debug_snoop_state            = snoop_state;
-    assign debug_devil_active_state     = w_fsm_devil_state;
-    assign debug_devil_passive_state    = w_fsm_devil_state_active;
+    assign debug_devil_active_state     = w_fsm_devil_state_active;
+    assign debug_devil_passive_state    = w_fsm_devil_state;
     assign debug_devil_controller_state = w_fsm_devil_controller;
     assign debug_counter                = w_counter;
     assign debug_delay_reg              = w_delay_reg;

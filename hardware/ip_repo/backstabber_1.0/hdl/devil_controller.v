@@ -109,7 +109,7 @@ module devil_controller#(
     // assign o_cache_line_2_monitor[31+32*12:0+32*12] = 32'hc8772659; 
     // assign o_cache_line_2_monitor[31+32*13:0+32*13] = 32'h1ec5cf46; 
     // assign o_cache_line_2_monitor[31+32*14:0+32*14] = 32'hff78efa1;
-    assign o_cache_line_2_monitor[31+32*15:0+32*15] = 32'heb624e0d;
+    // assign o_cache_line_2_monitor[31+32*15:0+32*15] = 32'heb624e0d;
 
     assign w_write_cl_valid_passive = (fsm_devil_controller == DEVIL_CMD_LEAK_REPLY || 
                                        fsm_devil_controller == DEVIL_CMD_REROUTING) ? 
