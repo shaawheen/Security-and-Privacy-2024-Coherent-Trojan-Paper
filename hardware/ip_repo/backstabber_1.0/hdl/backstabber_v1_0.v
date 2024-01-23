@@ -64,7 +64,7 @@
         parameter integer C_S00_AXI_BUSER_WIDTH     = 0,
         // Parameters of Axi Slave Bus Interface s01_AXI
 		parameter integer C_S01_AXI_DATA_WIDTH	= 32,
-		parameter integer C_S01_AXI_ADDR_WIDTH	= 8,
+		parameter integer C_S01_AXI_ADDR_WIDTH	= 9,
         // Generic
         parameter integer WRITER                    = 1
 	)
@@ -454,6 +454,7 @@
     wire     [C_ACE_DATA_WIDTH-1:0] w_buff_3;      
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line_pattern;                      
     wire                            w_external_mode;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
     wire                            w_end_active_devil; 
@@ -1024,7 +1025,24 @@
     .o_wdata_12_data(w_write_cache_line[31+32*12:0+32*12]),
     .o_wdata_13_data(w_write_cache_line[31+32*13:0+32*13]),
     .o_wdata_14_data(w_write_cache_line[31+32*14:0+32*14]),
-    .o_wdata_15_data(w_write_cache_line[31+32*15:0+32*15])
+    .o_wdata_15_data(w_write_cache_line[31+32*15:0+32*15]),
+    // Pattern to search 
+     .o_pattern_0_data(w_write_cache_line_pattern[31+32*0:0+32*0]),
+     .o_pattern_1_data(w_write_cache_line_pattern[31+32*1:0+32*1]),
+     .o_pattern_2_data(w_write_cache_line_pattern[31+32*2:0+32*2]),
+     .o_pattern_3_data(w_write_cache_line_pattern[31+32*3:0+32*3]),
+     .o_pattern_4_data(w_write_cache_line_pattern[31+32*4:0+32*4]),
+     .o_pattern_5_data(w_write_cache_line_pattern[31+32*5:0+32*5]),
+     .o_pattern_6_data(w_write_cache_line_pattern[31+32*6:0+32*6]),
+     .o_pattern_7_data(w_write_cache_line_pattern[31+32*7:0+32*7]),
+     .o_pattern_8_data(w_write_cache_line_pattern[31+32*8:0+32*8]),
+     .o_pattern_9_data(w_write_cache_line_pattern[31+32*9:0+32*9]),
+    .o_pattern_10_data(w_write_cache_line_pattern[31+32*10:0+32*10]),
+    .o_pattern_11_data(w_write_cache_line_pattern[31+32*11:0+32*11]),
+    .o_pattern_12_data(w_write_cache_line_pattern[31+32*12:0+32*12]),
+    .o_pattern_13_data(w_write_cache_line_pattern[31+32*13:0+32*13]),
+    .o_pattern_14_data(w_write_cache_line_pattern[31+32*14:0+32*14]),
+    .o_pattern_15_data(w_write_cache_line_pattern[31+32*15:0+32*15])
     );
 
     // Instantiation of devil-controller module
@@ -1051,6 +1069,14 @@
         .o_internal_adl_en(w_internal_adl_en),
         .o_internal_adt_en(w_internal_adt_en),
         .o_trigger_active(w_trigger_active_from_ctrl),
+
+        // External Signals, from register file
+        .i_external_cache_line(w_write_cache_line),
+        .i_external_cache_line_pattern(w_write_cache_line_pattern),
+        .i_external_arsnoop_Data(w_arsnoop_Data[3:0]),
+        .i_external_awsnoop_Data(w_awsnoop_Data[2:0]),
+        .i_external_l_araddr_Data(w_l_araddr_Data),
+        .i_external_l_awaddr_Data(w_l_awaddr_Data),
 
         // Internal Signals, from devil controller to devil passive
         .o_controller_signals(w_signals_from_controller)

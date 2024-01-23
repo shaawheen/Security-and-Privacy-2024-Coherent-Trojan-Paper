@@ -14,12 +14,12 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="333.800 ns"></ZoomStartTime>
-      <ZoomEndTime time="528.801 ns"></ZoomEndTime>
-      <Cursor1Time time="433.000 ns"></Cursor1Time>
+      <ZoomStartTime time="1,156.760 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,631.695 ns"></ZoomEndTime>
+      <Cursor1Time time="1,257.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="218"></NameColumnWidth>
+      <NameColumnWidth column_width="214"></NameColumnWidth>
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="45" />
@@ -356,6 +356,7 @@
    <wvobject type="group" fp_name="group140">
       <obj_property name="label">W_Channel</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/wdata">
          <obj_property name="ElementShortName">wdata[127:0]</obj_property>
          <obj_property name="ObjectShortName">wdata[127:0]</obj_property>

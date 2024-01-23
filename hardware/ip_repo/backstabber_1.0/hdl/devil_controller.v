@@ -47,6 +47,14 @@ module devil_controller#(
         output wire                             o_internal_adt_en,
         output wire                             o_trigger_active, 
 
+        // External Signals, from register file / PS
+        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line, 
+        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line_pattern, 
+        input  wire                        [3:0] i_external_arsnoop_Data,
+        input  wire                        [2:0] i_external_awsnoop_Data,
+        input  wire                       [31:0] i_external_l_araddr_Data,
+        input  wire                       [31:0] i_external_l_awaddr_Data,
+
         // Internal Signals, from devil controller to devil passive
         output wire   [CTRL_OUT_SIGNAL_WIDTH-1:0] o_controller_signals
     );
@@ -55,67 +63,36 @@ module devil_controller#(
 // FSM STATES AND DEFINES
 //------------------------------------------------------------------------------
     parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE              = 0,
-                                        DEVIL_CHOOSE_CMD        = 1,
-                                        DEVIL_CMD_REROUTING     = 2, 
-                                        DEVIL_CMD_LEAK          = 3,
-                                        DEVIL_CMD_LEAK_ACTION   = 4,
-                                        DEVIL_CMD_LEAK_REPLY    = 5,
-                                        DEVIL_CMD_POISON        = 6, 
-                                        DEVIL_END_OP            = 7;
+                                        DEVIL_SEARCH_PATTERN    = 1,
+                                        DEVIL_CHOOSE_CMD        = 2, 
+                                        DEVIL_LEAK_ACTION       = 3,
+                                        DEVIL_POISON_ACTION     = 4,
+                                        DEVIL_REPLY             = 5,
+                                        DEVIL_END_OP            = 6;
 
-    `define CMD_REROUTING   0
-    `define CMD_LEAK        1
-    `define CMD_POISON      2
+    `define CMD_LEAK        0
+    `define CMD_POISON      1
 
 //------------------------------------------------------------------------------
 // WIRES
 //------------------------------------------------------------------------------
 
-    // just for test porpuses (pattern to search for)
-    assign o_cache_line_2_monitor[31+32*0:0+32*0] = 32'hDEEDBEEF;  
-    assign o_cache_line_2_monitor[31+32*1:0+32*1] = 32'h1FFFFFFF; 
-    assign o_cache_line_2_monitor[31+32*2:0+32*2] = 32'hDEEDBEEF;
-    assign o_cache_line_2_monitor[31+32*3:0+32*3] = 32'h2FFFFFFF;
-    assign o_cache_line_2_monitor[31+32*4:0+32*4] = 32'hDEEDBEEF; 
-    assign o_cache_line_2_monitor[31+32*5:0+32*5] = 32'h3FFFFFFF; 
-    assign o_cache_line_2_monitor[31+32*6:0+32*6] = 32'hDEEDBEEF;
-    assign o_cache_line_2_monitor[31+32*7:0+32*7] = 32'h4FFFFFFF; 
-    assign o_cache_line_2_monitor[31+32*8:0+32*8] = 32'hDEEDBEEF; 
-    assign o_cache_line_2_monitor[31+32*9:0+32*9] = 32'h5FFFFFFF; 
-    assign o_cache_line_2_monitor[31+32*10:0+32*10] = 32'hDEEDBEEF;
-    assign o_cache_line_2_monitor[31+32*11:0+32*11] = 32'h6FFFFFFF;
-    assign o_cache_line_2_monitor[31+32*12:0+32*12] = 32'hDEEDBEEF; 
-    assign o_cache_line_2_monitor[31+32*13:0+32*13] = 32'h7FFFFFFF; 
-    assign o_cache_line_2_monitor[31+32*14:0+32*14] = 32'hDEEDBEEF;
-    assign o_cache_line_2_monitor[31+32*15:0+32*15] = 32'h8FFFFFFF;
-
-    // Values to be used on the simulaion -> Devil-in-fpga-DUT
-    // // //fe16863c bbaf7e47 dcd5db54 d54783c2
-    // assign o_cache_line_2_monitor[31+32*0:0+32*0]   = 32'hd54783c2;  
-    // assign o_cache_line_2_monitor[31+32*1:0+32*1]   = 32'hdcd5db54; 
-    // assign o_cache_line_2_monitor[31+32*2:0+32*2]   = 32'hbbaf7e47;
-    // assign o_cache_line_2_monitor[31+32*3:0+32*3]   = 32'hfe16863c;
-    // // //cd197260 f65b9c92 d260d0b8 d206ceac
-    // assign o_cache_line_2_monitor[31+32*4:0+32*4]   = 32'hd206ceac; 
-    // assign o_cache_line_2_monitor[31+32*5:0+32*5]   = 32'hd260d0b8; 
-    // assign o_cache_line_2_monitor[31+32*6:0+32*6]   = 32'hf65b9c92;
-    // assign o_cache_line_2_monitor[31+32*7:0+32*7]   = 32'hcd197260; 
-    // // //1cd9b232 893d8de5 1443e896 fcb01399
-    // assign o_cache_line_2_monitor[31+32*8:0+32*8]   = 32'hfcb01399; 
-    // assign o_cache_line_2_monitor[31+32*9:0+32*9]   = 32'h1443e896; 
-    // assign o_cache_line_2_monitor[31+32*10:0+32*10] = 32'h893d8de5;
-    // assign o_cache_line_2_monitor[31+32*11:0+32*11] = 32'h1cd9b232;
-    // // //eb624e0d ff78efa1 1ec5cf46 c8772659
-    // assign o_cache_line_2_monitor[31+32*12:0+32*12] = 32'hc8772659; 
-    // assign o_cache_line_2_monitor[31+32*13:0+32*13] = 32'h1ec5cf46; 
-    // assign o_cache_line_2_monitor[31+32*14:0+32*14] = 32'hff78efa1;
-    // assign o_cache_line_2_monitor[31+32*15:0+32*15] = 32'heb624e0d;
-
-    assign w_write_cl_valid_passive = (fsm_devil_controller == DEVIL_CMD_LEAK_REPLY || 
-                                       fsm_devil_controller == DEVIL_CMD_REROUTING) ? 
-                                       1'b1 : 1'b0;
-    assign w_write_cl_valid_active =   (fsm_devil_controller == DEVIL_CMD_LEAK_ACTION) ? 
-                                       1'b1 : 1'b0;
+    assign o_cache_line_2_monitor[31+32*0:0+32*0]   = i_external_cache_line_pattern[31+32*0:0+32*0];
+    assign o_cache_line_2_monitor[31+32*1:0+32*1]   = i_external_cache_line_pattern[31+32*1:0+32*1];
+    assign o_cache_line_2_monitor[31+32*2:0+32*2]   = i_external_cache_line_pattern[31+32*2:0+32*2];
+    assign o_cache_line_2_monitor[31+32*3:0+32*3]   = i_external_cache_line_pattern[31+32*3:0+32*3];
+    assign o_cache_line_2_monitor[31+32*4:0+32*4]   = i_external_cache_line_pattern[31+32*4:0+32*4];
+    assign o_cache_line_2_monitor[31+32*5:0+32*5]   = i_external_cache_line_pattern[31+32*5:0+32*5];
+    assign o_cache_line_2_monitor[31+32*6:0+32*6]   = i_external_cache_line_pattern[31+32*6:0+32*6];
+    assign o_cache_line_2_monitor[31+32*7:0+32*7]   = i_external_cache_line_pattern[31+32*7:0+32*7];
+    assign o_cache_line_2_monitor[31+32*8:0+32*8]   = i_external_cache_line_pattern[31+32*8:0+32*8];
+    assign o_cache_line_2_monitor[31+32*9:0+32*9]   = i_external_cache_line_pattern[31+32*9:0+32*9];
+    assign o_cache_line_2_monitor[31+32*10:0+32*10] = i_external_cache_line_pattern[31+32*10:0+32*10];
+    assign o_cache_line_2_monitor[31+32*11:0+32*11] = i_external_cache_line_pattern[31+32*11:0+32*11];
+    assign o_cache_line_2_monitor[31+32*12:0+32*12] = i_external_cache_line_pattern[31+32*12:0+32*12];
+    assign o_cache_line_2_monitor[31+32*13:0+32*13] = i_external_cache_line_pattern[31+32*13:0+32*13];
+    assign o_cache_line_2_monitor[31+32*14:0+32*14] = i_external_cache_line_pattern[31+32*14:0+32*14];
+    assign o_cache_line_2_monitor[31+32*15:0+32*15] = i_external_cache_line_pattern[31+32*15:0+32*15];
  
 //------------------------------------------------------------------------------
 // REGISTERS
@@ -183,68 +160,68 @@ module devil_controller#(
     else
         begin
             case (fsm_devil_controller)                                                                                                                                 
-            DEVIL_IDLE: 
+            DEVIL_IDLE: // 0
                 begin
                     if(i_trigger)
-                        fsm_devil_controller <= DEVIL_CHOOSE_CMD;     
+                        fsm_devil_controller <= DEVIL_SEARCH_PATTERN;     
                     else 
                         fsm_devil_controller <= DEVIL_IDLE;              
                 end
-            DEVIL_CHOOSE_CMD: 
-                begin
-                    case (i_cmd[3:0])
-                        `CMD_REROUTING  : 
-                        begin
-                            fsm_devil_controller <= DEVIL_CMD_REROUTING;
-                        end
-                        `CMD_LEAK  : 
-                        begin
-                            fsm_devil_controller <= DEVIL_CMD_LEAK;
-                        end
-                        `CMD_POISON  :
-                        begin
-                            fsm_devil_controller <= DEVIL_CMD_POISON;
-                        end
-                        default : fsm_devil_controller <= DEVIL_END_OP; 
-                    endcase                                                      
-                end
-            DEVIL_CMD_REROUTING:  
-                begin 
-                    r_reply <= 1;
-                    r_write_cache_line_passive <= i_cache_line_active_devil; 
-                    fsm_devil_controller <= DEVIL_END_OP;                                                  
-                end
-            DEVIL_CMD_LEAK: // 3
+            DEVIL_SEARCH_PATTERN: // 1
                 begin 
                     if (i_end_active_devil)
                     begin 
+                        r_save_cache_line <= i_cache_line_active_devil;
                         if(o_cache_line_2_monitor == i_cache_line_active_devil) 
-                        begin
-                            r_save_cache_line <= i_cache_line_active_devil;
-                            fsm_devil_controller <= DEVIL_CMD_LEAK_ACTION;
-                        end
+                            fsm_devil_controller <= DEVIL_CHOOSE_CMD;
                         else
-                            fsm_devil_controller <= DEVIL_CMD_REROUTING;
+                            fsm_devil_controller <= DEVIL_REPLY;
                     end
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                               
                 end
-            DEVIL_CMD_LEAK_ACTION:  // 4
+            DEVIL_CHOOSE_CMD:  // 2
+                begin
+                    case (i_cmd[3:0])
+                        `CMD_LEAK  : 
+                        begin
+                            fsm_devil_controller <= DEVIL_LEAK_ACTION;
+                        end
+                        `CMD_POISON  : 
+                        begin
+                            fsm_devil_controller <= DEVIL_POISON_ACTION;
+                        end
+                        default : fsm_devil_controller <= DEVIL_END_OP; 
+                    endcase                                                      
+                end
+            DEVIL_LEAK_ACTION:  // 3 (Don't Tested!!)
                 begin 
 
                     // Read Snoop
-                    // r_controller_araddr <= 32'h40000100;
-                    // r_controller_arsnoop <= 4'b0001; // READ_ONCE
-                    // r_controller_ardomain <= 2'b10; // outer shareable
-                    // r_active_func <= `ADL; // Read Snoop
-                    // r_internal_adl_en <= 1; // Enable Read Snoop (internal trigger)
+                    r_controller_araddr   <= i_external_l_araddr_Data;
+                    r_controller_arsnoop  <= i_external_arsnoop_Data; // READ_ONCE
+                    r_controller_ardomain <= 2'b10; // outer shareable
 
+                    // trigger read snoop
+                    r_active_func <= `ADL; // Write Snoop
+
+                    // Enable Read Snoop
+                    r_internal_adl_en <= 1; 
+                    r_trigger_active <= 1;
+
+                    if(i_end_active_devil && r_trigger_active)
+                        fsm_devil_controller <= DEVIL_REPLY; 
+                    else
+                        fsm_devil_controller <= fsm_devil_controller;                                               
+                end
+            DEVIL_POISON_ACTION:  // 4
+                begin 
                     // Write Snoop Data
-                    r_write_cache_line_active <= 32'hF0F0F0F0;  // (just to test)
+                    r_write_cache_line_active <= i_external_cache_line;  // (just to test)
 
                     // config write snoop
-                    r_controller_awaddr <= 32'h40000100;
-                    r_controller_awsnoop <= 3'b001; // WRITE_LINE_UNIQUE
+                    r_controller_awaddr <= i_external_l_awaddr_Data;
+                    r_controller_awsnoop <= i_external_awsnoop_Data;
                     r_controller_ardomain <= 2'b10; // outer shareable
 
                     // trigger write snoop
@@ -254,11 +231,11 @@ module devil_controller#(
                     r_trigger_active <= 1;
 
                     if(i_end_active_devil && r_trigger_active)
-                        fsm_devil_controller <= DEVIL_CMD_LEAK_REPLY; 
+                        fsm_devil_controller <= DEVIL_REPLY; 
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                               
                 end
-            DEVIL_CMD_LEAK_REPLY:  // 5
+            DEVIL_REPLY:  // 5
                 begin 
                     r_trigger_active <=  0;
                     r_internal_adt_en <= 0;
@@ -269,10 +246,6 @@ module devil_controller#(
                         fsm_devil_controller <= DEVIL_END_OP; 
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                               
-                end
-            DEVIL_CMD_POISON:  
-                begin 
-                    fsm_devil_controller <= DEVIL_END_OP;                                                  
                 end
             DEVIL_END_OP:  
                 begin 
