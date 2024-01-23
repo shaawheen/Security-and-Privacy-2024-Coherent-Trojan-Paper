@@ -73,6 +73,22 @@ int main() {
     static unsigned int *DATA13;          
     static unsigned int *DATA14;          
     static unsigned int *DATA15;   
+    static unsigned int *PATTERN0;       
+    static unsigned int *PATTERN1;           
+    static unsigned int *PATTERN2;           
+    static unsigned int *PATTERN3;           
+    static unsigned int *PATTERN4;           
+    static unsigned int *PATTERN5;           
+    static unsigned int *PATTERN6;           
+    static unsigned int *PATTERN7;           
+    static unsigned int *PATTERN8;           
+    static unsigned int *PATTERN9;           
+    static unsigned int *PATTERN10;          
+    static unsigned int *PATTERN11;          
+    static unsigned int *PATTERN12;          
+    static unsigned int *PATTERN13;          
+    static unsigned int *PATTERN14;          
+    static unsigned int *PATTERN15; 
 
     // Open /dev/mem to access physical memory
     mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -121,12 +137,70 @@ int main() {
     DATA13 = map_base+29;
     DATA14 = map_base+30;
     DATA15 = map_base+31;
+    PATTERN0 = map_base+32;
+    PATTERN1 = map_base+33;
+    PATTERN2 = map_base+34;
+    PATTERN3 = map_base+35;
+    PATTERN4 = map_base+36;
+    PATTERN5 = map_base+37;
+    PATTERN6 = map_base+38;
+    PATTERN7 = map_base+39;
+    PATTERN8 = map_base+40;
+    PATTERN9 = map_base+41;
+    PATTERN10 = map_base+42;
+    PATTERN11 = map_base+43;
+    PATTERN12 = map_base+44;
+    PATTERN13 = map_base+45;
+    PATTERN14 = map_base+46;
+    PATTERN15 = map_base+47;
   
     // Address Filter
-    *base_addr  = 0x03801600; 
+    // *base_addr  = 0x03801600; 
+    *base_addr  = 0x40000000; 
     // *base_addr  = 0x20001580; // without bao
     // 0x20001600 // without bao
     // 0x03801600 // with bao
+
+    // Target Address
+    *awsnoop =  0b001;
+    *l_awaddr = 0x40000100;
+
+    // Cache line to write
+    *DATA0   = 0x00000000;
+    *DATA1   = 0x00000001;
+    *DATA2   = 0x00000002;
+    *DATA3   = 0x00000003;
+    *DATA4   = 0x00000004;
+    *DATA5   = 0x00000005;
+    *DATA6   = 0x00000006;
+    *DATA7   = 0x00000007;
+    *DATA8   = 0x00000008;
+    *DATA9   = 0x00000009;
+    *DATA10  = 0x0000000A;
+    *DATA11  = 0x0000000B;
+    *DATA12  = 0x0000000C;
+    *DATA13  = 0x0000000D;
+    *DATA14  = 0x0000000E;
+    *DATA15  = 0x0000000F;
+    
+    // Pattern to search 
+    *PATTERN0  = 0xDEEDBEEF;
+    *PATTERN1  = 0x1FFFFFFF;
+    *PATTERN2  = 0xDEEDBEEF;
+    *PATTERN3  = 0x2FFFFFFF;
+    *PATTERN4  = 0xDEEDBEEF;
+    *PATTERN5  = 0x3FFFFFFF;
+    *PATTERN6  = 0xDEEDBEEF;
+    *PATTERN7  = 0x4FFFFFFF;
+    *PATTERN8  = 0xDEEDBEEF;
+    *PATTERN9  = 0x5FFFFFFF;
+    *PATTERN10 = 0xDEEDBEEF;
+    *PATTERN11 = 0x6FFFFFFF;
+    *PATTERN12 = 0xDEEDBEEF;
+    *PATTERN13 = 0x7FFFFFFF;
+    *PATTERN14 = 0xDEEDBEEF;
+    *PATTERN15 = 0x8FFFFFFF;
+
 
     // *base_addr  = 0x038016c0; // with bao
     *mem_size   = 0x4;
@@ -134,8 +208,6 @@ int main() {
     // Snoop Filter
     *acsnoop = 0x1;
 
-    // WasUnique, Ishared, PassDirty, Error, PassData
-    //works only with pass dirty ->  (0b00101 << CRRESP_pos) 
     *ctrl = 0; // Disable IP
     *ctrl    =    (0b00001 << CRRESP_pos) 
                 | (1 << ACFLT_pos) 

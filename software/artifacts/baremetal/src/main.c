@@ -217,22 +217,22 @@ unsigned int *ptr4  = (unsigned int*)(0x40000010);
 unsigned int *ptr5  = (unsigned int*)(0x40000014);
 unsigned int *ptr6  = (unsigned int*)(0x40000018);
 unsigned int *ptr7  = (unsigned int*)(0x4000001C);
-unsigned int *ptr8  = (unsigned int*)(0x40000100);
-unsigned int *ptr9  = (unsigned int*)(0x40000104);
-unsigned int *ptr10 = (unsigned int*)(0x40000108);
-unsigned int *ptr11 = (unsigned int*)(0x4000010C);
-unsigned int *ptr12 = (unsigned int*)(0x40000110);
-unsigned int *ptr13 = (unsigned int*)(0x40000114);
-unsigned int *ptr14 = (unsigned int*)(0x40000118);
-unsigned int *ptr15 = (unsigned int*)(0x4000011C);
-unsigned int *ptr8b  = (unsigned int*)(0x40000120);
-unsigned int *ptr9b  = (unsigned int*)(0x40000124);
-unsigned int *ptr10b = (unsigned int*)(0x40000128);
-unsigned int *ptr11b = (unsigned int*)(0x4000012C);
-unsigned int *ptr12b = (unsigned int*)(0x40000130);
-unsigned int *ptr13b = (unsigned int*)(0x40000134);
-unsigned int *ptr14b = (unsigned int*)(0x40000138);
-unsigned int *ptr15b = (unsigned int*)(0x4000013C);
+unsigned int *ptr8  = (unsigned int*)(0x40000020);
+unsigned int *ptr9  = (unsigned int*)(0x40000024);
+unsigned int *ptr10 = (unsigned int*)(0x40000028);
+unsigned int *ptr11 = (unsigned int*)(0x4000002C);
+unsigned int *ptr12 = (unsigned int*)(0x40000030);
+unsigned int *ptr13 = (unsigned int*)(0x40000034);
+unsigned int *ptr14 = (unsigned int*)(0x40000038);
+unsigned int *ptr15 = (unsigned int*)(0x4000003C);
+unsigned int *ptr8b  = (unsigned int*)(0x40000100);
+unsigned int *ptr9b  = (unsigned int*)(0x40000104);
+unsigned int *ptr10b = (unsigned int*)(0x40000108);
+unsigned int *ptr11b = (unsigned int*)(0x4000010C);
+unsigned int *ptr12b = (unsigned int*)(0x40000110);
+unsigned int *ptr13b = (unsigned int*)(0x40000114);
+unsigned int *ptr14b = (unsigned int*)(0x40000118);
+unsigned int *ptr15b = (unsigned int*)(0x4000011C);
 
 void data_tamper(void){
     int counter = 0, init_value  = 0;
@@ -355,7 +355,7 @@ inline void monitor_transaction_test(){
 void main(void){
 
     static volatile bool master_done = false;
-    int beat = 0, key = 1;
+    int beat = 0, key = 1, count = 0;
 
     if(cpu_is_master()){
         spin_lock(&print_lock);
@@ -384,12 +384,41 @@ void main(void){
     while (1)
     {   
         // Invalidation does not work!!!!!! 
-        invaliInstCache(0x20001680);
+        *ptr =  0xDEEDBEEF;
+        *ptr1 = 0x1FFFFFFF;
+        *ptr2 = 0xDEEDBEEF;
+        *ptr3 = 0x2FFFFFFF;
+        *ptr4 = 0xDEEDBEEF;
+        *ptr5 = 0x3FFFFFFF;
+        *ptr6 = 0xDEEDBEEF;
+        *ptr7 = 0x4FFFFFFF;
+        *ptr8 = 0xDEEDBEEF;
+        *ptr9 = 0x5FFFFFFF;
+        *ptr10 = 0xDEEDBEEF;
+        *ptr11 = 0x6FFFFFFF;
+        *ptr12 = 0xDEEDBEEF;
+        *ptr13 = 0x7FFFFFFF;
+        *ptr14 = 0xDEEDBEEF;
+        *ptr15 = 0x8FFFFFFF;
+        *ptr8b  = 0xF00DBABE; // 0x40000100
+        *ptr9b  = 0xF00DBABE;
+        *ptr10b = 0xF00DBABE;
+        *ptr11b = 0xF00DBABE;
+        *ptr12b = 0xF00DBABE;
+        *ptr13b = 0xF00DBABE;
+        *ptr14b = 0xF00DBABE;
+        *ptr15b = 0xF00DBABE;
+        for (size_t i = 0; i < 3000000000; i++);  
+        invalidateCache(ptr);
         monitor_transaction_test();
+        printf("Count   = 0x%08x\n", count++);
+        printf("Ptr8b   = 0x%08x\n", *ptr8b);
+        printf("Ptr9b   = 0x%08x\n", *ptr9b);
+        printf("Ptr10b  = 0x%08x\n", *ptr10b);
+        printf("Ptr11b  = 0x%08x\n", *ptr11b);
         // active_data_leak();
         // active_data_tampering();
         // data_tamper();
-        for (size_t i = 0; i < 2000000000; i++);  
     }
 
     while(1) wfi();    
