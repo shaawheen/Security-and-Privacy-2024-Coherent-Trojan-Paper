@@ -76,7 +76,7 @@ if {[string equal [get_filesets -quiet sim_1] ""]} {
 puts "INFO: Project created:${_xil_proj_name_}"
 
 # Create block design
-source $origin_dir/src/bd/design_1.tcl
+source $origin_dir/src/bd/design_1_zcu104.tcl
 
  # Generate the wrapper
  set design_name [get_bd_designs]
