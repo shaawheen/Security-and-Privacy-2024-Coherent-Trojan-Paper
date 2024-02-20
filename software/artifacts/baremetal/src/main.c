@@ -209,22 +209,22 @@ void invalidate_all_instruction_cache() {
 
 int check_tamper = 0;
 
-unsigned int *ptr   = (unsigned int*)(0x40000000);
-unsigned int *ptr1  = (unsigned int*)(0x40000004);
-unsigned int *ptr2  = (unsigned int*)(0x40000008);
-unsigned int *ptr3  = (unsigned int*)(0x4000000C);
-unsigned int *ptr4  = (unsigned int*)(0x40000010);
-unsigned int *ptr5  = (unsigned int*)(0x40000014);
-unsigned int *ptr6  = (unsigned int*)(0x40000018);
-unsigned int *ptr7  = (unsigned int*)(0x4000001C);
-unsigned int *ptr8  = (unsigned int*)(0x40000020);
-unsigned int *ptr9  = (unsigned int*)(0x40000024);
-unsigned int *ptr10 = (unsigned int*)(0x40000028);
-unsigned int *ptr11 = (unsigned int*)(0x4000002C);
-unsigned int *ptr12 = (unsigned int*)(0x40000030);
-unsigned int *ptr13 = (unsigned int*)(0x40000034);
-unsigned int *ptr14 = (unsigned int*)(0x40000038);
-unsigned int *ptr15 = (unsigned int*)(0x4000003C);
+unsigned int *ptr   = (unsigned int*)(0x40000000+0x50);
+unsigned int *ptr1  = (unsigned int*)(0x40000004+0x50);
+unsigned int *ptr2  = (unsigned int*)(0x40000008+0x50);
+unsigned int *ptr3  = (unsigned int*)(0x4000000C+0x50);
+unsigned int *ptr4  = (unsigned int*)(0x40000010+0x50);
+unsigned int *ptr5  = (unsigned int*)(0x40000014+0x50);
+unsigned int *ptr6  = (unsigned int*)(0x40000018+0x50);
+unsigned int *ptr7  = (unsigned int*)(0x4000001C+0x50);
+unsigned int *ptr8  = (unsigned int*)(0x40000020+0x50);
+unsigned int *ptr9  = (unsigned int*)(0x40000024+0x50);
+unsigned int *ptr10 = (unsigned int*)(0x40000028+0x50);
+unsigned int *ptr11 = (unsigned int*)(0x4000002C+0x50);
+unsigned int *ptr12 = (unsigned int*)(0x40000030+0x50);
+unsigned int *ptr13 = (unsigned int*)(0x40000034+0x50);
+unsigned int *ptr14 = (unsigned int*)(0x40000038+0x50);
+unsigned int *ptr15 = (unsigned int*)(0x4000003C+0x50);
 unsigned int *ptr8b  = (unsigned int*)(0x40000100);
 unsigned int *ptr9b  = (unsigned int*)(0x40000104);
 unsigned int *ptr10b = (unsigned int*)(0x40000108);
@@ -409,7 +409,7 @@ void main(void){
         *ptr14b = 0xF00DBABE;
         *ptr15b = 0xF00DBABE;
         for (size_t i = 0; i < 3000000000; i++);  
-        invalidateCache(ptr);
+        invalidateCache(ptr15);
         monitor_transaction_test();
         printf("Count   = 0x%08x\n", count++);
         printf("Ptr8b   = 0x%08x\n", *ptr8b);
