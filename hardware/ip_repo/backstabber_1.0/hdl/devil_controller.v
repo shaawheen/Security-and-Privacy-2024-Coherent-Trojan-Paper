@@ -25,6 +25,7 @@ module devil_controller#(
         parameter integer C_S_AXI_DATA_WIDTH    = 32, 
         parameter integer C_ACE_DATA_WIDTH      = 128,
         parameter integer C_ACE_ADDR_WIDTH      = 44,
+        parameter integer C_ACE_ACSNOOP_WIDTH   = 4,
         parameter integer DEVIL_STATE_SIZE      = 5, // 32 states
         parameter integer CTRL_OUT_SIGNAL_WIDTH = 1
         )
@@ -33,6 +34,8 @@ module devil_controller#(
         input  wire                             ace_aresetn,
         input  wire                       [3:0] i_cmd,
         input  wire                             i_trigger,
+        input  wire      [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
+        input  wire   [C_ACE_ACSNOOP_WIDTH-1:0] i_acsnoop_snapshot,
         output wire      [DEVIL_STATE_SIZE-1:0] o_fsm_devil_controller,
         output wire  [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line_2_monitor,
 
@@ -68,7 +71,9 @@ module devil_controller#(
                                         DEVIL_LEAK_ACTION       = 3,
                                         DEVIL_POISON_ACTION     = 4,
                                         DEVIL_REPLY             = 5,
-                                        DEVIL_END_OP            = 6;
+                                        DEVIL_END_OP            = 6,
+                                        DEVIL_PARTIAL_MATCH     = 7,
+                                        DEVIL_READ_NEXT_CL      = 8;
 
     `define CMD_LEAK        0
     `define CMD_POISON      1
@@ -76,24 +81,11 @@ module devil_controller#(
 //------------------------------------------------------------------------------
 // WIRES
 //------------------------------------------------------------------------------
-
-    assign o_cache_line_2_monitor[31+32*0:0+32*0]   = i_external_cache_line_pattern[31+32*0:0+32*0];
-    assign o_cache_line_2_monitor[31+32*1:0+32*1]   = i_external_cache_line_pattern[31+32*1:0+32*1];
-    assign o_cache_line_2_monitor[31+32*2:0+32*2]   = i_external_cache_line_pattern[31+32*2:0+32*2];
-    assign o_cache_line_2_monitor[31+32*3:0+32*3]   = i_external_cache_line_pattern[31+32*3:0+32*3];
-    assign o_cache_line_2_monitor[31+32*4:0+32*4]   = i_external_cache_line_pattern[31+32*4:0+32*4];
-    assign o_cache_line_2_monitor[31+32*5:0+32*5]   = i_external_cache_line_pattern[31+32*5:0+32*5];
-    assign o_cache_line_2_monitor[31+32*6:0+32*6]   = i_external_cache_line_pattern[31+32*6:0+32*6];
-    assign o_cache_line_2_monitor[31+32*7:0+32*7]   = i_external_cache_line_pattern[31+32*7:0+32*7];
-    assign o_cache_line_2_monitor[31+32*8:0+32*8]   = i_external_cache_line_pattern[31+32*8:0+32*8];
-    assign o_cache_line_2_monitor[31+32*9:0+32*9]   = i_external_cache_line_pattern[31+32*9:0+32*9];
-    assign o_cache_line_2_monitor[31+32*10:0+32*10] = i_external_cache_line_pattern[31+32*10:0+32*10];
-    assign o_cache_line_2_monitor[31+32*11:0+32*11] = i_external_cache_line_pattern[31+32*11:0+32*11];
-    assign o_cache_line_2_monitor[31+32*12:0+32*12] = i_external_cache_line_pattern[31+32*12:0+32*12];
-    assign o_cache_line_2_monitor[31+32*13:0+32*13] = i_external_cache_line_pattern[31+32*13:0+32*13];
-    assign o_cache_line_2_monitor[31+32*14:0+32*14] = i_external_cache_line_pattern[31+32*14:0+32*14];
-    assign o_cache_line_2_monitor[31+32*15:0+32*15] = i_external_cache_line_pattern[31+32*15:0+32*15];
- 
+    wire    w_full_match;
+    wire    w_partial_match;
+    wire    [3:0] w_match_offset;
+    wire    w_op_end;
+    
 //------------------------------------------------------------------------------
 // REGISTERS
 //------------------------------------------------------------------------------ 
@@ -111,7 +103,11 @@ module devil_controller#(
     reg                              r_internal_adl_en;
     reg                              r_internal_adt_en;
     reg                              r_trigger_active;
-    
+    reg   [(C_ACE_DATA_WIDTH*4)-1:0] r_pattern;
+    reg                        [4:0] r_pattern_size;
+    reg                        [4:0] r_pattern_size_save;
+    reg                        [3:0] r_match_offset;
+    reg                              r_match_pattern_trigger;
 
 //------------------------------------------------------------------------------
 // INPUTS/OUTPUTS
@@ -135,6 +131,22 @@ module devil_controller#(
     assign o_internal_adt_en = r_internal_adt_en;
     assign o_trigger_active  = r_trigger_active;
 
+    assign o_cache_line_2_monitor[31+32*0:0+32*0]   = i_external_cache_line_pattern[31+32*0:0+32*0];
+    assign o_cache_line_2_monitor[31+32*1:0+32*1]   = i_external_cache_line_pattern[31+32*1:0+32*1];
+    assign o_cache_line_2_monitor[31+32*2:0+32*2]   = i_external_cache_line_pattern[31+32*2:0+32*2];
+    assign o_cache_line_2_monitor[31+32*3:0+32*3]   = i_external_cache_line_pattern[31+32*3:0+32*3];
+    assign o_cache_line_2_monitor[31+32*4:0+32*4]   = i_external_cache_line_pattern[31+32*4:0+32*4];
+    assign o_cache_line_2_monitor[31+32*5:0+32*5]   = i_external_cache_line_pattern[31+32*5:0+32*5];
+    assign o_cache_line_2_monitor[31+32*6:0+32*6]   = i_external_cache_line_pattern[31+32*6:0+32*6];
+    assign o_cache_line_2_monitor[31+32*7:0+32*7]   = i_external_cache_line_pattern[31+32*7:0+32*7];
+    assign o_cache_line_2_monitor[31+32*8:0+32*8]   = i_external_cache_line_pattern[31+32*8:0+32*8];
+    assign o_cache_line_2_monitor[31+32*9:0+32*9]   = i_external_cache_line_pattern[31+32*9:0+32*9];
+    assign o_cache_line_2_monitor[31+32*10:0+32*10] = i_external_cache_line_pattern[31+32*10:0+32*10];
+    assign o_cache_line_2_monitor[31+32*11:0+32*11] = i_external_cache_line_pattern[31+32*11:0+32*11];
+    assign o_cache_line_2_monitor[31+32*12:0+32*12] = i_external_cache_line_pattern[31+32*12:0+32*12];
+    assign o_cache_line_2_monitor[31+32*13:0+32*13] = i_external_cache_line_pattern[31+32*13:0+32*13];
+    assign o_cache_line_2_monitor[31+32*14:0+32*14] = i_external_cache_line_pattern[31+32*14:0+32*14];
+    assign o_cache_line_2_monitor[31+32*15:0+32*15] = i_external_cache_line_pattern[31+32*15:0+32*15];
 //------------------------------------------------------------------------------
 // FSM
 //------------------------------------------------------------------------------
@@ -144,16 +156,21 @@ module devil_controller#(
         begin
         fsm_devil_controller <= DEVIL_IDLE;
         r_reply <= 0;
+        r_pattern <= 0;
         r_active_func <= 0;
+        r_match_offset <= 0;
+        r_pattern_size <= 0;
         r_trigger_active <= 0;
         r_internal_adl_en <= 0;
         r_internal_adt_en <= 0;
         r_save_cache_line <= 0;
+        r_pattern_size_save <= 0;
         r_controller_araddr <= 0;
         r_controller_awaddr <= 0;
         r_controller_arsnoop <= 0;
         r_controller_awsnoop <= 0;
         r_controller_ardomain <= 0;
+        r_match_pattern_trigger <= 0;
         r_write_cache_line_active <= 0;
         r_write_cache_line_passive <= 0;
         end 
@@ -172,7 +189,54 @@ module devil_controller#(
                     if (i_end_active_devil)
                     begin 
                         r_save_cache_line <= i_cache_line_active_devil;
-                        if(o_cache_line_2_monitor == i_cache_line_active_devil) 
+                        r_pattern <= i_external_cache_line_pattern;
+                        r_pattern_size <= 16;
+                        r_match_pattern_trigger <= 1;
+                        if(w_op_end) begin
+                            r_match_pattern_trigger <= 0;
+                            if(w_full_match) 
+                                fsm_devil_controller <= DEVIL_CHOOSE_CMD;
+                            else if(w_partial_match) 
+                                begin
+                                    fsm_devil_controller <= DEVIL_READ_NEXT_CL;
+                                    r_match_offset <=  w_match_offset;
+                                    r_pattern_size_save <= r_pattern_size;
+                                end
+                            else
+                                fsm_devil_controller <= DEVIL_REPLY;
+                        end
+                    end
+                    else
+                        fsm_devil_controller <= fsm_devil_controller;                                               
+                end
+            DEVIL_READ_NEXT_CL: // 8
+                begin 
+                    // Read Snoop
+                    r_controller_araddr   <= i_acaddr_snapshot+32'h40; // next CL
+                    r_controller_arsnoop  <= 4'b0001; // READ_ONCE
+                    r_controller_ardomain <= 2'b10; // outer shareable
+
+                    // Trigger Read Snoop
+                    r_active_func <= `ADL; // Read snoop
+
+                    // Enable Read Snoop
+                    r_internal_adl_en <= 1; 
+                    r_trigger_active <= 1;
+
+                    if(i_end_active_devil & r_trigger_active)
+                        fsm_devil_controller <= DEVIL_PARTIAL_MATCH; 
+                    else
+                        fsm_devil_controller <= fsm_devil_controller;                                               
+                end
+            DEVIL_PARTIAL_MATCH: // 7
+                begin 
+                    // Compare the remaining pattern 
+                    r_pattern <= r_pattern >> ((r_pattern_size_save-r_match_offset)*32);
+                    r_pattern_size <= r_match_offset;
+                    r_match_pattern_trigger <= 1;
+                    if(w_op_end) begin
+                        r_match_pattern_trigger <= 0;
+                        if(w_full_match) 
                             fsm_devil_controller <= DEVIL_CHOOSE_CMD;
                         else
                             fsm_devil_controller <= DEVIL_REPLY;
@@ -259,5 +323,43 @@ module devil_controller#(
             endcase            
         end
     end        
+
+//------------------------------------------------------------------------------
+// Just for test porpuses
+//------------------------------------------------------------------------------
+// wire [(C_ACE_DATA_WIDTH*4)-1:0] w_test_i_cache_line_active_devil;
+
+// assign w_test_i_cache_line_active_devil[31+32*0:0+32*0]   = 32'h1ec5cf46; // pattern[13]
+// assign w_test_i_cache_line_active_devil[31+32*1:0+32*1]   = 32'hff78efa1; // pattern[14] 
+// assign w_test_i_cache_line_active_devil[31+32*2:0+32*2]   = 32'heb624e0d; // pattern[15] 
+// assign w_test_i_cache_line_active_devil[31+32*3:0+32*3]   = 32'hd54783c2; // pattern[0]
+// assign w_test_i_cache_line_active_devil[31+32*4:0+32*4]   = 32'hdcd5db54; // pattern[1]
+// assign w_test_i_cache_line_active_devil[31+32*5:0+32*5]   = 32'hbbaf7e47; // pattern[2]
+// assign w_test_i_cache_line_active_devil[31+32*6:0+32*6]   = 32'hfe16863c; // pattern[3]
+// assign w_test_i_cache_line_active_devil[31+32*7:0+32*7]   = 32'hd206ceac; // pattern[4]
+// assign w_test_i_cache_line_active_devil[31+32*8:0+32*8]   = 32'hd260d0b8; // pattern[5]
+// assign w_test_i_cache_line_active_devil[31+32*9:0+32*9]   = 32'hf65b9c92; // pattern[6]
+// assign w_test_i_cache_line_active_devil[31+32*10:0+32*10] = 32'hcd197260; // pattern[7]
+// assign w_test_i_cache_line_active_devil[31+32*11:0+32*11] = 32'hfcb01399; // pattern[8]
+// assign w_test_i_cache_line_active_devil[31+32*12:0+32*12] = 32'h1443e896; // pattern[9]
+// assign w_test_i_cache_line_active_devil[31+32*13:0+32*13] = 32'h893d8de5; // pattern[10]
+// assign w_test_i_cache_line_active_devil[31+32*14:0+32*14] = 32'h1cd9b232; // pattern[11]
+// assign w_test_i_cache_line_active_devil[31+32*15:0+32*15] = 32'hc8772659; // pattern[12]
+//------------------------------------------------------------------------------
+
+// Instantiation Passive devil module
+    match_pattern #(
+		.CL_SIZE(64)
+    ) match_pattern_inst(
+        .i_pattern(r_pattern),
+        .i_pattern_size(r_pattern_size),
+        // .i_cache_line(w_test_i_cache_line_active_devil),
+        .i_cache_line(i_cache_line_active_devil),
+        .i_trigger(r_match_pattern_trigger),
+        .o_full_match(w_full_match),
+        .o_partial_match(w_partial_match),
+        .o_match_offset(w_match_offset),
+        .o_op_end(w_op_end)
+    );
 
 endmodule

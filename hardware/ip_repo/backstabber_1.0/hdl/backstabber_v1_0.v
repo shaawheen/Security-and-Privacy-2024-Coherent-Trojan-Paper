@@ -1050,12 +1050,15 @@
 		.C_S_AXI_DATA_WIDTH(C_S01_AXI_DATA_WIDTH),
         .C_ACE_DATA_WIDTH(C_ACE_DATA_WIDTH),
         .C_ACE_ADDR_WIDTH(C_ACE_ADDR_WIDTH),
+        .C_ACE_ACSNOOP_WIDTH(C_ACE_ACSNOOP_WIDTH),
         .CTRL_OUT_SIGNAL_WIDTH(`CTRL_OUT_SIGNAL_WIDTH)
     ) devil_controller_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
         .i_cmd(1),
         .i_trigger(w_trigger_devil_controller),
+        .i_acaddr_snapshot(r_acaddr_snapshot),
+        .i_acsnoop_snapshot(r_acsnoop_snapshot),
         .o_fsm_devil_controller(w_fsm_devil_controller), 
         .o_cache_line_2_monitor(w_cache_line_2_monitor),
         

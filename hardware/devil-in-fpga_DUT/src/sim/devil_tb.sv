@@ -251,6 +251,7 @@ module devil_tb();
                     | (1 << `MONEN_pos)               
                     | (1 << `EN_pos);
 
+        // Data to do a write snoop
         reg_DATA0   = 32'h00000000;
         reg_DATA1   = 32'h00000001;
         reg_DATA2   = 32'h00000002;
@@ -285,6 +286,7 @@ module devil_tb();
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA14,prot,reg_DATA14,resp); 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA15,prot,reg_DATA15,resp); 
 
+        // Match pattern simulation (this is the same data VIP has)
         reg_PATTERN0  = 32'hd54783c2;
         reg_PATTERN1  = 32'hdcd5db54;
         reg_PATTERN2  = 32'hbbaf7e47;
