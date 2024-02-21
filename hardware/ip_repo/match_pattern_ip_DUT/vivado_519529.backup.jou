@@ -2,13 +2,13 @@
 # Vivado v2022.1 (64-bit)
 # SW Build 3526262 on Mon Apr 18 15:47:01 MDT 2022
 # IP Build 3524634 on Mon Apr 18 20:55:01 MDT 2022
-# Start of session at: Wed Feb 21 13:01:26 2024
-# Process ID: 814564
+# Start of session at: Wed Feb 21 10:35:32 2024
+# Process ID: 519529
 # Current directory: /home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/ip_repo/match_pattern_ip_DUT
 # Command line: vivado match_pattern_ip.xpr
 # Log file: /home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/ip_repo/match_pattern_ip_DUT/vivado.log
 # Journal file: /home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/ip_repo/match_pattern_ip_DUT/vivado.jou
-# Running On: cris, OS: Linux, CPU Frequency: 2294.429 MHz, CPU Physical cores: 4, Host memory: 33503 MB
+# Running On: cris, OS: Linux, CPU Frequency: 3557.130 MHz, CPU Physical cores: 4, Host memory: 33503 MB
 #-----------------------------------------------------------
 start_gui
 open_project match_pattern_ip.xpr
@@ -16,4 +16,9 @@ update_compile_order -fileset sources_1
 launch_simulation
 open_wave_config /home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/ip_repo/match_pattern_ip_DUT/match_pattern_tb_behav.wcfg
 source match_pattern_tb.tcl
+close_sim
+launch_simulation
+open_wave_config /home/cris/Documents/0_Projects/MancusoCollab/devil-in-the-fpga/hardware/ip_repo/match_pattern_ip_DUT/match_pattern_tb_behav.wcfg
+source match_pattern_tb.tcl
+relaunch_sim
 close_sim

@@ -119,7 +119,8 @@ module match_pattern#(
                 end
     endgenerate
 
-    always @(posedge i_trigger or negedge i_trigger ) begin 
+    always @(i_trigger) 
+    begin 
         if(i_trigger == 0) // reset
         begin 
             o_op_end <= 0; 
