@@ -213,8 +213,9 @@ module devil_controller#(
                 begin 
                     // Read Snoop
                     r_controller_araddr   <= i_acaddr_snapshot+32'h40; // next CL
-                    r_controller_arsnoop  <= 4'b0001; // READ_ONCE
-                    r_controller_ardomain <= 2'b10; // outer shareable
+                    // ReadNoSnoop , ardomain = 2'b00 and arsnoop = 4'b0000
+                    r_controller_arsnoop  <= 4'b0000; // ReadNoSnoop
+                    r_controller_ardomain <= 2'b00; // outer shareable
 
                     // Trigger Read Snoop
                     r_active_func <= `ADL; // Read snoop
@@ -327,24 +328,24 @@ module devil_controller#(
 //------------------------------------------------------------------------------
 // Just for test porpuses
 //------------------------------------------------------------------------------
-// wire [(C_ACE_DATA_WIDTH*4)-1:0] w_test_i_cache_line_active_devil;
+wire [(C_ACE_DATA_WIDTH*4)-1:0] w_test_i_cache_line_active_devil;
 
-// assign w_test_i_cache_line_active_devil[31+32*0:0+32*0]   = 32'h1ec5cf46; // pattern[13]
-// assign w_test_i_cache_line_active_devil[31+32*1:0+32*1]   = 32'hff78efa1; // pattern[14] 
-// assign w_test_i_cache_line_active_devil[31+32*2:0+32*2]   = 32'heb624e0d; // pattern[15] 
-// assign w_test_i_cache_line_active_devil[31+32*3:0+32*3]   = 32'hd54783c2; // pattern[0]
-// assign w_test_i_cache_line_active_devil[31+32*4:0+32*4]   = 32'hdcd5db54; // pattern[1]
-// assign w_test_i_cache_line_active_devil[31+32*5:0+32*5]   = 32'hbbaf7e47; // pattern[2]
-// assign w_test_i_cache_line_active_devil[31+32*6:0+32*6]   = 32'hfe16863c; // pattern[3]
-// assign w_test_i_cache_line_active_devil[31+32*7:0+32*7]   = 32'hd206ceac; // pattern[4]
-// assign w_test_i_cache_line_active_devil[31+32*8:0+32*8]   = 32'hd260d0b8; // pattern[5]
-// assign w_test_i_cache_line_active_devil[31+32*9:0+32*9]   = 32'hf65b9c92; // pattern[6]
-// assign w_test_i_cache_line_active_devil[31+32*10:0+32*10] = 32'hcd197260; // pattern[7]
-// assign w_test_i_cache_line_active_devil[31+32*11:0+32*11] = 32'hfcb01399; // pattern[8]
-// assign w_test_i_cache_line_active_devil[31+32*12:0+32*12] = 32'h1443e896; // pattern[9]
-// assign w_test_i_cache_line_active_devil[31+32*13:0+32*13] = 32'h893d8de5; // pattern[10]
-// assign w_test_i_cache_line_active_devil[31+32*14:0+32*14] = 32'h1cd9b232; // pattern[11]
-// assign w_test_i_cache_line_active_devil[31+32*15:0+32*15] = 32'hc8772659; // pattern[12]
+assign w_test_i_cache_line_active_devil[31+32*0:0+32*0]   = 32'hDEEDBEEF; // pattern[0]
+assign w_test_i_cache_line_active_devil[31+32*1:0+32*1]   = 32'h1FFFFFFF; // pattern[1] 
+assign w_test_i_cache_line_active_devil[31+32*2:0+32*2]   = 32'hDEEDBEEF; // pattern[2] 
+assign w_test_i_cache_line_active_devil[31+32*3:0+32*3]   = 32'h2FFFFFFF; // pattern[3]
+assign w_test_i_cache_line_active_devil[31+32*4:0+32*4]   = 32'hDEEDBEEF; // pattern[4]
+assign w_test_i_cache_line_active_devil[31+32*5:0+32*5]   = 32'h3FFFFFFF; // pattern[5]
+assign w_test_i_cache_line_active_devil[31+32*6:0+32*6]   = 32'hDEEDBEEF; // pattern[6]
+assign w_test_i_cache_line_active_devil[31+32*7:0+32*7]   = 32'h4FFFFFFF; // pattern[7]
+assign w_test_i_cache_line_active_devil[31+32*8:0+32*8]   = 32'hDEEDBEEF; // pattern[8]
+assign w_test_i_cache_line_active_devil[31+32*9:0+32*9]   = 32'h5FFFFFFF; // pattern[9]
+assign w_test_i_cache_line_active_devil[31+32*10:0+32*10] = 32'hDEEDBEEF; // pattern[10]
+assign w_test_i_cache_line_active_devil[31+32*11:0+32*11] = 32'h6FFFFFFF; // pattern[11]
+assign w_test_i_cache_line_active_devil[31+32*12:0+32*12] = 32'hDEEDBEEF; // pattern[12]
+assign w_test_i_cache_line_active_devil[31+32*13:0+32*13] = 32'h7FFFFFFF; // pattern[13]
+assign w_test_i_cache_line_active_devil[31+32*14:0+32*14] = 32'hDEEDBEEF; // pattern[14]
+assign w_test_i_cache_line_active_devil[31+32*15:0+32*15] = 32'h8FFFFFFF; // pattern[15]
 //------------------------------------------------------------------------------
 
 // Instantiation Passive devil module
@@ -353,8 +354,8 @@ module devil_controller#(
     ) match_pattern_inst(
         .i_pattern(r_pattern),
         .i_pattern_size(r_pattern_size),
-        // .i_cache_line(w_test_i_cache_line_active_devil),
-        .i_cache_line(i_cache_line_active_devil),
+        .i_cache_line(w_test_i_cache_line_active_devil),
+        // .i_cache_line(i_cache_line_active_devil),
         .i_trigger(r_match_pattern_trigger),
         .o_full_match(w_full_match),
         .o_partial_match(w_partial_match),
