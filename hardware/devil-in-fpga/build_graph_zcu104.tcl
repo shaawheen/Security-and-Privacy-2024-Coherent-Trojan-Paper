@@ -44,11 +44,18 @@ set_property -name "sim.ip.auto_export_scripts" -value "1" -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 set_property -name "xpm_libraries" -value "XPM_MEMORY" -objects $obj
 
+
+#-------------------------------------------------------------------------------
+# Sources
+#-------------------------------------------------------------------------------
 # Create 'sources_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sources_1] ""]} {
   create_fileset -srcset sources_1
 }
 
+#-------------------------------------------------------------------------------
+# IP Repo
+#-------------------------------------------------------------------------------
 # Set IP repository paths
 set obj [get_filesets sources_1]
 if { $obj != {} } {
@@ -58,15 +65,33 @@ if { $obj != {} } {
    update_ip_catalog -rebuild
 }
 
+#-------------------------------------------------------------------------------
+# Constraints
+#-------------------------------------------------------------------------------
 # Create 'constrs_1' fileset (if not found)
 if {[string equal [get_filesets -quiet constrs_1] ""]} {
   create_fileset -constrset constrs_1
 }
 
+# Set 'constrs_1' fileset object
+set obj [get_filesets constrs_1]
+
+# Add/Import constrs file and set constrs file properties
+set file "[file normalize "$origin_dir/src/constrs_1/new/constraints.xdc"]"
+set file_imported [import_files -fileset constrs_1 [list $file]]
+set file "new/constraints.xdc"
+set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
+set_property -name "file_type" -value "XDC" -objects $file_obj
+
 # Set 'constrs_1' fileset properties
 set obj [get_filesets constrs_1]
+set_property -name "target_constrs_file" -value "[get_files *new/constraints.xdc]" -objects $obj
 set_property -name "target_part" -value "xczu7ev-ffvc1156-2-e" -objects $obj
+set_property -name "target_ucf" -value "[get_files *new/constraints.xdc]" -objects $obj
 
+#-------------------------------------------------------------------------------
+# Simulation
+#-------------------------------------------------------------------------------
 # Create 'sim_1' fileset (if not found)
 if {[string equal [get_filesets -quiet sim_1] ""]} {
   create_fileset -simset sim_1

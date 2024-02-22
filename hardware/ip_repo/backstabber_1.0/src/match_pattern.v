@@ -30,14 +30,14 @@ module match_pattern#(
     parameter integer CL_SIZE = 64 
     )
     (
-    input [(CL_SIZE*8)-1:0] i_pattern,
-    input             [4:0] i_pattern_size,
-    input [(CL_SIZE*8)-1:0] i_cache_line,
-    input                   i_trigger,
-    output reg              o_full_match,
-    output reg              o_partial_match,
-    output reg        [3:0] o_match_offset,
-    output reg              o_op_end
+    (* mark_debug = "true" *) input [(CL_SIZE*8)-1:0] i_pattern,
+    (* mark_debug = "true" *) input             [4:0] i_pattern_size,
+    (* mark_debug = "true" *) input [(CL_SIZE*8)-1:0] i_cache_line,
+    (* mark_debug = "true" *) input                   i_trigger,
+                              output reg              o_full_match,
+                              output reg              o_partial_match,
+                              output reg        [3:0] o_match_offset,
+    (* mark_debug = "true" *) output reg              o_op_end
     );
 
     // Position of the first march of the pattern with the cache line 
@@ -97,7 +97,8 @@ module match_pattern#(
     `define PARTIAL_MATCH_14    `FULL_MATCH_2
     `define PARTIAL_MATCH_15    `FULL_MATCH_1
 
-    wire [15:0] w_cache_line_word, w_match_word[15:0];   
+    (* mark_debug = "true" *) wire [15:0] w_cache_line_word;    
+    (* mark_debug = "true" *) wire [15:0] w_match_word[15:0];
 
     // Detect first pattern element 
     generate
@@ -133,27 +134,24 @@ module match_pattern#(
                 `WORD_0: 
                 begin
                     case (w_match_word[0])
-                    `FULL_MATCH_1:  begin if(i_pattern_size == 1)  o_full_match <= 1; else o_full_match <= 0; end
-                    `FULL_MATCH_2:  begin if(i_pattern_size == 2)  o_full_match <= 1; else o_full_match <= 0; end  
-                    `FULL_MATCH_3:  begin if(i_pattern_size == 3)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_4:  begin if(i_pattern_size == 4)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_5:  begin if(i_pattern_size == 5)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_6:  begin if(i_pattern_size == 6)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_7:  begin if(i_pattern_size == 7)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_8:  begin if(i_pattern_size == 8)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_9:  begin if(i_pattern_size == 9)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_10: begin if(i_pattern_size == 10) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_11: begin if(i_pattern_size == 11) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_12: begin if(i_pattern_size == 12) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_13: begin if(i_pattern_size == 13) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_14: begin if(i_pattern_size == 14) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_15: begin if(i_pattern_size == 15) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_16: begin if(i_pattern_size == 16) o_full_match <= 1; else o_full_match <= 0; end 
-                    default: begin o_full_match <= 0; end // No Match
+                    `FULL_MATCH_1:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 1)  o_full_match <= 1; else o_full_match <= 0; end
+                    `FULL_MATCH_2:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 2)  o_full_match <= 1; else o_full_match <= 0; end  
+                    `FULL_MATCH_3:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 3)  o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_4:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 4)  o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_5:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 5)  o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_6:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 6)  o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_7:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 7)  o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_8:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 8)  o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_9:  begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 9)  o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_10: begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 10) o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_11: begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 11) o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_12: begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 12) o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_13: begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 13) o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_14: begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 14) o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_15: begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 15) o_full_match <= 1; else o_full_match <= 0; end 
+                    `FULL_MATCH_16: begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; if(i_pattern_size == 16) o_full_match <= 1; else o_full_match <= 0; end 
+                    default:        begin o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0; o_full_match <= 0;  end // No Match
                     endcase
-                    o_op_end <= 1; 
-                    o_match_offset <= 0;  
-                    o_partial_match <= 0; 
                 end
                 `WORD_1: 
                 begin // Partial Match (Not Aligned)
