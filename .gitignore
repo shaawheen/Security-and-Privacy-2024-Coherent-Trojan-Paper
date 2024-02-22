@@ -1,0 +1,9 @@
+# Ignore dev & deploy artifacts - entire folder
+dev/
+
+# Ignore .tmp files, often used for dev
+*.tmp
+
+# Ignore other artifacts
+*~
+*#
