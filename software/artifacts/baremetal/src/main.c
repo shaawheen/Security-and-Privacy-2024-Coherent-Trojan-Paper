@@ -199,32 +199,40 @@ void invaliInstCache(void *address) {
     );
 }
 
+void invalidate_all_instruction_cache() {
+    asm volatile (
+        "ic iallu\n"
+        "dsb sy\n"
+        "isb\n"
+    );
+}
+
 int check_tamper = 0;
 
-unsigned int *ptr   = (unsigned int*)(0x40000000);
-unsigned int *ptr1  = (unsigned int*)(0x40000004);
-unsigned int *ptr2  = (unsigned int*)(0x40000008);
-unsigned int *ptr3  = (unsigned int*)(0x4000000C);
-unsigned int *ptr4  = (unsigned int*)(0x40000010);
-unsigned int *ptr5  = (unsigned int*)(0x40000014);
-unsigned int *ptr6  = (unsigned int*)(0x40000018);
-unsigned int *ptr7  = (unsigned int*)(0x4000001C);
-unsigned int *ptr8  = (unsigned int*)(0x40000100);
-unsigned int *ptr9  = (unsigned int*)(0x40000104);
-unsigned int *ptr10 = (unsigned int*)(0x40000108);
-unsigned int *ptr11 = (unsigned int*)(0x4000010C);
-unsigned int *ptr12 = (unsigned int*)(0x40000110);
-unsigned int *ptr13 = (unsigned int*)(0x40000114);
-unsigned int *ptr14 = (unsigned int*)(0x40000118);
-unsigned int *ptr15 = (unsigned int*)(0x4000011C);
-unsigned int *ptr8b  = (unsigned int*)(0x40000120);
-unsigned int *ptr9b  = (unsigned int*)(0x40000124);
-unsigned int *ptr10b = (unsigned int*)(0x40000128);
-unsigned int *ptr11b = (unsigned int*)(0x4000012C);
-unsigned int *ptr12b = (unsigned int*)(0x40000130);
-unsigned int *ptr13b = (unsigned int*)(0x40000134);
-unsigned int *ptr14b = (unsigned int*)(0x40000138);
-unsigned int *ptr15b = (unsigned int*)(0x4000013C);
+unsigned int *ptr   = (unsigned int*)(0x40000000+0x50);
+unsigned int *ptr1  = (unsigned int*)(0x40000004+0x50);
+unsigned int *ptr2  = (unsigned int*)(0x40000008+0x50);
+unsigned int *ptr3  = (unsigned int*)(0x4000000C+0x50);
+unsigned int *ptr4  = (unsigned int*)(0x40000010+0x50);
+unsigned int *ptr5  = (unsigned int*)(0x40000014+0x50);
+unsigned int *ptr6  = (unsigned int*)(0x40000018+0x50);
+unsigned int *ptr7  = (unsigned int*)(0x4000001C+0x50);
+unsigned int *ptr8  = (unsigned int*)(0x40000020+0x50);
+unsigned int *ptr9  = (unsigned int*)(0x40000024+0x50);
+unsigned int *ptr10 = (unsigned int*)(0x40000028+0x50);
+unsigned int *ptr11 = (unsigned int*)(0x4000002C+0x50);
+unsigned int *ptr12 = (unsigned int*)(0x40000030+0x50);
+unsigned int *ptr13 = (unsigned int*)(0x40000034+0x50);
+unsigned int *ptr14 = (unsigned int*)(0x40000038+0x50);
+unsigned int *ptr15 = (unsigned int*)(0x4000003C+0x50);
+unsigned int *ptr8b  = (unsigned int*)(0x40000100);
+unsigned int *ptr9b  = (unsigned int*)(0x40000104);
+unsigned int *ptr10b = (unsigned int*)(0x40000108);
+unsigned int *ptr11b = (unsigned int*)(0x4000010C);
+unsigned int *ptr12b = (unsigned int*)(0x40000110);
+unsigned int *ptr13b = (unsigned int*)(0x40000114);
+unsigned int *ptr14b = (unsigned int*)(0x40000118);
+unsigned int *ptr15b = (unsigned int*)(0x4000011C);
 
 void data_tamper(void){
     int counter = 0, init_value  = 0;
@@ -319,10 +327,35 @@ void active_data_tampering(){
     for (int i = 0; i < 1500000000; i++); 
 }
 
+
+inline void monitor_transaction_test(){
+    __asm volatile("ldr x0, =0x40000000");
+    // IF 
+    __asm volatile("IF:");
+        __asm volatile("ldr x1, [x0]"); 
+        __asm volatile("cbz x1, ACC"); 
+    // ELse
+    __asm volatile("ELSE:");
+        __asm volatile("ldr x1, [x0]"); 
+        __asm volatile("b NO_ACC"); 
+
+    // IF statement
+    __asm volatile("ACC:"); 
+        printf("Access!!\n");
+        __asm volatile("b END"); 
+
+    // Else statement
+    __asm volatile("NO_ACC:"); 
+        printf("No Access\n");
+        
+    __asm volatile("END:"); 
+}
+
+
 void main(void){
 
     static volatile bool master_done = false;
-    int beat = 0, key = 1;
+    int beat = 0, key = 1, count = 0;
 
     if(cpu_is_master()){
         spin_lock(&print_lock);
@@ -348,44 +381,44 @@ void main(void){
 
     while(!master_done);
 
-    // while(1){
-    //     spin_lock(&print_lock);
-    //     printf("cpu%d: Heart Beat %d | IRQ: %d \n", get_cpuid(), beat++, irq_count);
-    //     spin_unlock(&print_lock);
-    //     // asm volatile("dc ivac, %0" : : "r" (0x80010004));
-    //     // printf("status    %d: %d\n", irq_count, *status); 
-    //     for (size_t i = 0; i < 100000000; i++);        
-    // }
-
     while (1)
     {   
-        active_data_leak();
+        // Invalidation does not work!!!!!! 
+        *ptr =  0xDEEDBEEF;
+        *ptr1 = 0x1FFFFFFF;
+        *ptr2 = 0xDEEDBEEF;
+        *ptr3 = 0x2FFFFFFF;
+        *ptr4 = 0xDEEDBEEF;
+        *ptr5 = 0x3FFFFFFF;
+        *ptr6 = 0xDEEDBEEF;
+        *ptr7 = 0x4FFFFFFF;
+        *ptr8 = 0xDEEDBEEF;
+        *ptr9 = 0x5FFFFFFF;
+        *ptr10 = 0xDEEDBEEF;
+        *ptr11 = 0x6FFFFFFF;
+        *ptr12 = 0xDEEDBEEF;
+        *ptr13 = 0x7FFFFFFF;
+        *ptr14 = 0xDEEDBEEF;
+        *ptr15 = 0x8FFFFFFF;
+        *ptr8b  = 0xF00DBABE; // 0x40000100
+        *ptr9b  = 0xF00DBABE;
+        *ptr10b = 0xF00DBABE;
+        *ptr11b = 0xF00DBABE;
+        *ptr12b = 0xF00DBABE;
+        *ptr13b = 0xF00DBABE;
+        *ptr14b = 0xF00DBABE;
+        *ptr15b = 0xF00DBABE;
+        for (size_t i = 0; i < 3000000000; i++);  
+        invalidateCache(ptr15);
+        monitor_transaction_test();
+        printf("Count   = 0x%08x\n", count++);
+        printf("Ptr8b   = 0x%08x\n", *ptr8b);
+        printf("Ptr9b   = 0x%08x\n", *ptr9b);
+        printf("Ptr10b  = 0x%08x\n", *ptr10b);
+        printf("Ptr11b  = 0x%08x\n", *ptr11b);
+        // active_data_leak();
         // active_data_tampering();
         // data_tamper();
-        // for (size_t i = 0; i < 2000000000; i++);  
-
-        // #ifndef DATA_TAMPERING
-        //     __asm volatile("ldr x0, =0x40000000");
-        //     // IF 
-        //     __asm volatile("IF:");
-        //         __asm volatile("ldr x1, [x0]"); 
-        //         __asm volatile("cbz x1, ACC"); 
-        //     // ELse
-        //     __asm volatile("ELSE:");
-        //         __asm volatile("ldr x1, [x0]"); 
-        //         __asm volatile("b NO_ACC"); 
-
-        //     // IF statement
-        //     __asm volatile("ACC:"); 
-        //         printf("Access!!\n");
-        //         __asm volatile("b END"); 
-
-        //     // Else statement
-        //     __asm volatile("NO_ACC:"); 
-        //         printf("No Access\n");
-                
-        //     __asm volatile("END:"); 
-        // #endif
     }
 
     while(1) wfi();    

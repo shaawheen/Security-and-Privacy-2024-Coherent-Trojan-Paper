@@ -53,6 +53,23 @@ import design_1_axi_vip_1_0_pkg::*;
 `define DATA13          32'h74
 `define DATA14          32'h78
 `define DATA15          32'h7C
+`define PATTERN0        32'h80
+`define PATTERN1        32'h84
+`define PATTERN2        32'h88
+`define PATTERN3        32'h8C
+`define PATTERN4        32'h90
+`define PATTERN5        32'h94
+`define PATTERN6        32'h98
+`define PATTERN7        32'h9C
+`define PATTERN8        32'hA0
+`define PATTERN9        32'hA4
+`define PATTERN10       32'hA8
+`define PATTERN11       32'hAC
+`define PATTERN12       32'hB0
+`define PATTERN13       32'hB4
+`define PATTERN14       32'hB8
+`define PATTERN15       32'hBC
+
 
 `define READ_ONCE           4'b0000
 `define WRITE_LINE_UNIQUE   3'b001
@@ -98,7 +115,7 @@ module devil_tb();
     bit [31:0] reg_size;
     bit [31:0] reg_l_araddr;
     bit [31:0] reg_h_araddr;
-    bit [31:0] reg_l_awaddr;
+    bit [31:0] reg_l_awaddr; 
     bit [31:0] reg_h_awaddr;
     bit [31:0] reg_wdata1;
     bit [31:0] reg_wdata2;
@@ -109,6 +126,38 @@ module devil_tb();
     bit [31:0] reg_wdata;
     bit [43:0]acaddr;
     bit [3:0]acsnoop;
+    bit [31:0] reg_DATA0;
+    bit [31:0] reg_DATA1;
+    bit [31:0] reg_DATA2;
+    bit [31:0] reg_DATA3;
+    bit [31:0] reg_DATA4;
+    bit [31:0] reg_DATA5;
+    bit [31:0] reg_DATA6;
+    bit [31:0] reg_DATA7;
+    bit [31:0] reg_DATA8;
+    bit [31:0] reg_DATA9;
+    bit [31:0] reg_DATA10;
+    bit [31:0] reg_DATA11;
+    bit [31:0] reg_DATA12;
+    bit [31:0] reg_DATA13;
+    bit [31:0] reg_DATA14;
+    bit [31:0] reg_DATA15;
+    bit [31:0] reg_PATTERN0;
+    bit [31:0] reg_PATTERN1;
+    bit [31:0] reg_PATTERN2;
+    bit [31:0] reg_PATTERN3;
+    bit [31:0] reg_PATTERN4;
+    bit [31:0] reg_PATTERN5;
+    bit [31:0] reg_PATTERN6;
+    bit [31:0] reg_PATTERN7;
+    bit [31:0] reg_PATTERN8;
+    bit [31:0] reg_PATTERN9;
+    bit [31:0] reg_PATTERN10;
+    bit [31:0] reg_PATTERN11;
+    bit [31:0] reg_PATTERN12;
+    bit [31:0] reg_PATTERN13;
+    bit [31:0] reg_PATTERN14;
+    bit [31:0] reg_PATTERN15;
     bit acvalid;
     bit crvalid;
     bit crready;
@@ -199,14 +248,91 @@ module devil_tb();
         acaddr = 44'h00040000000;  // Emulae Snoop Address
         reg_ctrl = (`FUNC_PDT << `FUNC_pos) // active data leak
                     | (1 << `PDTEN_pos) 
-                    // | (1 << `MONEN_pos)               
+                    | (1 << `MONEN_pos)               
                     | (1 << `EN_pos);
+
+        // Data to do a write snoop
+        reg_DATA0   = 32'h00000000;
+        reg_DATA1   = 32'h00000001;
+        reg_DATA2   = 32'h00000002;
+        reg_DATA3   = 32'h00000003;
+        reg_DATA4   = 32'h00000004;
+        reg_DATA5   = 32'h00000005;
+        reg_DATA6   = 32'h00000006; 
+        reg_DATA7   = 32'h00000007;
+        reg_DATA8   = 32'h00000008;
+        reg_DATA9   = 32'h00000009;
+        reg_DATA10  = 32'h0000000A;
+        reg_DATA11  = 32'h0000000B;
+        reg_DATA12  = 32'h0000000C;
+        reg_DATA13  = 32'h0000000D;
+        reg_DATA14  = 32'h0000000E;
+        reg_DATA15  = 32'h0000000F;
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA0,prot, reg_DATA0,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA1,prot, reg_DATA1,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA2,prot, reg_DATA2,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA3,prot, reg_DATA3,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA4,prot, reg_DATA4,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA5,prot, reg_DATA5,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA6,prot, reg_DATA6,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA7,prot, reg_DATA7,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA8,prot, reg_DATA8,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA9,prot, reg_DATA9,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA10,prot,reg_DATA10,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA11,prot,reg_DATA11,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA12,prot,reg_DATA12,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA13,prot,reg_DATA13,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA14,prot,reg_DATA14,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA15,prot,reg_DATA15,resp); 
+
+        // Match pattern simulation (this is the same data VIP has)
+        reg_PATTERN0  = 32'hd54783c2;
+        reg_PATTERN1  = 32'hdcd5db54;
+        reg_PATTERN2  = 32'hbbaf7e47;
+        reg_PATTERN3  = 32'hfe16863c;
+        reg_PATTERN4  = 32'hd206ceac;
+        reg_PATTERN5  = 32'hd260d0b8;
+        reg_PATTERN6  = 32'hf65b9c92;
+        reg_PATTERN7  = 32'hcd197260;
+        reg_PATTERN8  = 32'hfcb01399;
+        reg_PATTERN9  = 32'h1443e896;
+        reg_PATTERN10 = 32'h893d8de5;
+        reg_PATTERN11 = 32'h1cd9b232;
+        reg_PATTERN12 = 32'hc8772659;
+        reg_PATTERN13 = 32'h1ec5cf46;
+        reg_PATTERN14 = 32'hff78efa1;
+        reg_PATTERN15 = 32'heb624e0d;     
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN0,prot, reg_PATTERN0,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN1,prot, reg_PATTERN1,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN2,prot, reg_PATTERN2,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN3,prot, reg_PATTERN3,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN4,prot, reg_PATTERN4,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN5,prot, reg_PATTERN5,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN6,prot, reg_PATTERN6,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN7,prot, reg_PATTERN7,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN8,prot, reg_PATTERN8,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN9,prot, reg_PATTERN9,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN10,prot,reg_PATTERN10,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN11,prot,reg_PATTERN11,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN12,prot,reg_PATTERN12,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN13,prot,reg_PATTERN13,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN14,prot,reg_PATTERN14,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN15,prot,reg_PATTERN15,resp);    
+
+        reg_l_awaddr = 32'h40000100;
+        reg_awsnoop = `WRITE_LINE_UNIQUE;
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_AWADDR,prot,reg_l_awaddr,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`AWSNOOP,prot,reg_awsnoop,resp); 
+        
 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
         #100ns;
         reg_ctrl =  (0 << `EN_pos);
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-
+        #100ns;
     endtask :monitor_transation_devil
 
     task data_leak_FMS_new_devil();
