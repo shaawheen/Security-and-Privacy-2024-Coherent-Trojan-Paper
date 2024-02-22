@@ -14,12 +14,21 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
+<<<<<<< HEAD
       <ZoomStartTime time="1,353.143 ns"></ZoomStartTime>
       <ZoomEndTime time="1,397.404 ns"></ZoomEndTime>
       <Cursor1Time time="1,375.123 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="190"></NameColumnWidth>
+=======
+      <ZoomStartTime time="1,321.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,431.451 ns"></ZoomEndTime>
+      <Cursor1Time time="1,355.500 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="194"></NameColumnWidth>
+>>>>>>> e157286... fix(match_pattern_module): Error detecting some  patterns
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="58" />
@@ -465,10 +474,6 @@
       <obj_property name="ElementShortName">debug_snoop_state[4:0]</obj_property>
       <obj_property name="ObjectShortName">debug_snoop_state[4:0]</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/o_fsm_devil_controller">
-      <obj_property name="ElementShortName">o_fsm_devil_controller[4:0]</obj_property>
-      <obj_property name="ObjectShortName">o_fsm_devil_controller[4:0]</obj_property>
-   </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_in_fpga_inst/passive_devil_inst/fsm_devil_state_passive">
       <obj_property name="ElementShortName">fsm_devil_state_passive[4:0]</obj_property>
       <obj_property name="ObjectShortName">fsm_devil_state_passive[4:0]</obj_property>
@@ -476,6 +481,10 @@
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_in_fpga_inst/active_devil_inst/o_fsm_devil_state_active">
       <obj_property name="ElementShortName">o_fsm_devil_state_active[4:0]</obj_property>
       <obj_property name="ObjectShortName">o_fsm_devil_state_active[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/o_fsm_devil_controller">
+      <obj_property name="ElementShortName">o_fsm_devil_controller[4:0]</obj_property>
+      <obj_property name="ObjectShortName">o_fsm_devil_controller[4:0]</obj_property>
    </wvobject>
    <wvobject fp_name="divider175" type="divider">
       <obj_property name="label">ACTIVE DEVIL SIGNALS</obj_property>
@@ -604,135 +613,6 @@
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word">
       <obj_property name="ElementShortName">w_match_word[15:0][15:0]</obj_property>
       <obj_property name="ObjectShortName">w_match_word[15:0][15:0]</obj_property>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[15]">
-         <obj_property name="ElementShortName">[15][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[15][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[14]">
-         <obj_property name="ElementShortName">[14][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[14][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[13]">
-         <obj_property name="ElementShortName">[13][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[13][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[12]">
-         <obj_property name="ElementShortName">[12][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[12][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[11]">
-         <obj_property name="ElementShortName">[11][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[11][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[10]">
-         <obj_property name="ElementShortName">[10][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[10][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[9]">
-         <obj_property name="ElementShortName">[9][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[9][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[8]">
-         <obj_property name="ElementShortName">[8][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[8][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[7]">
-         <obj_property name="ElementShortName">[7][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[7][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[6]">
-         <obj_property name="ElementShortName">[6][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[6][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[5]">
-         <obj_property name="ElementShortName">[5][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[5][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[4]">
-         <obj_property name="ElementShortName">[4][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[4][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[3]">
-         <obj_property name="ElementShortName">[3][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[3][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[2]">
-         <obj_property name="ElementShortName">[2][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[2][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[1]">
-         <obj_property name="ElementShortName">[1][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[1][15:0]</obj_property>
-         <obj_property name="isExpanded"></obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[0]">
-         <obj_property name="ElementShortName">[0][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[0][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[15]">
-         <obj_property name="ElementShortName">[15][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[15][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[14]">
-         <obj_property name="ElementShortName">[14][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[14][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[13]">
-         <obj_property name="ElementShortName">[13][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[13][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[12]">
-         <obj_property name="ElementShortName">[12][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[12][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[11]">
-         <obj_property name="ElementShortName">[11][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[11][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[10]">
-         <obj_property name="ElementShortName">[10][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[10][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[9]">
-         <obj_property name="ElementShortName">[9][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[9][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[8]">
-         <obj_property name="ElementShortName">[8][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[8][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[7]">
-         <obj_property name="ElementShortName">[7][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[7][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[6]">
-         <obj_property name="ElementShortName">[6][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[6][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[5]">
-         <obj_property name="ElementShortName">[5][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[5][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[4]">
-         <obj_property name="ElementShortName">[4][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[4][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[3]">
-         <obj_property name="ElementShortName">[3][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[3][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[2]">
-         <obj_property name="ElementShortName">[2][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[2][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[1]">
-         <obj_property name="ElementShortName">[1][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[1][15:0]</obj_property>
-      </wvobject>
-      <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/match_pattern_inst/w_match_word[0]">
-         <obj_property name="ElementShortName">[0][15:0]</obj_property>
-         <obj_property name="ObjectShortName">[0][15:0]</obj_property>
-      </wvobject>
    </wvobject>
    <wvobject fp_name="divider178" type="divider">
       <obj_property name="label">REGISTER FILE</obj_property>
