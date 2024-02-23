@@ -154,17 +154,6 @@ int main() {
     PATTERN14 = map_base+46;
     PATTERN15 = map_base+47;
   
-    // Address Filter
-    // *base_addr  = 0x03801600; 
-    *base_addr  = 0x40000000; 
-    // *base_addr  = 0x20001580; // without bao
-    // 0x20001600 // without bao
-    // 0x03801600 // with bao
-
-    // Target Address
-    *awsnoop =  0b001;
-    *l_awaddr = 0x40000100;
-
     // Cache line to write
     *DATA0   = 0x00000000;
     *DATA1   = 0x00000001;
@@ -184,23 +173,46 @@ int main() {
     *DATA15  = 0x0000000F;
     
     // Pattern to search 
-    *PATTERN0  = 0xDEEDBEEF;
-    *PATTERN1  = 0x1FFFFFFF;
-    *PATTERN2  = 0xDEEDBEEF;
-    *PATTERN3  = 0x2FFFFFFF;
-    *PATTERN4  = 0xDEEDBEEF;
-    *PATTERN5  = 0x3FFFFFFF;
-    *PATTERN6  = 0xDEEDBEEF;
-    *PATTERN7  = 0x4FFFFFFF;
-    *PATTERN8  = 0xDEEDBEEF;
-    *PATTERN9  = 0x5FFFFFFF;
-    *PATTERN10 = 0xDEEDBEEF;
-    *PATTERN11 = 0x6FFFFFFF;
-    *PATTERN12 = 0xDEEDBEEF;
-    *PATTERN13 = 0x7FFFFFFF;
-    *PATTERN14 = 0xDEEDBEEF;
-    *PATTERN15 = 0x8FFFFFFF;
+    // *PATTERN0  = 0xDEEDBEEF;
+    // *PATTERN1  = 0x1FFFFFFF;
+    // *PATTERN2  = 0xDEEDBEEF;
+    // *PATTERN3  = 0x2FFFFFFF;
+    // *PATTERN4  = 0xDEEDBEEF;
+    // *PATTERN5  = 0x3FFFFFFF;
+    // *PATTERN6  = 0xDEEDBEEF;
+    // *PATTERN7  = 0x4FFFFFFF;
+    // *PATTERN8  = 0xDEEDBEEF;
+    // *PATTERN9  = 0x5FFFFFFF;
+    // *PATTERN10 = 0xDEEDBEEF;
+    // *PATTERN11 = 0x6FFFFFFF;
+    // *PATTERN12 = 0xDEEDBEEF;
+    // *PATTERN13 = 0x7FFFFFFF;
+    // *PATTERN14 = 0xDEEDBEEF;
+    // *PATTERN15 = 0x8FFFFFFF;
 
+    *PATTERN0  = 0xd54783c2;
+    *PATTERN1  = 0xdcd5db54;
+    *PATTERN2  = 0xbbaf7e47;
+    *PATTERN3  = 0xfe16863c;
+    *PATTERN4  = 0xd206ceac;
+    *PATTERN5  = 0xd260d0b8;
+    *PATTERN6  = 0xf65b9c92;
+    *PATTERN7  = 0xcd197260;
+    *PATTERN8  = 0xfcb01399;
+    *PATTERN9  = 0x1443e896;
+    *PATTERN10 = 0x893d8de5;
+    *PATTERN11 = 0x1cd9b232;
+    *PATTERN12 = 0xc8772659;
+    *PATTERN13 = 0x1ec5cf46;
+    *PATTERN14 = 0xff78efa1;
+    *PATTERN15 = 0xeb624e0d;
+
+    // Address Filter
+    // *base_addr  = 0x03801600; 
+    *base_addr  = 0x40000000; 
+    // *base_addr  = 0x20001580; // without bao
+    // 0x20001600 // without bao
+    // 0x03801600 // with bao
 
     // *base_addr  = 0x038016c0; // with bao
     *mem_size   = 0x4;
@@ -208,6 +220,10 @@ int main() {
     // Snoop Filter
     *acsnoop = 0x1;
 
+    // Target Address
+    *awsnoop =  0b001;
+    *l_awaddr = 0x40000100;
+    
     *ctrl = 0; // Disable IP
     *ctrl    =    (0b00001 << CRRESP_pos) 
                 | (1 << ACFLT_pos) 
