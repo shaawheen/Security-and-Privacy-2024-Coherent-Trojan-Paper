@@ -14,30 +14,12 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-<<<<<<< HEAD
-<<<<<<< HEAD
       <ZoomStartTime time="1,353.143 ns"></ZoomStartTime>
       <ZoomEndTime time="1,397.404 ns"></ZoomEndTime>
       <Cursor1Time time="1,375.123 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="190"></NameColumnWidth>
-=======
-      <ZoomStartTime time="1,321.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,431.451 ns"></ZoomEndTime>
-      <Cursor1Time time="1,355.500 ns"></Cursor1Time>
-   </zoom_setting>
-   <column_width_setting>
-      <NameColumnWidth column_width="194"></NameColumnWidth>
->>>>>>> e157286... fix(match_pattern_module): Error detecting some  patterns
-=======
-      <ZoomStartTime time="1,353.143 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,397.404 ns"></ZoomEndTime>
-      <Cursor1Time time="1,375.123 ns"></Cursor1Time>
-   </zoom_setting>
-   <column_width_setting>
-      <NameColumnWidth column_width="190"></NameColumnWidth>
->>>>>>> 46f90da... fix(match_pattern_module): Error in retrigging devil controller
       <ValueColumnWidth column_width="66"></ValueColumnWidth>
    </column_width_setting>
    <WVObjectSize size="58" />

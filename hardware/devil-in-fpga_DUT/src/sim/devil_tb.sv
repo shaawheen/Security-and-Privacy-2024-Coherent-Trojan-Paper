@@ -287,22 +287,22 @@ module devil_tb();
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA15,prot,reg_DATA15,resp); 
 
         // Match pattern simulation (this is the same data VIP has)
-        reg_PATTERN0  = 32'hd54783c2; //
-        reg_PATTERN1  = 32'hdcd5db54; //
-        reg_PATTERN2  = 32'hbbaf7e47; //
-        reg_PATTERN3  = 32'hfe16863c; //
-        reg_PATTERN4  = 32'hd206ceac; //
-        reg_PATTERN5  = 32'hd260d0b8; //
-        reg_PATTERN6  = 32'hf65b9c92; //
-        reg_PATTERN7  = 32'hcd197260; //
-        reg_PATTERN8  = 32'hfcb01399; //
-        reg_PATTERN9  = 32'h1443e896; //
-        reg_PATTERN10 = 32'h893d8de5; //
-        reg_PATTERN11 = 32'h1cd9b232; //
-        reg_PATTERN12 = 32'hc8772659; //
-        reg_PATTERN13 = 32'h1ec5cf46; //
-        reg_PATTERN14 = 32'hff78efa1; //
-        reg_PATTERN15 = 32'heb624e0d; //     
+        reg_PATTERN0  = 32'ha9bd7bfd; //
+        reg_PATTERN1  = 32'h910003fd; //
+        reg_PATTERN2  = 32'hb90013ff; //
+        reg_PATTERN3  = 32'h52800140; //
+        reg_PATTERN4  = 32'hb9001be0; //
+        reg_PATTERN5  = 32'hb9001fff; //
+        reg_PATTERN6  = 32'h52a80000; //
+        reg_PATTERN7  = 32'hb90023e0; //
+        reg_PATTERN8  = 32'h52820041; //
+        reg_PATTERN9  = 32'h72a00201; //
+        reg_PATTERN10 = 32'h90000000; //
+        reg_PATTERN11 = 32'h91368000; //
+        reg_PATTERN12 = 32'h97ffff80; //
+        reg_PATTERN13 = 32'hb90027e0; //
+        reg_PATTERN14 = 32'hb94027e0; //
+        reg_PATTERN15 = 32'h3100041f; //     
 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN0,prot, reg_PATTERN0,resp); 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN1,prot, reg_PATTERN1,resp); 
