@@ -42,6 +42,14 @@ int main() {
 
     *map_base = 0xdeadbeef;
 
+    // VA to PA just works for EL1 to EL0 translations. If there
+    // is an hypervisor in EL2, it will not work. Because we are
+    // only decoding the first level VA translation.
+    printf("                                                                  \n\r");
+    printf("WARNING: VA to PA just works for EL0 to EL1 translations. If there\n\r");
+    printf("        is an hypervisor in EL2, it will not work. Because we are \n\r");
+    printf("        only decoding the first level VA translation.             \n\r");
+    printf("                                                                  \n\r");
     getPhysicalAddress((void*) &main);
 
     // Unmap memory and close /dev/mem

@@ -26,6 +26,7 @@ static uint64_t virtual_to_physical(void* virtual_address) {
     //  Bit  63    page present
     //
     // Info from: https://www.kernel.org/doc/Documentation/vm/pagemap.txt
+    // For more info: https://stackoverflow.com/questions/5748492/is-there-any-api-for-determining-the-physical-address-from-virtual-address-in-li
 
     if (pread(fd, &value, sizeof(value), page_offset) != sizeof(value)) {
         perror("pread");
@@ -37,7 +38,7 @@ static uint64_t virtual_to_physical(void* virtual_address) {
     // Get the page frame number (PFN) shift it 12 (Page size) and add the addr
     // offset within the page using the virtual address (VA and PA offset are 
     // the same)
-    return (value & ((1ULL << 54) - 1)) << 12 | ((uintptr_t)virtual_address & 0x3ff);
+    return (value & ((1ULL << 55) - 1)) << 12 | ((uintptr_t)virtual_address & 0xfff);
 }
 
 uint64_t getPhysicalAddress(void* virtual_address) {

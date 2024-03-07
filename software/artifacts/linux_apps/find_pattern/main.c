@@ -155,7 +155,7 @@ int main() {
     PATTERN15 = map_base+47;
   
     // Cache line to write
-    *DATA0   = 0x00000000;
+    *DATA0   = 0x0000F0F0;
     *DATA1   = 0x00000001;
     *DATA2   = 0x00000002;
     *DATA3   = 0x00000003;
@@ -190,22 +190,22 @@ int main() {
     // *PATTERN14 = 0xDEEDBEEF;
     // *PATTERN15 = 0x8FFFFFFF;
 
-    *PATTERN0  = 0xd54783c2;
-    *PATTERN1  = 0xdcd5db54;
-    *PATTERN2  = 0xbbaf7e47;
-    *PATTERN3  = 0xfe16863c;
-    *PATTERN4  = 0xd206ceac;
-    *PATTERN5  = 0xd260d0b8;
-    *PATTERN6  = 0xf65b9c92;
-    *PATTERN7  = 0xcd197260;
-    *PATTERN8  = 0xfcb01399;
-    *PATTERN9  = 0x1443e896;
-    *PATTERN10 = 0x893d8de5;
-    *PATTERN11 = 0x1cd9b232;
-    *PATTERN12 = 0xc8772659;
-    *PATTERN13 = 0x1ec5cf46;
-    *PATTERN14 = 0xff78efa1;
-    *PATTERN15 = 0xeb624e0d;
+    *PATTERN0  = 0xa9bd7bfd; // d54783c2
+    *PATTERN1  = 0x910003fd; // dcd5db54
+    *PATTERN2  = 0xb90013ff; // bbaf7e47
+    *PATTERN3  = 0x52800140; // fe16863c
+    *PATTERN4  = 0xb9001be0; // d206ceac
+    *PATTERN5  = 0xb9001fff; // d260d0b8
+    *PATTERN6  = 0x52a80000; // f65b9c92
+    *PATTERN7  = 0xb90023e0; // cd197260
+    *PATTERN8  = 0x52820041; // fcb01399
+    *PATTERN9  = 0x72a00201; // 1443e896
+    *PATTERN10 = 0x90000000; // 893d8de5
+    *PATTERN11 = 0x91368000; // 1cd9b232
+    *PATTERN12 = 0x97ffff80; // c8772659
+    *PATTERN13 = 0xb90027e0; // 1ec5cf46
+    *PATTERN14 = 0xb94027e0; // ff78efa1
+    *PATTERN15 = 0x3100041f; // eb624e0d
 
     // Address Filter
     // *base_addr  = 0x03801600; 
@@ -226,8 +226,8 @@ int main() {
     
     *ctrl = 0; // Disable IP
     *ctrl    =    (0b00001 << CRRESP_pos) 
-                | (1 << ACFLT_pos) 
-                | (1 << ADDRFLT_pos) 
+                // | (1 << ACFLT_pos) 
+                // | (1 << ADDRFLT_pos) 
                 | (1 << PDTEN_pos)               
                 | (1 << MONEN_pos)               
                 | (FUNC_PDT << FUNC_pos) 
@@ -241,7 +241,6 @@ int main() {
     for (size_t i = 0; i < 10000000; i++);   
     printf(" ctrl = 0x%08x\n", *ctrl);   
     // *ctrl = 0; // Disable IP
-
 
     // Unmap memory and close /dev/mem
     munmap(map_base, 4096);

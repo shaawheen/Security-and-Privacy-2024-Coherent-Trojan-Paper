@@ -373,94 +373,93 @@ inline void monitor_transaction_test(){
 
 void main(void){
 
-    while(1);
+    static volatile bool master_done = false;
+    int beat = 0, key = 1, count = 0;
 
-    // static volatile bool master_done = false;
-    // int beat = 0, key = 1, count = 0;
+    if(cpu_is_master()){
+        spin_lock(&print_lock);
+        printf("Malicious Baremetal Guest\n");
+        spin_unlock(&print_lock);
 
-    // if(cpu_is_master()){
-    //     spin_lock(&print_lock);
-    //     printf("Malicious Baremetal Guest\n");
-    //     spin_unlock(&print_lock);
+        // irq_set_handler(TIMER_IRQ_ID, timer_handler);
 
-    //     // irq_set_handler(TIMER_IRQ_ID, timer_handler);
+        // timer_set(TIMER_INTERVAL);
+        // irq_enable(TIMER_IRQ_ID);
+        // irq_set_prio(TIMER_IRQ_ID, IRQ_MAX_PRIO);
 
-    //     // timer_set(TIMER_INTERVAL);
-    //     // irq_enable(TIMER_IRQ_ID);
-    //     // irq_set_prio(TIMER_IRQ_ID, IRQ_MAX_PRIO);
+        shmem_init();
 
-    //     shmem_init();
+        master_done = true;
+        // spin_lock(&print_lock);
+        // printf("IPC\n");
+        // spin_unlock(&print_lock);
+        // sprintf(shmem_buff, "%d", irq_count);
+        // irq_count++;
+        // osh_cr_delay(4);
+    }
 
-    //     master_done = true;
-    //     // spin_lock(&print_lock);
-    //     // printf("IPC\n");
-    //     // spin_unlock(&print_lock);
-    //     // sprintf(shmem_buff, "%d", irq_count);
-    //     // irq_count++;
-    //     // osh_cr_delay(4);
-    // }
+    while(!master_done);
 
-    // while(!master_done);
+    while (1)
+    {   
+        // Pattern Slip between two cache lines
+        // CL 0
+        // *ptr   = 0xa0a0a0a0;
+        // *ptr1  = 0xa0a0a0a0;
+        // *ptr2  = 0xd54783c2;
+        // *ptr3  = 0xdcd5db54;
+        // *ptr4  = 0xbbaf7e47;
+        // *ptr5  = 0xfe16863c;
+        // *ptr6  = 0xd206ceac;
+        // *ptr7  = 0xd260d0b8;
+        // *ptr8  = 0xf65b9c92;
+        // *ptr9  = 0xcd197260;
+        // *ptr10 = 0xfcb01399;
+        // *ptr11 = 0x1443e896;
+        // *ptr12 = 0x893d8de5;
+        // *ptr13 = 0x1cd9b232;
+        // *ptr14 = 0xc8772659;
+        // *ptr15 = 0x1ec5cf46;
+        // // CL 1
+        // *ptr_1_0  = 0xff78efa1; 
+        // *ptr_1_1  = 0xeb624e0d;
+        // *ptr_1_2  = 0;
+        // *ptr_1_3  = 0;
+        // *ptr_1_4  = 0;
+        // *ptr_1_5  = 0;
+        // *ptr_1_6  = 0;
+        // *ptr_1_7  = 0;
+        // *ptr_1_8  = 0;
+        // *ptr_1_9  = 0;
+        // *ptr_1_10 = 0;
+        // *ptr_1_11 = 0;
+        // *ptr_1_12 = 0;
+        // *ptr_1_13 = 0;
+        // *ptr_1_14 = 0;
+        // *ptr_1_15 = 0;
 
-    // while (1)
-    // {   
-    //     // Pattern Slip between two cache lines
-    //     // CL 0
-    //     *ptr   = 0xa0a0a0a0;
-    //     *ptr1  = 0xa0a0a0a0;
-    //     *ptr2  = 0xd54783c2;
-    //     *ptr3  = 0xdcd5db54;
-    //     *ptr4  = 0xbbaf7e47;
-    //     *ptr5  = 0xfe16863c;
-    //     *ptr6  = 0xd206ceac;
-    //     *ptr7  = 0xd260d0b8;
-    //     *ptr8  = 0xf65b9c92;
-    //     *ptr9  = 0xcd197260;
-    //     *ptr10 = 0xfcb01399;
-    //     *ptr11 = 0x1443e896;
-    //     *ptr12 = 0x893d8de5;
-    //     *ptr13 = 0x1cd9b232;
-    //     *ptr14 = 0xc8772659;
-    //     *ptr15 = 0x1ec5cf46;
-    //     // CL 1
-    //     *ptr_1_0  = 0xff78efa1; 
-    //     *ptr_1_1  = 0xeb624e0d;
-    //     *ptr_1_2  = 0;
-    //     *ptr_1_3  = 0;
-    //     *ptr_1_4  = 0;
-    //     *ptr_1_5  = 0;
-    //     *ptr_1_6  = 0;
-    //     *ptr_1_7  = 0;
-    //     *ptr_1_8  = 0;
-    //     *ptr_1_9  = 0;
-    //     *ptr_1_10 = 0;
-    //     *ptr_1_11 = 0;
-    //     *ptr_1_12 = 0;
-    //     *ptr_1_13 = 0;
-    //     *ptr_1_14 = 0;
-    //     *ptr_1_15 = 0;
+        // *ptr8b  = 0xF00DBABE; // 0x40000100
+        // *ptr9b  = 0xF00DBABE;
+        // *ptr10b = 0xF00DBABE;
+        // *ptr11b = 0xF00DBABE;
+        // *ptr12b = 0xF00DBABE;
+        // *ptr13b = 0xF00DBABE;
+        // *ptr14b = 0xF00DBABE;
+        // *ptr15b = 0xF00DBABE;
+        for (size_t i = 0; i < 3000000000; i++);  
+        // invalidateCache(ptr15);
+        // invalidateCache(ptr_1_0); // this is needed for the data to be written to memory
+        // monitor_transaction_test();
+        printf("Count   = 0x%08x\n", count++);
+        printf("Ptr8b   = 0x%08x\n", *ptr8b);
+        // printf("Ptr8b   = 0x%08x\n", *ptr8b);
+        // printf("Ptr9b   = 0x%08x\n", *ptr9b);
+        // printf("Ptr10b  = 0x%08x\n", *ptr10b);
+        // printf("Ptr11b  = 0x%08x\n", *ptr11b);
+        // active_data_leak();
+        // active_data_tampering();
+        // data_tamper();
+    }
 
-    //     *ptr8b  = 0xF00DBABE; // 0x40000100
-    //     *ptr9b  = 0xF00DBABE;
-    //     *ptr10b = 0xF00DBABE;
-    //     *ptr11b = 0xF00DBABE;
-    //     *ptr12b = 0xF00DBABE;
-    //     *ptr13b = 0xF00DBABE;
-    //     *ptr14b = 0xF00DBABE;
-    //     *ptr15b = 0xF00DBABE;
-    //     for (size_t i = 0; i < 3000000000; i++);  
-    //     invalidateCache(ptr15);
-    //     invalidateCache(ptr_1_0); // this is needed for the data to be written to memory
-    //     monitor_transaction_test();
-    //     printf("Count   = 0x%08x\n", count++);
-    //     printf("Ptr8b   = 0x%08x\n", *ptr8b);
-    //     printf("Ptr9b   = 0x%08x\n", *ptr9b);
-    //     printf("Ptr10b  = 0x%08x\n", *ptr10b);
-    //     printf("Ptr11b  = 0x%08x\n", *ptr11b);
-    //     // active_data_leak();
-    //     // active_data_tampering();
-    //     // data_tamper();
-    // }
-
-    // while(1) wfi();    
+    while(1) wfi();    
 }
