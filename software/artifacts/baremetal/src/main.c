@@ -209,22 +209,41 @@ void invalidate_all_instruction_cache() {
 
 int check_tamper = 0;
 
-unsigned int *ptr   = (unsigned int*)(0x40000000+0x50);
-unsigned int *ptr1  = (unsigned int*)(0x40000004+0x50);
-unsigned int *ptr2  = (unsigned int*)(0x40000008+0x50);
-unsigned int *ptr3  = (unsigned int*)(0x4000000C+0x50);
-unsigned int *ptr4  = (unsigned int*)(0x40000010+0x50);
-unsigned int *ptr5  = (unsigned int*)(0x40000014+0x50);
-unsigned int *ptr6  = (unsigned int*)(0x40000018+0x50);
-unsigned int *ptr7  = (unsigned int*)(0x4000001C+0x50);
-unsigned int *ptr8  = (unsigned int*)(0x40000020+0x50);
-unsigned int *ptr9  = (unsigned int*)(0x40000024+0x50);
-unsigned int *ptr10 = (unsigned int*)(0x40000028+0x50);
-unsigned int *ptr11 = (unsigned int*)(0x4000002C+0x50);
-unsigned int *ptr12 = (unsigned int*)(0x40000030+0x50);
-unsigned int *ptr13 = (unsigned int*)(0x40000034+0x50);
-unsigned int *ptr14 = (unsigned int*)(0x40000038+0x50);
-unsigned int *ptr15 = (unsigned int*)(0x4000003C+0x50);
+// CL 0
+unsigned int *ptr   = (unsigned int*)(0x40000000);
+unsigned int *ptr1  = (unsigned int*)(0x40000004);
+unsigned int *ptr2  = (unsigned int*)(0x40000008);
+unsigned int *ptr3  = (unsigned int*)(0x4000000C);
+unsigned int *ptr4  = (unsigned int*)(0x40000010);
+unsigned int *ptr5  = (unsigned int*)(0x40000014);
+unsigned int *ptr6  = (unsigned int*)(0x40000018);
+unsigned int *ptr7  = (unsigned int*)(0x4000001C);
+unsigned int *ptr8  = (unsigned int*)(0x40000020);
+unsigned int *ptr9  = (unsigned int*)(0x40000024);
+unsigned int *ptr10 = (unsigned int*)(0x40000028);
+unsigned int *ptr11 = (unsigned int*)(0x4000002C);
+unsigned int *ptr12 = (unsigned int*)(0x40000030);
+unsigned int *ptr13 = (unsigned int*)(0x40000034);
+unsigned int *ptr14 = (unsigned int*)(0x40000038);
+unsigned int *ptr15 = (unsigned int*)(0x4000003C);
+// CL 1
+unsigned int *ptr_1_0  = (unsigned int*)(0x40000000+0x40);
+unsigned int *ptr_1_1  = (unsigned int*)(0x40000004+0x40);
+unsigned int *ptr_1_2  = (unsigned int*)(0x40000008+0x40);
+unsigned int *ptr_1_3  = (unsigned int*)(0x4000000C+0x40);
+unsigned int *ptr_1_4  = (unsigned int*)(0x40000010+0x40);
+unsigned int *ptr_1_5  = (unsigned int*)(0x40000014+0x40);
+unsigned int *ptr_1_6  = (unsigned int*)(0x40000018+0x40);
+unsigned int *ptr_1_7  = (unsigned int*)(0x4000001C+0x40);
+unsigned int *ptr_1_8  = (unsigned int*)(0x40000020+0x40);
+unsigned int *ptr_1_9  = (unsigned int*)(0x40000024+0x40);
+unsigned int *ptr_1_10 = (unsigned int*)(0x40000028+0x40);
+unsigned int *ptr_1_11 = (unsigned int*)(0x4000002C+0x40);
+unsigned int *ptr_1_12 = (unsigned int*)(0x40000030+0x40);
+unsigned int *ptr_1_13 = (unsigned int*)(0x40000034+0x40);
+unsigned int *ptr_1_14 = (unsigned int*)(0x40000038+0x40);
+unsigned int *ptr_1_15 = (unsigned int*)(0x4000003C+0x40);
+
 unsigned int *ptr8b  = (unsigned int*)(0x40000100);
 unsigned int *ptr9b  = (unsigned int*)(0x40000104);
 unsigned int *ptr10b = (unsigned int*)(0x40000108);
@@ -383,39 +402,60 @@ void main(void){
 
     while (1)
     {   
-        // Invalidation does not work!!!!!! 
-        *ptr =  0xDEEDBEEF;
-        *ptr1 = 0x1FFFFFFF;
-        *ptr2 = 0xDEEDBEEF;
-        *ptr3 = 0x2FFFFFFF;
-        *ptr4 = 0xDEEDBEEF;
-        *ptr5 = 0x3FFFFFFF;
-        *ptr6 = 0xDEEDBEEF;
-        *ptr7 = 0x4FFFFFFF;
-        *ptr8 = 0xDEEDBEEF;
-        *ptr9 = 0x5FFFFFFF;
-        *ptr10 = 0xDEEDBEEF;
-        *ptr11 = 0x6FFFFFFF;
-        *ptr12 = 0xDEEDBEEF;
-        *ptr13 = 0x7FFFFFFF;
-        *ptr14 = 0xDEEDBEEF;
-        *ptr15 = 0x8FFFFFFF;
-        *ptr8b  = 0xF00DBABE; // 0x40000100
-        *ptr9b  = 0xF00DBABE;
-        *ptr10b = 0xF00DBABE;
-        *ptr11b = 0xF00DBABE;
-        *ptr12b = 0xF00DBABE;
-        *ptr13b = 0xF00DBABE;
-        *ptr14b = 0xF00DBABE;
-        *ptr15b = 0xF00DBABE;
+        // Pattern Slip between two cache lines
+        // CL 0
+        // *ptr   = 0xa0a0a0a0;
+        // *ptr1  = 0xa0a0a0a0;
+        // *ptr2  = 0xd54783c2;
+        // *ptr3  = 0xdcd5db54;
+        // *ptr4  = 0xbbaf7e47;
+        // *ptr5  = 0xfe16863c;
+        // *ptr6  = 0xd206ceac;
+        // *ptr7  = 0xd260d0b8;
+        // *ptr8  = 0xf65b9c92;
+        // *ptr9  = 0xcd197260;
+        // *ptr10 = 0xfcb01399;
+        // *ptr11 = 0x1443e896;
+        // *ptr12 = 0x893d8de5;
+        // *ptr13 = 0x1cd9b232;
+        // *ptr14 = 0xc8772659;
+        // *ptr15 = 0x1ec5cf46;
+        // // CL 1
+        // *ptr_1_0  = 0xff78efa1; 
+        // *ptr_1_1  = 0xeb624e0d;
+        // *ptr_1_2  = 0;
+        // *ptr_1_3  = 0;
+        // *ptr_1_4  = 0;
+        // *ptr_1_5  = 0;
+        // *ptr_1_6  = 0;
+        // *ptr_1_7  = 0;
+        // *ptr_1_8  = 0;
+        // *ptr_1_9  = 0;
+        // *ptr_1_10 = 0;
+        // *ptr_1_11 = 0;
+        // *ptr_1_12 = 0;
+        // *ptr_1_13 = 0;
+        // *ptr_1_14 = 0;
+        // *ptr_1_15 = 0;
+
+        // *ptr8b  = 0xF00DBABE; // 0x40000100
+        // *ptr9b  = 0xF00DBABE;
+        // *ptr10b = 0xF00DBABE;
+        // *ptr11b = 0xF00DBABE;
+        // *ptr12b = 0xF00DBABE;
+        // *ptr13b = 0xF00DBABE;
+        // *ptr14b = 0xF00DBABE;
+        // *ptr15b = 0xF00DBABE;
         for (size_t i = 0; i < 3000000000; i++);  
-        invalidateCache(ptr15);
-        monitor_transaction_test();
+        // invalidateCache(ptr15);
+        // invalidateCache(ptr_1_0); // this is needed for the data to be written to memory
+        // monitor_transaction_test();
         printf("Count   = 0x%08x\n", count++);
         printf("Ptr8b   = 0x%08x\n", *ptr8b);
-        printf("Ptr9b   = 0x%08x\n", *ptr9b);
-        printf("Ptr10b  = 0x%08x\n", *ptr10b);
-        printf("Ptr11b  = 0x%08x\n", *ptr11b);
+        // printf("Ptr8b   = 0x%08x\n", *ptr8b);
+        // printf("Ptr9b   = 0x%08x\n", *ptr9b);
+        // printf("Ptr10b  = 0x%08x\n", *ptr10b);
+        // printf("Ptr11b  = 0x%08x\n", *ptr11b);
         // active_data_leak();
         // active_data_tampering();
         // data_tamper();

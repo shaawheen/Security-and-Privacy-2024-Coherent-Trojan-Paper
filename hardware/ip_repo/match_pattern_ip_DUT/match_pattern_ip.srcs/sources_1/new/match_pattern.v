@@ -30,14 +30,14 @@ module match_pattern#(
     parameter integer CL_SIZE = 64 
     )
     (
-    input [(CL_SIZE*8)-1:0] i_pattern,
-    input             [4:0] i_pattern_size,
-    input [(CL_SIZE*8)-1:0] i_cache_line,
-    input                   i_trigger,
-    output reg              o_full_match,
-    output reg              o_partial_match,
-    output reg        [3:0] o_match_offset,
-    output reg              o_op_end
+        input [(CL_SIZE*8)-1:0] i_pattern,
+        input             [4:0] i_pattern_size,
+        input [(CL_SIZE*8)-1:0] i_cache_line,
+        input                   i_trigger,
+        output reg              o_full_match,
+        output reg              o_partial_match,
+        output reg        [3:0] o_match_offset,
+        output reg              o_op_end
     );
 
     // Position of the first march of the pattern with the cache line 
@@ -97,7 +97,8 @@ module match_pattern#(
     `define PARTIAL_MATCH_14    `FULL_MATCH_2
     `define PARTIAL_MATCH_15    `FULL_MATCH_1
 
-    wire [15:0] w_cache_line_word, w_match_word[15:0];   
+    wire [15:0] w_cache_line_word;    
+    wire [15:0] w_match_word[15:0];
 
     // Detect first pattern element 
     generate
@@ -119,7 +120,8 @@ module match_pattern#(
                 end
     endgenerate
 
-    always @(i_trigger) begin 
+    always @(i_trigger) 
+    begin 
         if(i_trigger == 0) // reset
         begin 
             o_op_end <= 0; 
@@ -128,175 +130,168 @@ module match_pattern#(
             o_partial_match <= 0; 
         end else 
         begin
-            case (w_cache_line_word)
-                `WORD_0: 
-                begin
-                    case (w_match_word[0])
-                    `FULL_MATCH_1:  begin if(i_pattern_size == 1)  o_full_match <= 1; else o_full_match <= 0; end
-                    `FULL_MATCH_2:  begin if(i_pattern_size == 2)  o_full_match <= 1; else o_full_match <= 0; end  
-                    `FULL_MATCH_3:  begin if(i_pattern_size == 3)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_4:  begin if(i_pattern_size == 4)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_5:  begin if(i_pattern_size == 5)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_6:  begin if(i_pattern_size == 6)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_7:  begin if(i_pattern_size == 7)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_8:  begin if(i_pattern_size == 8)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_9:  begin if(i_pattern_size == 9)  o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_10: begin if(i_pattern_size == 10) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_11: begin if(i_pattern_size == 11) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_12: begin if(i_pattern_size == 12) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_13: begin if(i_pattern_size == 13) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_14: begin if(i_pattern_size == 14) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_15: begin if(i_pattern_size == 15) o_full_match <= 1; else o_full_match <= 0; end 
-                    `FULL_MATCH_16: begin if(i_pattern_size == 16) o_full_match <= 1; else o_full_match <= 0; end 
-                    default: begin o_full_match <= 0; end // No Match
-                    endcase
-                    o_op_end <= 1; 
-                    o_match_offset <= 0;  
-                    o_partial_match <= 0; 
+            if(w_cache_line_word[0])
+            begin
+                     if(i_pattern_size == 1  && ( (w_match_word[0]&`FULL_MATCH_1)  == `FULL_MATCH_1))  o_full_match <= 1; 
+                else if(i_pattern_size == 2  && ( (w_match_word[0]&`FULL_MATCH_2)  == `FULL_MATCH_2))  o_full_match <= 1;  
+                else if(i_pattern_size == 3  && ( (w_match_word[0]&`FULL_MATCH_3)  == `FULL_MATCH_3))  o_full_match <= 1;  
+                else if(i_pattern_size == 4  && ( (w_match_word[0]&`FULL_MATCH_4)  == `FULL_MATCH_4))  o_full_match <= 1;  
+                else if(i_pattern_size == 5  && ( (w_match_word[0]&`FULL_MATCH_5)  == `FULL_MATCH_5))  o_full_match <= 1;  
+                else if(i_pattern_size == 6  && ( (w_match_word[0]&`FULL_MATCH_6)  == `FULL_MATCH_6))  o_full_match <= 1;  
+                else if(i_pattern_size == 7  && ( (w_match_word[0]&`FULL_MATCH_7)  == `FULL_MATCH_7))  o_full_match <= 1;  
+                else if(i_pattern_size == 8  && ( (w_match_word[0]&`FULL_MATCH_8)  == `FULL_MATCH_8))  o_full_match <= 1;  
+                else if(i_pattern_size == 9  && ( (w_match_word[0]&`FULL_MATCH_9)  == `FULL_MATCH_9))  o_full_match <= 1;  
+                else if(i_pattern_size == 10 && ( (w_match_word[0]&`FULL_MATCH_10) == `FULL_MATCH_10)) o_full_match <= 1;  
+                else if(i_pattern_size == 11 && ( (w_match_word[0]&`FULL_MATCH_11) == `FULL_MATCH_11)) o_full_match <= 1;  
+                else if(i_pattern_size == 12 && ( (w_match_word[0]&`FULL_MATCH_12) == `FULL_MATCH_12)) o_full_match <= 1;  
+                else if(i_pattern_size == 13 && ( (w_match_word[0]&`FULL_MATCH_13) == `FULL_MATCH_13)) o_full_match <= 1;  
+                else if(i_pattern_size == 14 && ( (w_match_word[0]&`FULL_MATCH_14) == `FULL_MATCH_14)) o_full_match <= 1;  
+                else if(i_pattern_size == 15 && ( (w_match_word[0]&`FULL_MATCH_15) == `FULL_MATCH_15)) o_full_match <= 1;  
+                else if(i_pattern_size == 16 && ( (w_match_word[0]&`FULL_MATCH_16) == `FULL_MATCH_16)) o_full_match <= 1;   
+                else o_full_match <= 0;
+                o_op_end <= 1; o_match_offset <= 0; o_partial_match <= 0;
+            end else
+            if(w_cache_line_word[1])
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[1] == `PARTIAL_MATCH_1) begin 
+                    o_match_offset <= 1;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
                 end
-                `WORD_1: 
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[1] == `PARTIAL_MATCH_1) begin 
-                        o_match_offset <= 1;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_2: 
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[2] == `PARTIAL_MATCH_2) begin 
-                        o_match_offset <= 2;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_3: 
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[3] == `PARTIAL_MATCH_3) begin 
-                        o_match_offset <= 3;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end  
-                `WORD_4: 
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[4] == `PARTIAL_MATCH_4) begin 
-                        o_match_offset <= 4;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_5: 
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[5] == `PARTIAL_MATCH_5) begin 
-                        o_match_offset <= 5;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end  
-                `WORD_6:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[6] == `PARTIAL_MATCH_6) begin 
-                        o_match_offset <= 6;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_7:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[7] == `PARTIAL_MATCH_7) begin 
-                        o_match_offset <= 7;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_8:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[8] == `PARTIAL_MATCH_8) begin 
-                        o_match_offset <= 8;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_9:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[9] == `PARTIAL_MATCH_9) begin 
-                        o_match_offset <= 9;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_10:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[10] == `PARTIAL_MATCH_10) begin 
-                        o_match_offset <= 10;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_11:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[11] == `PARTIAL_MATCH_11) begin 
-                        o_match_offset <= 11;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_12:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[12] == `PARTIAL_MATCH_12) begin 
-                        o_match_offset <= 12;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_13:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[13] == `PARTIAL_MATCH_13) begin 
-                        o_match_offset <= 13;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_14:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[14] == `PARTIAL_MATCH_14) begin 
-                        o_match_offset <= 14;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                `WORD_15:  
-                begin // Partial Match (Not Aligned)
-                    if(w_match_word[15] == `PARTIAL_MATCH_15) begin 
-                        o_match_offset <= 15;  
-                        o_full_match <= 0; 
-                        o_partial_match <= 1;
-                    end
-                    o_op_end <= 1;
-                end 
-                default: 
-                begin // No Match 
-                    o_op_end <= 1; 
-                    o_full_match <= 0;
-                    o_match_offset <= 0;  
-                    o_partial_match <= 0; 
-                end 
-            endcase
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[2])
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[2] == `PARTIAL_MATCH_2) begin 
+                    o_match_offset <= 2;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[3])
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[3] == `PARTIAL_MATCH_3) begin 
+                    o_match_offset <= 3;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[4]) 
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[4] == `PARTIAL_MATCH_4) begin 
+                    o_match_offset <= 4;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[5])
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[5] == `PARTIAL_MATCH_5) begin 
+                    o_match_offset <= 5;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[6])  
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[6] == `PARTIAL_MATCH_6) begin 
+                    o_match_offset <= 6;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[7]) 
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[7] == `PARTIAL_MATCH_7) begin 
+                    o_match_offset <= 7;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[8]) 
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[8] == `PARTIAL_MATCH_8) begin 
+                    o_match_offset <= 8;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[9]) 
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[9] == `PARTIAL_MATCH_9) begin 
+                    o_match_offset <= 9;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[10])  
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[10] == `PARTIAL_MATCH_10) begin 
+                    o_match_offset <= 10;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[11])  
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[11] == `PARTIAL_MATCH_11) begin 
+                    o_match_offset <= 11;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[12])  
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[12] == `PARTIAL_MATCH_12) begin 
+                    o_match_offset <= 12;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[13])  
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[13] == `PARTIAL_MATCH_13) begin 
+                    o_match_offset <= 13;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[14])  
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[14] == `PARTIAL_MATCH_14) begin 
+                    o_match_offset <= 14;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else 
+            if(w_cache_line_word[15])  
+            begin // Partial Match (Not Aligned)
+                if(w_match_word[15] == `PARTIAL_MATCH_15) begin 
+                    o_match_offset <= 15;  
+                    o_full_match <= 0; 
+                    o_partial_match <= 1;
+                end
+                o_op_end <= 1;
+            end else
+            begin // No Match 
+                o_op_end <= 1; 
+                o_full_match <= 0;
+                o_match_offset <= 0;  
+                o_partial_match <= 0; 
+            end 
         end
     end
 

@@ -224,8 +224,11 @@ module devil_controller#(
                     r_internal_adl_en <= 1; 
                     r_trigger_active <= 1;
 
-                    if(i_end_active_devil & r_trigger_active)
+                    if(i_end_active_devil & r_trigger_active) begin
                         fsm_devil_controller <= DEVIL_PARTIAL_MATCH; 
+                        r_internal_adl_en <= 0; 
+                        r_trigger_active  <= 0;
+                    end
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                               
                 end
@@ -273,11 +276,14 @@ module devil_controller#(
                     // Enable Read Snoop
                     r_internal_adl_en <= 1; 
                     r_trigger_active <= 1;
-
-                    if(i_end_active_devil && r_trigger_active)
+   
+                    if(i_end_active_devil & r_trigger_active) begin
                         fsm_devil_controller <= DEVIL_REPLY; 
+                        r_internal_adl_en <= 0; 
+                        r_trigger_active  <= 0;
+                    end
                     else
-                        fsm_devil_controller <= fsm_devil_controller;                                               
+                        fsm_devil_controller <= fsm_devil_controller;                                           
                 end
             DEVIL_POISON_ACTION:  // 4
                 begin 
@@ -295,10 +301,13 @@ module devil_controller#(
                     r_internal_adt_en <= 1; // En Write Snoop
                     r_trigger_active <= 1;
 
-                    if(i_end_active_devil && r_trigger_active)
+                    if(i_end_active_devil & r_trigger_active) begin
                         fsm_devil_controller <= DEVIL_REPLY; 
+                        r_internal_adt_en <= 0; 
+                        r_trigger_active  <= 0;
+                    end
                     else
-                        fsm_devil_controller <= fsm_devil_controller;                                               
+                        fsm_devil_controller <= fsm_devil_controller;                                                
                 end
             DEVIL_REPLY:  // 5
                 begin 
@@ -312,7 +321,7 @@ module devil_controller#(
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                               
                 end
-            DEVIL_END_OP:  
+            DEVIL_END_OP:  // 6
                 begin 
                     r_reply <= 0;
                     fsm_devil_controller <= DEVIL_IDLE;                                                  
@@ -330,22 +339,22 @@ module devil_controller#(
 //------------------------------------------------------------------------------
 // wire [(C_ACE_DATA_WIDTH*4)-1:0] w_test_i_cache_line_active_devil;
 
-// assign w_test_i_cache_line_active_devil[31+32*0:0+32*0]   = 32'ha0a0a0a0; // pattern[0]
-// assign w_test_i_cache_line_active_devil[31+32*1:0+32*1]   = 32'ha0a0a0a0; // pattern[1] 
-// assign w_test_i_cache_line_active_devil[31+32*2:0+32*2]   = 32'hd54783c2; // pattern[2] 
-// assign w_test_i_cache_line_active_devil[31+32*3:0+32*3]   = 32'hdcd5db54; // pattern[3]
-// assign w_test_i_cache_line_active_devil[31+32*4:0+32*4]   = 32'hbbaf7e47; // pattern[4]
-// assign w_test_i_cache_line_active_devil[31+32*5:0+32*5]   = 32'hfe16863c; // pattern[5]
-// assign w_test_i_cache_line_active_devil[31+32*6:0+32*6]   = 32'hd206ceac; // pattern[6]
-// assign w_test_i_cache_line_active_devil[31+32*7:0+32*7]   = 32'hd260d0b8; // pattern[7]
-// assign w_test_i_cache_line_active_devil[31+32*8:0+32*8]   = 32'hf65b9c92; // pattern[8]
-// assign w_test_i_cache_line_active_devil[31+32*9:0+32*9]   = 32'hcd197260; // pattern[9]
-// assign w_test_i_cache_line_active_devil[31+32*10:0+32*10] = 32'hfcb01399; // pattern[10]
-// assign w_test_i_cache_line_active_devil[31+32*11:0+32*11] = 32'h1443e896; // pattern[11]
-// assign w_test_i_cache_line_active_devil[31+32*12:0+32*12] = 32'h893d8de5; // pattern[12]
-// assign w_test_i_cache_line_active_devil[31+32*13:0+32*13] = 32'h1cd9b232; // pattern[13]
-// assign w_test_i_cache_line_active_devil[31+32*14:0+32*14] = 32'hc8772659; // pattern[14]
-// assign w_test_i_cache_line_active_devil[31+32*15:0+32*15] = 32'h1ec5cf46; // pattern[15]
+// assign w_test_i_cache_line_active_devil[31+32*0:0+32*0]   = 32'ha9bd7bfd; // pattern[0]
+// assign w_test_i_cache_line_active_devil[31+32*1:0+32*1]   = 32'h910003fd; // pattern[1] 
+// assign w_test_i_cache_line_active_devil[31+32*2:0+32*2]   = 32'hb90013ff; // pattern[2] 
+// assign w_test_i_cache_line_active_devil[31+32*3:0+32*3]   = 32'h52800140; // pattern[3]
+// assign w_test_i_cache_line_active_devil[31+32*4:0+32*4]   = 32'hb9001be0; // pattern[4]
+// assign w_test_i_cache_line_active_devil[31+32*5:0+32*5]   = 32'hb9001fff; // pattern[5]
+// assign w_test_i_cache_line_active_devil[31+32*6:0+32*6]   = 32'h52a80000; // pattern[6]
+// assign w_test_i_cache_line_active_devil[31+32*7:0+32*7]   = 32'hb90023e0; // pattern[7]
+// assign w_test_i_cache_line_active_devil[31+32*8:0+32*8]   = 32'h52820041; // pattern[8]
+// assign w_test_i_cache_line_active_devil[31+32*9:0+32*9]   = 32'h72a00201; // pattern[9]
+// assign w_test_i_cache_line_active_devil[31+32*10:0+32*10] = 32'h90000000; // pattern[10]
+// assign w_test_i_cache_line_active_devil[31+32*11:0+32*11] = 32'h91368000; // pattern[11]
+// assign w_test_i_cache_line_active_devil[31+32*12:0+32*12] = 32'h97ffff80; // pattern[12]
+// assign w_test_i_cache_line_active_devil[31+32*13:0+32*13] = 32'hb90027e0; // pattern[13]
+// assign w_test_i_cache_line_active_devil[31+32*14:0+32*14] = 32'hb94027e0; // pattern[14]
+// assign w_test_i_cache_line_active_devil[31+32*15:0+32*15] = 32'h3100041f; // pattern[15]
 
 
 // assign w_test_i_cache_line_active_devil[31+32*0:0+32*0]   = 32'hd54783c2; // pattern[0]
