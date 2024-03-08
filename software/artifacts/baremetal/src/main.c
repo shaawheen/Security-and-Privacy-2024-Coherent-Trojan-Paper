@@ -404,22 +404,22 @@ void main(void){
     {   
         // Pattern Slip between two cache lines
         // CL 0
-        // *ptr   = 0xa0a0a0a0;
-        // *ptr1  = 0xa0a0a0a0;
-        // *ptr2  = 0xd54783c2;
-        // *ptr3  = 0xdcd5db54;
-        // *ptr4  = 0xbbaf7e47;
-        // *ptr5  = 0xfe16863c;
-        // *ptr6  = 0xd206ceac;
-        // *ptr7  = 0xd260d0b8;
-        // *ptr8  = 0xf65b9c92;
-        // *ptr9  = 0xcd197260;
-        // *ptr10 = 0xfcb01399;
-        // *ptr11 = 0x1443e896;
-        // *ptr12 = 0x893d8de5;
-        // *ptr13 = 0x1cd9b232;
-        // *ptr14 = 0xc8772659;
-        // *ptr15 = 0x1ec5cf46;
+        // *ptr   = 0xDEEDBEEF;
+        // *ptr1  = 0x1FFFFFFF;
+        // *ptr2  = 0xDEEDBEEF;
+        // *ptr3  = 0x2FFFFFFF;
+        // *ptr4  = 0xDEEDBEEF;
+        // *ptr5  = 0x3FFFFFFF;
+        // *ptr6  = 0xDEEDBEEF;
+        // *ptr7  = 0x4FFFFFFF;
+        // *ptr8  = 0xDEEDBEEF;
+        // *ptr9  = 0x5FFFFFFF;
+        // *ptr10 = 0xDEEDBEEF;
+        // *ptr11 = 0x6FFFFFFF;
+        // *ptr12 = 0xDEEDBEEF;
+        // *ptr13 = 0x7FFFFFFF;
+        // *ptr14 = 0xDEEDBEEF;
+        // *ptr15 = 0x8FFFFFFF;
         // // CL 1
         // *ptr_1_0  = 0xff78efa1; 
         // *ptr_1_1  = 0xeb624e0d;
