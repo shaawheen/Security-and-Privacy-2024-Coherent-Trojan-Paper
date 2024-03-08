@@ -155,7 +155,7 @@ int main() {
     PATTERN15 = map_base+47;
   
     // Cache line to write
-    *DATA0   = 0x0000F0F0;
+    *DATA0   = 0xAAAAAAAA;
     *DATA1   = 0x00000001;
     *DATA2   = 0x00000002;
     *DATA3   = 0x00000003;
@@ -173,39 +173,39 @@ int main() {
     *DATA15  = 0x0000000F;
     
     // Pattern to search 
-    // *PATTERN0  = 0xDEEDBEEF;
-    // *PATTERN1  = 0x1FFFFFFF;
-    // *PATTERN2  = 0xDEEDBEEF;
-    // *PATTERN3  = 0x2FFFFFFF;
-    // *PATTERN4  = 0xDEEDBEEF;
-    // *PATTERN5  = 0x3FFFFFFF;
-    // *PATTERN6  = 0xDEEDBEEF;
-    // *PATTERN7  = 0x4FFFFFFF;
-    // *PATTERN8  = 0xDEEDBEEF;
-    // *PATTERN9  = 0x5FFFFFFF;
-    // *PATTERN10 = 0xDEEDBEEF;
-    // *PATTERN11 = 0x6FFFFFFF;
-    // *PATTERN12 = 0xDEEDBEEF;
-    // *PATTERN13 = 0x7FFFFFFF;
-    // *PATTERN14 = 0xDEEDBEEF;
-    // *PATTERN15 = 0x8FFFFFFF;
+    *PATTERN0  = 0xa9bd7bfd; 
+    *PATTERN1  = 0x910003fd; 
+    *PATTERN2  = 0xb90013ff; 
+    *PATTERN3  = 0x52800140; 
+    *PATTERN4  = 0xb9001be0; 
+    *PATTERN5  = 0xb9001fff; 
+    *PATTERN6  = 0x52a80000; 
+    *PATTERN7  = 0xb90023e0; 
+    *PATTERN8  = 0x52820041; 
+    *PATTERN9  = 0x72a00201; 
+    *PATTERN10 = 0x90000000; 
+    *PATTERN11 = 0x91376000; 
+    *PATTERN12 = 0x97ffff80; 
+    *PATTERN13 = 0xb90027e0; 
+    *PATTERN14 = 0xb94027e0; 
+    *PATTERN15 = 0x3100041f; 
 
-    *PATTERN0  = 0xa9bd7bfd; // d54783c2
-    *PATTERN1  = 0x910003fd; // dcd5db54
-    *PATTERN2  = 0xb90013ff; // bbaf7e47
-    *PATTERN3  = 0x52800140; // fe16863c
-    *PATTERN4  = 0xb9001be0; // d206ceac
-    *PATTERN5  = 0xb9001fff; // d260d0b8
-    *PATTERN6  = 0x52a80000; // f65b9c92
-    *PATTERN7  = 0xb90023e0; // cd197260
-    *PATTERN8  = 0x52820041; // fcb01399
-    *PATTERN9  = 0x72a00201; // 1443e896
-    *PATTERN10 = 0x90000000; // 893d8de5
-    *PATTERN11 = 0x91368000; // 1cd9b232
-    *PATTERN12 = 0x97ffff80; // c8772659
-    *PATTERN13 = 0xb90027e0; // 1ec5cf46
-    *PATTERN14 = 0xb94027e0; // ff78efa1
-    *PATTERN15 = 0x3100041f; // eb624e0d
+    // *PATTERN0  = 0xa9bd7bfd; // d54783c2
+    // *PATTERN1  = 0x910003fd; // dcd5db54
+    // *PATTERN2  = 0xb90013ff; // bbaf7e47
+    // *PATTERN3  = 0x52800140; // fe16863c
+    // *PATTERN4  = 0xb9001be0; // d206ceac
+    // *PATTERN5  = 0xb9001fff; // d260d0b8
+    // *PATTERN6  = 0x52a80000; // f65b9c92
+    // *PATTERN7  = 0xb90023e0; // cd197260
+    // *PATTERN8  = 0x52820041; // fcb01399
+    // *PATTERN9  = 0x72a00201; // 1443e896
+    // *PATTERN10 = 0x90000000; // 893d8de5
+    // *PATTERN11 = 0x91376000; // 1cd9b232
+    // *PATTERN12 = 0x97ffff80; // c8772659
+    // *PATTERN13 = 0xb90027e0; // 1ec5cf46
+    // *PATTERN14 = 0xb94027e0; // ff78efa1
+    // *PATTERN15 = 0x3100041f; // eb624e0d
 
     // Address Filter
     // *base_addr  = 0x03801600; 
