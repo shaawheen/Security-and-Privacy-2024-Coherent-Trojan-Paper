@@ -46,6 +46,7 @@ module devil_register_file #(
   output o_control_ADTEN,
   output o_control_PDTEN,
   output o_control_MONEN,
+  output [3:0] o_control_CMD,
   output o_status_OSH_END,
   input i_status_OSH_END_hw_set,
   output o_status_BUSY,
@@ -108,24 +109,25 @@ module devil_register_file #(
   output [31:0] o_pattern_12_data,
   output [31:0] o_pattern_13_data,
   output [31:0] o_pattern_14_data,
-  output [31:0] o_pattern_15_data
+  output [31:0] o_pattern_15_data,
+  output [31:0] o_pattern_size_data
 );
   wire w_register_valid;
   wire [1:0] w_register_access;
   wire [8:0] w_register_address;
   wire [31:0] w_register_write_data;
   wire [3:0] w_register_strobe;
-  wire [59:0] w_register_active;
-  wire [59:0] w_register_ready;
-  wire [119:0] w_register_status;
-  wire [1919:0] w_register_read_data;
-  wire [1919:0] w_register_value;
+  wire [60:0] w_register_active;
+  wire [60:0] w_register_ready;
+  wire [121:0] w_register_status;
+  wire [1951:0] w_register_read_data;
+  wire [3903:0] w_register_value;
   rggen_axi4lite_adapter #(
     .ID_WIDTH             (ID_WIDTH),
     .ADDRESS_WIDTH        (ADDRESS_WIDTH),
     .LOCAL_ADDRESS_WIDTH  (9),
     .BUS_WIDTH            (32),
-    .REGISTERS            (60),
+    .REGISTERS            (61),
     .PRE_DECODE           (PRE_DECODE),
     .BASE_ADDRESS         (BASE_ADDRESS),
     .BYTE_SIZE            (512),
@@ -171,19 +173,19 @@ module devil_register_file #(
   );
   generate if (1) begin : g_control
     wire w_bit_field_valid;
-    wire [31:0] w_bit_field_read_mask;
-    wire [31:0] w_bit_field_write_mask;
-    wire [31:0] w_bit_field_write_data;
-    wire [31:0] w_bit_field_read_data;
-    wire [31:0] w_bit_field_value;
-    `rggen_tie_off_unused_signals(32, 32'h003fffff, w_bit_field_read_data, w_bit_field_value)
+    wire [63:0] w_bit_field_read_mask;
+    wire [63:0] w_bit_field_write_mask;
+    wire [63:0] w_bit_field_write_data;
+    wire [63:0] w_bit_field_read_data;
+    wire [63:0] w_bit_field_value;
+    `rggen_tie_off_unused_signals(64, 64'h0000000003ffffff, w_bit_field_read_data, w_bit_field_value)
     rggen_default_register #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
       .OFFSET_ADDRESS (9'h000),
       .BUS_WIDTH      (32),
-      .DATA_WIDTH     (32)
+      .DATA_WIDTH     (64)
     ) u_register (
       .i_clk                  (i_clk),
       .i_rst_n                (i_rst_n),
@@ -196,7 +198,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[0+:1]),
       .o_register_status      (w_register_status[0+:2]),
       .o_register_read_data   (w_register_read_data[0+:32]),
-      .o_register_value       (w_register_value[0+:32]),
+      .o_register_value       (w_register_value[0+:64]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -540,6 +542,34 @@ module devil_register_file #(
         .o_value_unmasked   ()
       );
     end
+    if (1) begin : g_CMD
+      rggen_bit_field #(
+        .WIDTH          (4),
+        .INITIAL_VALUE  (4'h0),
+        .SW_WRITE_ONCE  (0),
+        .TRIGGER        (0)
+      ) u_bit_field (
+        .i_clk              (i_clk),
+        .i_rst_n            (i_rst_n),
+        .i_sw_valid         (w_bit_field_valid),
+        .i_sw_read_mask     (w_bit_field_read_mask[22+:4]),
+        .i_sw_write_enable  (1'b1),
+        .i_sw_write_mask    (w_bit_field_write_mask[22+:4]),
+        .i_sw_write_data    (w_bit_field_write_data[22+:4]),
+        .o_sw_read_data     (w_bit_field_read_data[22+:4]),
+        .o_sw_value         (w_bit_field_value[22+:4]),
+        .o_write_trigger    (),
+        .o_read_trigger     (),
+        .i_hw_write_enable  (1'b0),
+        .i_hw_write_data    ({4{1'b0}}),
+        .i_hw_set           ({4{1'b0}}),
+        .i_hw_clear         ({4{1'b0}}),
+        .i_value            ({4{1'b0}}),
+        .i_mask             ({4{1'b1}}),
+        .o_value            (o_control_CMD),
+        .o_value_unmasked   ()
+      );
+    end
   end endgenerate
   generate if (1) begin : g_status
     wire w_bit_field_valid;
@@ -553,7 +583,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h004),
+      .OFFSET_ADDRESS (9'h008),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -568,7 +598,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[1+:1]),
       .o_register_status      (w_register_status[2+:2]),
       .o_register_read_data   (w_register_read_data[32+:32]),
-      .o_register_value       (w_register_value[32+:32]),
+      .o_register_value       (w_register_value[64+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -653,7 +683,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h008),
+      .OFFSET_ADDRESS (9'h00c),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -668,7 +698,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[2+:1]),
       .o_register_status      (w_register_status[4+:2]),
       .o_register_read_data   (w_register_read_data[64+:32]),
-      .o_register_value       (w_register_value[64+:32]),
+      .o_register_value       (w_register_value[128+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -717,7 +747,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h00c),
+      .OFFSET_ADDRESS (9'h010),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -732,7 +762,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[3+:1]),
       .o_register_status      (w_register_status[6+:2]),
       .o_register_read_data   (w_register_read_data[96+:32]),
-      .o_register_value       (w_register_value[96+:32]),
+      .o_register_value       (w_register_value[192+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -781,7 +811,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h010),
+      .OFFSET_ADDRESS (9'h014),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -796,7 +826,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[4+:1]),
       .o_register_status      (w_register_status[8+:2]),
       .o_register_read_data   (w_register_read_data[128+:32]),
-      .o_register_value       (w_register_value[128+:32]),
+      .o_register_value       (w_register_value[256+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -845,7 +875,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h014),
+      .OFFSET_ADDRESS (9'h018),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -860,7 +890,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[5+:1]),
       .o_register_status      (w_register_status[10+:2]),
       .o_register_read_data   (w_register_read_data[160+:32]),
-      .o_register_value       (w_register_value[160+:32]),
+      .o_register_value       (w_register_value[320+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -909,7 +939,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h018),
+      .OFFSET_ADDRESS (9'h01c),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -924,7 +954,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[6+:1]),
       .o_register_status      (w_register_status[12+:2]),
       .o_register_read_data   (w_register_read_data[192+:32]),
-      .o_register_value       (w_register_value[192+:32]),
+      .o_register_value       (w_register_value[384+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -973,7 +1003,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h01c),
+      .OFFSET_ADDRESS (9'h020),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -988,7 +1018,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[7+:1]),
       .o_register_status      (w_register_status[14+:2]),
       .o_register_read_data   (w_register_read_data[224+:32]),
-      .o_register_value       (w_register_value[224+:32]),
+      .o_register_value       (w_register_value[448+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1037,7 +1067,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h020),
+      .OFFSET_ADDRESS (9'h024),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -1052,7 +1082,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[8+:1]),
       .o_register_status      (w_register_status[16+:2]),
       .o_register_read_data   (w_register_read_data[256+:32]),
-      .o_register_value       (w_register_value[256+:32]),
+      .o_register_value       (w_register_value[512+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1101,7 +1131,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h024),
+      .OFFSET_ADDRESS (9'h028),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -1116,7 +1146,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[9+:1]),
       .o_register_status      (w_register_status[18+:2]),
       .o_register_read_data   (w_register_read_data[288+:32]),
-      .o_register_value       (w_register_value[288+:32]),
+      .o_register_value       (w_register_value[576+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1165,7 +1195,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h028),
+      .OFFSET_ADDRESS (9'h02c),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -1180,7 +1210,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[10+:1]),
       .o_register_status      (w_register_status[20+:2]),
       .o_register_read_data   (w_register_read_data[320+:32]),
-      .o_register_value       (w_register_value[320+:32]),
+      .o_register_value       (w_register_value[640+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1229,7 +1259,7 @@ module devil_register_file #(
       .READABLE       (1),
       .WRITABLE       (1),
       .ADDRESS_WIDTH  (9),
-      .OFFSET_ADDRESS (9'h02c),
+      .OFFSET_ADDRESS (9'h030),
       .BUS_WIDTH      (32),
       .DATA_WIDTH     (32)
     ) u_register (
@@ -1244,7 +1274,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[11+:1]),
       .o_register_status      (w_register_status[22+:2]),
       .o_register_read_data   (w_register_read_data[352+:32]),
-      .o_register_value       (w_register_value[352+:32]),
+      .o_register_value       (w_register_value[704+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1308,7 +1338,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[12+:1]),
       .o_register_status      (w_register_status[24+:2]),
       .o_register_read_data   (w_register_read_data[384+:32]),
-      .o_register_value       (w_register_value[384+:32]),
+      .o_register_value       (w_register_value[768+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1372,7 +1402,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[13+:1]),
       .o_register_status      (w_register_status[26+:2]),
       .o_register_read_data   (w_register_read_data[416+:32]),
-      .o_register_value       (w_register_value[416+:32]),
+      .o_register_value       (w_register_value[832+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1437,7 +1467,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[14+:1]),
       .o_register_status      (w_register_status[28+:2]),
       .o_register_read_data   (w_register_read_data[448+:32]),
-      .o_register_value       (w_register_value[448+:32]),
+      .o_register_value       (w_register_value[896+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1501,7 +1531,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[15+:1]),
       .o_register_status      (w_register_status[30+:2]),
       .o_register_read_data   (w_register_read_data[480+:32]),
-      .o_register_value       (w_register_value[480+:32]),
+      .o_register_value       (w_register_value[960+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1566,7 +1596,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[16+:1]),
       .o_register_status      (w_register_status[32+:2]),
       .o_register_read_data   (w_register_read_data[512+:32]),
-      .o_register_value       (w_register_value[512+:32]),
+      .o_register_value       (w_register_value[1024+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1630,7 +1660,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[17+:1]),
       .o_register_status      (w_register_status[34+:2]),
       .o_register_read_data   (w_register_read_data[544+:32]),
-      .o_register_value       (w_register_value[544+:32]),
+      .o_register_value       (w_register_value[1088+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1695,7 +1725,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[18+:1]),
       .o_register_status      (w_register_status[36+:2]),
       .o_register_read_data   (w_register_read_data[576+:32]),
-      .o_register_value       (w_register_value[576+:32]),
+      .o_register_value       (w_register_value[1152+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1759,7 +1789,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[19+:1]),
       .o_register_status      (w_register_status[38+:2]),
       .o_register_read_data   (w_register_read_data[608+:32]),
-      .o_register_value       (w_register_value[608+:32]),
+      .o_register_value       (w_register_value[1216+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1824,7 +1854,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[20+:1]),
       .o_register_status      (w_register_status[40+:2]),
       .o_register_read_data   (w_register_read_data[640+:32]),
-      .o_register_value       (w_register_value[640+:32]),
+      .o_register_value       (w_register_value[1280+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1888,7 +1918,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[21+:1]),
       .o_register_status      (w_register_status[42+:2]),
       .o_register_read_data   (w_register_read_data[672+:32]),
-      .o_register_value       (w_register_value[672+:32]),
+      .o_register_value       (w_register_value[1344+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -1953,7 +1983,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[22+:1]),
       .o_register_status      (w_register_status[44+:2]),
       .o_register_read_data   (w_register_read_data[704+:32]),
-      .o_register_value       (w_register_value[704+:32]),
+      .o_register_value       (w_register_value[1408+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2017,7 +2047,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[23+:1]),
       .o_register_status      (w_register_status[46+:2]),
       .o_register_read_data   (w_register_read_data[736+:32]),
-      .o_register_value       (w_register_value[736+:32]),
+      .o_register_value       (w_register_value[1472+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2082,7 +2112,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[24+:1]),
       .o_register_status      (w_register_status[48+:2]),
       .o_register_read_data   (w_register_read_data[768+:32]),
-      .o_register_value       (w_register_value[768+:32]),
+      .o_register_value       (w_register_value[1536+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2146,7 +2176,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[25+:1]),
       .o_register_status      (w_register_status[50+:2]),
       .o_register_read_data   (w_register_read_data[800+:32]),
-      .o_register_value       (w_register_value[800+:32]),
+      .o_register_value       (w_register_value[1600+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2211,7 +2241,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[26+:1]),
       .o_register_status      (w_register_status[52+:2]),
       .o_register_read_data   (w_register_read_data[832+:32]),
-      .o_register_value       (w_register_value[832+:32]),
+      .o_register_value       (w_register_value[1664+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2275,7 +2305,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[27+:1]),
       .o_register_status      (w_register_status[54+:2]),
       .o_register_read_data   (w_register_read_data[864+:32]),
-      .o_register_value       (w_register_value[864+:32]),
+      .o_register_value       (w_register_value[1728+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2340,7 +2370,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[28+:1]),
       .o_register_status      (w_register_status[56+:2]),
       .o_register_read_data   (w_register_read_data[896+:32]),
-      .o_register_value       (w_register_value[896+:32]),
+      .o_register_value       (w_register_value[1792+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2404,7 +2434,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[29+:1]),
       .o_register_status      (w_register_status[58+:2]),
       .o_register_read_data   (w_register_read_data[928+:32]),
-      .o_register_value       (w_register_value[928+:32]),
+      .o_register_value       (w_register_value[1856+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2469,7 +2499,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[30+:1]),
       .o_register_status      (w_register_status[60+:2]),
       .o_register_read_data   (w_register_read_data[960+:32]),
-      .o_register_value       (w_register_value[960+:32]),
+      .o_register_value       (w_register_value[1920+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2533,7 +2563,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[31+:1]),
       .o_register_status      (w_register_status[62+:2]),
       .o_register_read_data   (w_register_read_data[992+:32]),
-      .o_register_value       (w_register_value[992+:32]),
+      .o_register_value       (w_register_value[1984+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2598,7 +2628,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[32+:1]),
       .o_register_status      (w_register_status[64+:2]),
       .o_register_read_data   (w_register_read_data[1024+:32]),
-      .o_register_value       (w_register_value[1024+:32]),
+      .o_register_value       (w_register_value[2048+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2662,7 +2692,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[33+:1]),
       .o_register_status      (w_register_status[66+:2]),
       .o_register_read_data   (w_register_read_data[1056+:32]),
-      .o_register_value       (w_register_value[1056+:32]),
+      .o_register_value       (w_register_value[2112+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2727,7 +2757,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[34+:1]),
       .o_register_status      (w_register_status[68+:2]),
       .o_register_read_data   (w_register_read_data[1088+:32]),
-      .o_register_value       (w_register_value[1088+:32]),
+      .o_register_value       (w_register_value[2176+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2791,7 +2821,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[35+:1]),
       .o_register_status      (w_register_status[70+:2]),
       .o_register_read_data   (w_register_read_data[1120+:32]),
-      .o_register_value       (w_register_value[1120+:32]),
+      .o_register_value       (w_register_value[2240+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2856,7 +2886,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[36+:1]),
       .o_register_status      (w_register_status[72+:2]),
       .o_register_read_data   (w_register_read_data[1152+:32]),
-      .o_register_value       (w_register_value[1152+:32]),
+      .o_register_value       (w_register_value[2304+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2920,7 +2950,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[37+:1]),
       .o_register_status      (w_register_status[74+:2]),
       .o_register_read_data   (w_register_read_data[1184+:32]),
-      .o_register_value       (w_register_value[1184+:32]),
+      .o_register_value       (w_register_value[2368+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -2985,7 +3015,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[38+:1]),
       .o_register_status      (w_register_status[76+:2]),
       .o_register_read_data   (w_register_read_data[1216+:32]),
-      .o_register_value       (w_register_value[1216+:32]),
+      .o_register_value       (w_register_value[2432+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3049,7 +3079,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[39+:1]),
       .o_register_status      (w_register_status[78+:2]),
       .o_register_read_data   (w_register_read_data[1248+:32]),
-      .o_register_value       (w_register_value[1248+:32]),
+      .o_register_value       (w_register_value[2496+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3114,7 +3144,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[40+:1]),
       .o_register_status      (w_register_status[80+:2]),
       .o_register_read_data   (w_register_read_data[1280+:32]),
-      .o_register_value       (w_register_value[1280+:32]),
+      .o_register_value       (w_register_value[2560+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3178,7 +3208,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[41+:1]),
       .o_register_status      (w_register_status[82+:2]),
       .o_register_read_data   (w_register_read_data[1312+:32]),
-      .o_register_value       (w_register_value[1312+:32]),
+      .o_register_value       (w_register_value[2624+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3243,7 +3273,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[42+:1]),
       .o_register_status      (w_register_status[84+:2]),
       .o_register_read_data   (w_register_read_data[1344+:32]),
-      .o_register_value       (w_register_value[1344+:32]),
+      .o_register_value       (w_register_value[2688+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3307,7 +3337,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[43+:1]),
       .o_register_status      (w_register_status[86+:2]),
       .o_register_read_data   (w_register_read_data[1376+:32]),
-      .o_register_value       (w_register_value[1376+:32]),
+      .o_register_value       (w_register_value[2752+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3372,7 +3402,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[44+:1]),
       .o_register_status      (w_register_status[88+:2]),
       .o_register_read_data   (w_register_read_data[1408+:32]),
-      .o_register_value       (w_register_value[1408+:32]),
+      .o_register_value       (w_register_value[2816+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3437,7 +3467,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[45+:1]),
       .o_register_status      (w_register_status[90+:2]),
       .o_register_read_data   (w_register_read_data[1440+:32]),
-      .o_register_value       (w_register_value[1440+:32]),
+      .o_register_value       (w_register_value[2880+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3502,7 +3532,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[46+:1]),
       .o_register_status      (w_register_status[92+:2]),
       .o_register_read_data   (w_register_read_data[1472+:32]),
-      .o_register_value       (w_register_value[1472+:32]),
+      .o_register_value       (w_register_value[2944+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3567,7 +3597,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[47+:1]),
       .o_register_status      (w_register_status[94+:2]),
       .o_register_read_data   (w_register_read_data[1504+:32]),
-      .o_register_value       (w_register_value[1504+:32]),
+      .o_register_value       (w_register_value[3008+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3632,7 +3662,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[48+:1]),
       .o_register_status      (w_register_status[96+:2]),
       .o_register_read_data   (w_register_read_data[1536+:32]),
-      .o_register_value       (w_register_value[1536+:32]),
+      .o_register_value       (w_register_value[3072+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3697,7 +3727,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[49+:1]),
       .o_register_status      (w_register_status[98+:2]),
       .o_register_read_data   (w_register_read_data[1568+:32]),
-      .o_register_value       (w_register_value[1568+:32]),
+      .o_register_value       (w_register_value[3136+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3762,7 +3792,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[50+:1]),
       .o_register_status      (w_register_status[100+:2]),
       .o_register_read_data   (w_register_read_data[1600+:32]),
-      .o_register_value       (w_register_value[1600+:32]),
+      .o_register_value       (w_register_value[3200+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3827,7 +3857,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[51+:1]),
       .o_register_status      (w_register_status[102+:2]),
       .o_register_read_data   (w_register_read_data[1632+:32]),
-      .o_register_value       (w_register_value[1632+:32]),
+      .o_register_value       (w_register_value[3264+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3892,7 +3922,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[52+:1]),
       .o_register_status      (w_register_status[104+:2]),
       .o_register_read_data   (w_register_read_data[1664+:32]),
-      .o_register_value       (w_register_value[1664+:32]),
+      .o_register_value       (w_register_value[3328+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -3957,7 +3987,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[53+:1]),
       .o_register_status      (w_register_status[106+:2]),
       .o_register_read_data   (w_register_read_data[1696+:32]),
-      .o_register_value       (w_register_value[1696+:32]),
+      .o_register_value       (w_register_value[3392+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -4022,7 +4052,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[54+:1]),
       .o_register_status      (w_register_status[108+:2]),
       .o_register_read_data   (w_register_read_data[1728+:32]),
-      .o_register_value       (w_register_value[1728+:32]),
+      .o_register_value       (w_register_value[3456+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -4087,7 +4117,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[55+:1]),
       .o_register_status      (w_register_status[110+:2]),
       .o_register_read_data   (w_register_read_data[1760+:32]),
-      .o_register_value       (w_register_value[1760+:32]),
+      .o_register_value       (w_register_value[3520+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -4152,7 +4182,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[56+:1]),
       .o_register_status      (w_register_status[112+:2]),
       .o_register_read_data   (w_register_read_data[1792+:32]),
-      .o_register_value       (w_register_value[1792+:32]),
+      .o_register_value       (w_register_value[3584+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -4217,7 +4247,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[57+:1]),
       .o_register_status      (w_register_status[114+:2]),
       .o_register_read_data   (w_register_read_data[1824+:32]),
-      .o_register_value       (w_register_value[1824+:32]),
+      .o_register_value       (w_register_value[3648+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -4282,7 +4312,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[58+:1]),
       .o_register_status      (w_register_status[116+:2]),
       .o_register_read_data   (w_register_read_data[1856+:32]),
-      .o_register_value       (w_register_value[1856+:32]),
+      .o_register_value       (w_register_value[3712+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -4347,7 +4377,7 @@ module devil_register_file #(
       .o_register_ready       (w_register_ready[59+:1]),
       .o_register_status      (w_register_status[118+:2]),
       .o_register_read_data   (w_register_read_data[1888+:32]),
-      .o_register_value       (w_register_value[1888+:32]),
+      .o_register_value       (w_register_value[3776+:32]),
       .o_bit_field_valid      (w_bit_field_valid),
       .o_bit_field_read_mask  (w_bit_field_read_mask),
       .o_bit_field_write_mask (w_bit_field_write_mask),
@@ -4381,6 +4411,71 @@ module devil_register_file #(
         .i_value            ({32{1'b0}}),
         .i_mask             ({32{1'b1}}),
         .o_value            (o_pattern_15_data),
+        .o_value_unmasked   ()
+      );
+    end
+  end endgenerate
+  generate if (1) begin : g_pattern_size
+    wire w_bit_field_valid;
+    wire [31:0] w_bit_field_read_mask;
+    wire [31:0] w_bit_field_write_mask;
+    wire [31:0] w_bit_field_write_data;
+    wire [31:0] w_bit_field_read_data;
+    wire [31:0] w_bit_field_value;
+    `rggen_tie_off_unused_signals(32, 32'hffffffff, w_bit_field_read_data, w_bit_field_value)
+    rggen_default_register #(
+      .READABLE       (0),
+      .WRITABLE       (1),
+      .ADDRESS_WIDTH  (9),
+      .OFFSET_ADDRESS (9'h0c0),
+      .BUS_WIDTH      (32),
+      .DATA_WIDTH     (32)
+    ) u_register (
+      .i_clk                  (i_clk),
+      .i_rst_n                (i_rst_n),
+      .i_register_valid       (w_register_valid),
+      .i_register_access      (w_register_access),
+      .i_register_address     (w_register_address),
+      .i_register_write_data  (w_register_write_data),
+      .i_register_strobe      (w_register_strobe),
+      .o_register_active      (w_register_active[60+:1]),
+      .o_register_ready       (w_register_ready[60+:1]),
+      .o_register_status      (w_register_status[120+:2]),
+      .o_register_read_data   (w_register_read_data[1920+:32]),
+      .o_register_value       (w_register_value[3840+:32]),
+      .o_bit_field_valid      (w_bit_field_valid),
+      .o_bit_field_read_mask  (w_bit_field_read_mask),
+      .o_bit_field_write_mask (w_bit_field_write_mask),
+      .o_bit_field_write_data (w_bit_field_write_data),
+      .i_bit_field_read_data  (w_bit_field_read_data),
+      .i_bit_field_value      (w_bit_field_value)
+    );
+    if (1) begin : g_data
+      rggen_bit_field #(
+        .WIDTH          (32),
+        .INITIAL_VALUE  (32'h00000000),
+        .SW_READ_ACTION (`RGGEN_READ_NONE),
+        .SW_WRITE_ONCE  (0),
+        .TRIGGER        (0)
+      ) u_bit_field (
+        .i_clk              (i_clk),
+        .i_rst_n            (i_rst_n),
+        .i_sw_valid         (w_bit_field_valid),
+        .i_sw_read_mask     (w_bit_field_read_mask[0+:32]),
+        .i_sw_write_enable  (1'b1),
+        .i_sw_write_mask    (w_bit_field_write_mask[0+:32]),
+        .i_sw_write_data    (w_bit_field_write_data[0+:32]),
+        .o_sw_read_data     (w_bit_field_read_data[0+:32]),
+        .o_sw_value         (w_bit_field_value[0+:32]),
+        .o_write_trigger    (),
+        .o_read_trigger     (),
+        .i_hw_write_enable  (1'b0),
+        .i_hw_write_data    ({32{1'b0}}),
+        .i_hw_set           ({32{1'b0}}),
+        .i_hw_clear         ({32{1'b0}}),
+        .i_value            ({32{1'b0}}),
+        .i_mask             ({32{1'b1}}),
+        .o_value            (o_pattern_size_data),
         .o_value_unmasked   ()
       );
     end
