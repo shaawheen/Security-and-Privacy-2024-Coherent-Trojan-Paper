@@ -455,7 +455,7 @@
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line_pattern;                      
-    wire                     [31:0] w_pattern_size_data[4:0];                      
+    wire                     [31:0] w_pattern_size_data;                      
     wire                            w_external_mode;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
     wire                            w_end_active_devil; 
