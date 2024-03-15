@@ -275,7 +275,7 @@ module devil_controller#(
                     if(r_pem_size == 0) 
                     begin 
                         r_pem_size <= `CL_LINE_BITS;
-                        r_controller_araddr <= i_external_l_araddr_Data;
+                        r_controller_araddr <= i_acaddr_snapshot;
                         fsm_devil_controller <= DEVIL_LEAK_KEY_READ;                                           
                     end
                     else 
