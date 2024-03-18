@@ -293,6 +293,14 @@
 		output wire                                  [1 : 0] s01_axi_rresp,
 		output wire                                          s01_axi_rvalid,
 		input wire                                           s01_axi_rready,
+        // BRAM Interface
+        output wire                                   [14:0] bram_addr,
+        output wire                                          bram_clk,
+        output wire                                   [31:0] bram_wrdata,
+        input  wire                                   [31:0] bram_rddata,
+        output wire                                          bram_en,
+        output wire                                          bram_rst,
+        output wire                                    [3:0] bram_we,
         // Debug (temporary) IO
         output wire                                    [4:0] debug_snoop_state,
         output wire                                    [4:0] debug_devil_passive_state,
@@ -524,7 +532,29 @@
                             w_control_FUNC,     // bit 8:5
                             w_control_TEST,     // bit 4:1
                             w_control_EN};      // bit 0
-                      
+
+    wire  		                    w_bram_trigger;
+    wire  		                    w_bram_busy;
+    wire  		                    w_bram_end;
+	//output wire copy_trigger,
+    wire                     [14:0] w_bram_read_size;
+    wire                     [14:0] w_bram_base_addr;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_bram_data;
+	// bram ports,
+    wire 	                   	    w_bram_en;
+    wire                      [3:0] w_bram_we;
+    wire                     [14:0] w_bram_addr;
+    wire                     [31:0] w_bram_wrdata;
+
+    assign bram_clk = ace_aclk;
+    assign bram_rst = ace_aresetn;
+    assign bram_addr = w_bram_addr;
+    assign bram_wrdata = w_bram_wrdata;
+    assign bram_en = w_bram_en;
+    assign bram_we = w_bram_we;
+    
+    assign w_bram_read_size = 0;
+
 //******************************************************************************
 //******************************************************************************
 
@@ -1087,6 +1117,12 @@
         .i_external_l_awaddr_Data(w_l_awaddr_Data),
         .i_pattern_size(w_pattern_size_data[4:0]),
 
+        // Internal Signals, from devil controller to BRAM
+        .o_trigger_bram_write(w_bram_trigger),
+	    .o_bram_addr(w_bram_base_addr),
+	    .o_bram_data(w_bram_data),
+        .i_bram_end(w_bram_end),
+
         // Internal Signals, from devil controller to devil passive
         .o_controller_signals(w_signals_from_controller)
     );
@@ -1214,6 +1250,25 @@
         .i_cache_line_active_devil(w_cache_line_active_devil),
         .i_cache_line_passive_devil(w_cache_line_passive_devil),
         .o_counter(w_counter) // test porpuses
+    );
+
+    // Instantiation of bram_interface module
+    bram_interface bram_interface_inst(
+        .S_AXI_ACLK(ace_aclk),
+        .S_AXI_ARESETN(ace_aresetn),
+        // control signals
+        .i_trigger(w_bram_trigger),
+        .o_busy(w_bram_busy),
+        .o_end(w_bram_end),
+        //output wire copy_trigger,
+        .i_read_size(w_bram_read_size),
+        .i_base_addr(w_bram_base_addr),
+        .i_wrdata(w_bram_data),
+        // bram ports,
+        .o_bram_en(w_bram_en),
+        .o_bram_we(w_bram_we),
+        .o_bram_addr(w_bram_addr),
+        .o_bram_wrdata(w_bram_wrdata)
     );
 
 	endmodule

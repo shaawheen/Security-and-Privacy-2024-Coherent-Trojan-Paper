@@ -25,6 +25,7 @@ import design_1_axi_vip_1_0_pkg::*;
 
 //--------------   ADDRESS MAP  ----------------
 `define DEVIL_BASE_ADDR 32'h80010000
+`define BRAM_ADDR       32'h80012000
 `define CTRL            32'h00
 `define STATUS          32'h04
 `define DELAY           32'h08
@@ -249,8 +250,8 @@ module devil_tb();
     $finish;
     end 
 
-     task leak_key();
-        acaddr = 44'h00040000000;  // Emulae Snoop Address
+     task leak_key();       
+        acaddr = 44'h00040000000;  // Emulate Snoop Address
         reg_ctrl =    (`CMD_LEAK << `CMD_pos) // Leak Key
                     | (`FUNC_PDT << `FUNC_pos) // active data leak
                     | (1 << `PDTEN_pos) 
@@ -258,10 +259,10 @@ module devil_tb();
                     | (1 << `EN_pos);
 
         // Match pattern simulation (this is the same data VIP has)
-        reg_PATTERN0  = 32'hd54783c2; 
-        reg_PATTERN1  = 32'hdcd5db54; 
-        reg_PATTERN2  = 32'hbbaf7e47; 
-        reg_PATTERN3  = 32'hfe16863c; 
+        reg_PATTERN0  = 32'he0ddfa35; 
+        reg_PATTERN1  = 32'h3a1fa56b; 
+        reg_PATTERN2  = 32'hdc6beb31; 
+        reg_PATTERN3  = 32'hadf95002;   
         // reg_PATTERN4  = 32'hd206ceac; 
         // reg_PATTERN5  = 32'hd260d0b8; 
         // reg_PATTERN6  = 32'hf65b9c92; 
@@ -296,13 +297,49 @@ module devil_tb();
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN15,prot,reg_PATTERN15,resp);    
 
         // Pattern Size
+        $display("Checkpoint 1");
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN_SIZE,prot,reg_PATTERN_SIZE,resp); 
 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
-        #1000000ns;
+        $display("Checkpoint 2");
+        #10000ns;
         reg_ctrl =  (0 << `EN_pos);
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        $display("Checkpoint 3");
         #100ns;
+        // Print part of the BRAM Content
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h00,prot,reg_rdata,resp);
+        $display("DATA0 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h04,prot,reg_rdata,resp);
+        $display("DATA1 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h08,prot,reg_rdata,resp);
+        $display("DATA2 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h0C,prot,reg_rdata,resp);
+        $display("DATA3 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h10,prot,reg_rdata,resp);
+        $display("DATA4 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h14,prot,reg_rdata,resp);
+        $display("DATA5 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h18,prot,reg_rdata,resp);
+        $display("DATA6 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h1C,prot,reg_rdata,resp);
+        $display("DATA7 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h20,prot,reg_rdata,resp);
+        $display("DATA8 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h24,prot,reg_rdata,resp);
+        $display("DATA9 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h28,prot,reg_rdata,resp);
+        $display("DATA10 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h2C,prot,reg_rdata,resp);
+        $display("DATA11 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h30,prot,reg_rdata,resp);
+        $display("DATA12 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h34,prot,reg_rdata,resp);
+        $display("DATA13 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h38,prot,reg_rdata,resp);
+        $display("DATA14 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`BRAM_ADDR + 32'h3C,prot,reg_rdata,resp);
+        $display("DATA15 = %h",reg_rdata);
      endtask :leak_key
 
     task monitor_transation_devil();
@@ -387,7 +424,6 @@ module devil_tb();
 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`L_AWADDR,prot,reg_l_awaddr,resp); 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`AWSNOOP,prot,reg_awsnoop,resp); 
-        
 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
         #100ns;
