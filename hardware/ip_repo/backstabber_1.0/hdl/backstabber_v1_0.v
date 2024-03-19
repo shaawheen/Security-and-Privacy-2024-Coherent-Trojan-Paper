@@ -293,6 +293,14 @@
 		output wire                                  [1 : 0] s01_axi_rresp,
 		output wire                                          s01_axi_rvalid,
 		input wire                                           s01_axi_rready,
+        // BRAM Interface
+        output wire                                   [14:0] bram_addr,
+        output wire                                          bram_clk,
+        output wire                                   [31:0] bram_wrdata,
+        input  wire                                   [31:0] bram_rddata,
+        output wire                                          bram_en,
+        output wire                                          bram_rst,
+        output wire                                    [3:0] bram_we,
         // Debug (temporary) IO
         output wire                                    [4:0] debug_snoop_state,
         output wire                                    [4:0] debug_devil_passive_state,
@@ -455,6 +463,7 @@
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line_pattern;                      
+    wire                     [31:0] w_pattern_size_data;                      
     wire                            w_external_mode;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
     wire                            w_end_active_devil; 
@@ -475,22 +484,23 @@
     wire [3:0] w_arsnoop;
 
     // Register File Signals
-    wire w_control_EN;
-    wire [3:0] w_control_TEST;
-    wire [3:0] w_control_FUNC;
-    wire [4:0] w_control_CRRESP;
-    wire w_control_ACFLT;
-    wire w_control_ADDRFLT;
-    wire w_control_OSHEN;
-    wire w_control_CONEN;
-    wire w_control_ADLEN;
-    wire w_control_ADTEN;
-    wire w_control_PDTEN;
-    wire w_control_MONEN;
-    wire w_status_OSH_END;
-    wire w_status_OSH_END_hw_set;
+    wire        w_control_EN;
+    wire  [3:0] w_control_TEST;
+    wire  [3:0] w_control_FUNC;
+    wire  [4:0] w_control_CRRESP;
+    wire        w_control_ACFLT;
+    wire        w_control_ADDRFLT;
+    wire        w_control_OSHEN;
+    wire        w_control_CONEN;
+    wire        w_control_ADLEN;
+    wire        w_control_ADTEN;
+    wire        w_control_PDTEN;
+    wire        w_control_MONEN;
+    wire  [3:0] w_control_CMD;
+    wire        w_status_OSH_END;
+    wire        w_status_OSH_END_hw_set;
     wire [31:0] w_delay_data;
-    wire [3:0] w_acsnoop_type;
+    wire  [3:0] w_acsnoop_type;
     wire [31:0] w_base_addr_Data;
     wire [31:0] w_mem_size_Data;
     // wire [31:0] w_wdata_0_data;
@@ -522,7 +532,29 @@
                             w_control_FUNC,     // bit 8:5
                             w_control_TEST,     // bit 4:1
                             w_control_EN};      // bit 0
-                      
+
+    wire  		                    w_bram_trigger;
+    wire  		                    w_bram_busy;
+    wire  		                    w_bram_end;
+	//output wire copy_trigger,
+    wire                     [14:0] w_bram_read_size;
+    wire                     [14:0] w_bram_base_addr;
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_bram_data;
+	// bram ports,
+    wire 	                   	    w_bram_en;
+    wire                      [3:0] w_bram_we;
+    wire                     [14:0] w_bram_addr;
+    wire                     [31:0] w_bram_wrdata;
+
+    assign bram_clk = ace_aclk;
+    assign bram_rst = ace_aresetn;
+    assign bram_addr = w_bram_addr;
+    assign bram_wrdata = w_bram_wrdata;
+    assign bram_en = w_bram_en;
+    assign bram_we = w_bram_we;
+    
+    assign w_bram_read_size = 0;
+
 //******************************************************************************
 //******************************************************************************
 
@@ -978,6 +1010,7 @@
     .o_control_ADTEN(w_control_ADTEN),
     .o_control_PDTEN(w_control_PDTEN),
     .o_control_MONEN(w_control_MONEN),
+    .o_control_CMD(w_control_CMD),
     .o_status_OSH_END(w_read_status_reg[0]),
     .i_status_OSH_END_hw_set(w_write_status_reg[0]),
     .i_status_BUSY_hw_set(w_devil_busy),
@@ -1042,7 +1075,9 @@
     .o_pattern_12_data(w_write_cache_line_pattern[31+32*12:0+32*12]),
     .o_pattern_13_data(w_write_cache_line_pattern[31+32*13:0+32*13]),
     .o_pattern_14_data(w_write_cache_line_pattern[31+32*14:0+32*14]),
-    .o_pattern_15_data(w_write_cache_line_pattern[31+32*15:0+32*15])
+    .o_pattern_15_data(w_write_cache_line_pattern[31+32*15:0+32*15]),
+    // Pattern Size
+    .o_pattern_size_data(w_pattern_size_data)
     );
 
     // Instantiation of devil-controller module
@@ -1055,7 +1090,7 @@
     ) devil_controller_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
-        .i_cmd(1),
+        .i_cmd(w_control_CMD),
         .i_trigger(w_trigger_devil_controller),
         .i_acaddr_snapshot(r_acaddr_snapshot),
         .i_acsnoop_snapshot(r_acsnoop_snapshot),
@@ -1080,6 +1115,13 @@
         .i_external_awsnoop_Data(w_awsnoop_Data[2:0]),
         .i_external_l_araddr_Data(w_l_araddr_Data),
         .i_external_l_awaddr_Data(w_l_awaddr_Data),
+        .i_pattern_size(w_pattern_size_data[4:0]),
+
+        // Internal Signals, from devil controller to BRAM
+        .o_trigger_bram_write(w_bram_trigger),
+	    .o_bram_addr(w_bram_base_addr),
+	    .o_bram_data(w_bram_data),
+        .i_bram_end(w_bram_end),
 
         // Internal Signals, from devil controller to devil passive
         .o_controller_signals(w_signals_from_controller)
@@ -1208,6 +1250,25 @@
         .i_cache_line_active_devil(w_cache_line_active_devil),
         .i_cache_line_passive_devil(w_cache_line_passive_devil),
         .o_counter(w_counter) // test porpuses
+    );
+
+    // Instantiation of bram_interface module
+    bram_interface bram_interface_inst(
+        .S_AXI_ACLK(ace_aclk),
+        .S_AXI_ARESETN(ace_aresetn),
+        // control signals
+        .i_trigger(w_bram_trigger),
+        .o_busy(w_bram_busy),
+        .o_end(w_bram_end),
+        //output wire copy_trigger,
+        .i_read_size(w_bram_read_size),
+        .i_base_addr(w_bram_base_addr),
+        .i_wrdata(w_bram_data),
+        // bram ports,
+        .o_bram_en(w_bram_en),
+        .o_bram_we(w_bram_we),
+        .o_bram_addr(w_bram_addr),
+        .o_bram_wrdata(w_bram_wrdata)
     );
 
 	endmodule
