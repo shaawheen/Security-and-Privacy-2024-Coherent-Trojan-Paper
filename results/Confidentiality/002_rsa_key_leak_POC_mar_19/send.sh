@@ -4,9 +4,10 @@
 ROOT_DIR=$(realpath "../../../")
 ARTIFACTS_DIR=${ROOT_DIR}/software/artifacts
 LINUX_APPS_DIR=${ARTIFACTS_DIR}/linux_apps
-OPENSSL_DIR=${LINUX_APPS_DIR}/openssl-install
-FIND_PATTERN_DIR=${LINUX_APPS_DIR}/find_pattern
-READ_BRAM_DIR=${LINUX_APPS_DIR}/read_BRAM
+ATTACK_DIR=${LINUX_APPS_DIR}/002_rsa_key_leak_POC_mar_19
+OPENSSL_DIR=${ATTACK_DIR}/openssl-install
+FIND_PATTERN_DIR=${ATTACK_DIR}/find_pattern
+READ_BRAM_DIR=${ATTACK_DIR}/read_BRAM
 
 ssh-keygen -f "/home/${USER}/.ssh/known_hosts" -R "192.168.42.15"
 
