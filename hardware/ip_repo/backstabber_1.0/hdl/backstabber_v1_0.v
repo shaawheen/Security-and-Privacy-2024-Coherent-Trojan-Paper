@@ -463,7 +463,8 @@
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line_pattern;                      
-    wire                     [31:0] w_pattern_size_data;                      
+    wire                     [31:0] w_pattern_size_data; 
+    wire                     [31:0] w_word_index;                      
     wire                            w_external_mode;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
     wire                            w_end_active_devil; 
@@ -1077,7 +1078,8 @@
     .o_pattern_14_data(w_write_cache_line_pattern[31+32*14:0+32*14]),
     .o_pattern_15_data(w_write_cache_line_pattern[31+32*15:0+32*15]),
     // Pattern Size
-    .o_pattern_size_data(w_pattern_size_data)
+    .o_pattern_size_data(w_pattern_size_data),
+    .o_word_index_data(w_word_index)
     );
 
     // Instantiation of devil-controller module
@@ -1116,6 +1118,7 @@
         .i_external_l_araddr_Data(w_l_araddr_Data),
         .i_external_l_awaddr_Data(w_l_awaddr_Data),
         .i_pattern_size(w_pattern_size_data[4:0]),
+        .i_word_index(w_word_index),
 
         // Internal Signals, from devil controller to BRAM
         .o_trigger_bram_write(w_bram_trigger),

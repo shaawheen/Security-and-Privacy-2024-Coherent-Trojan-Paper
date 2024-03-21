@@ -670,6 +670,15 @@ register_blocks:
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
+################################################################
+## Define the words to be tamper with in a CL
+################################################################
+    - name: word_index
+      comment: |
+        Define the words to be tamper with in a CL. This registers uses 16 bits, one bit per word. When the bit is 1, the word will be tampered with the data written to DATAX registers.
+      offset_address: 0xC4
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
     # - name: register_2
     #   offset_address: 0x08
