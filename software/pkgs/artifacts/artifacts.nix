@@ -1,4 +1,5 @@
-{ stdenv
+{   stdenv, 
+    rsync
 }:
 
 stdenv.mkDerivation rec {
@@ -7,9 +8,11 @@ stdenv.mkDerivation rec {
 
     src = ../../artifacts;
 
+    nativeBuildInputs = [rsync];
+
     installPhase = ''
         mkdir -p $out
-        cp -r $src/* $out
+        rsync -av $src/ $out/ --exclude='linux_apps' --exclude='linux_src' --exclude='rt-bench'
     '';
 
     dontUnpack = true;
