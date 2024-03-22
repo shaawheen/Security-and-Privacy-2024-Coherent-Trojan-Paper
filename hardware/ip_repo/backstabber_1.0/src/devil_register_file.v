@@ -110,24 +110,25 @@ module devil_register_file #(
   output [31:0] o_pattern_13_data,
   output [31:0] o_pattern_14_data,
   output [31:0] o_pattern_15_data,
-  output [31:0] o_pattern_size_data
+  output [31:0] o_pattern_size_data,
+  output [31:0] o_word_index_data
 );
   wire w_register_valid;
   wire [1:0] w_register_access;
   wire [8:0] w_register_address;
   wire [31:0] w_register_write_data;
   wire [3:0] w_register_strobe;
-  wire [60:0] w_register_active;
-  wire [60:0] w_register_ready;
-  wire [121:0] w_register_status;
-  wire [1951:0] w_register_read_data;
-  wire [3903:0] w_register_value;
+  wire [61:0] w_register_active;
+  wire [61:0] w_register_ready;
+  wire [123:0] w_register_status;
+  wire [1983:0] w_register_read_data;
+  wire [3967:0] w_register_value;
   rggen_axi4lite_adapter #(
     .ID_WIDTH             (ID_WIDTH),
     .ADDRESS_WIDTH        (ADDRESS_WIDTH),
     .LOCAL_ADDRESS_WIDTH  (9),
     .BUS_WIDTH            (32),
-    .REGISTERS            (61),
+    .REGISTERS            (62),
     .PRE_DECODE           (PRE_DECODE),
     .BASE_ADDRESS         (BASE_ADDRESS),
     .BYTE_SIZE            (512),
@@ -4476,6 +4477,71 @@ module devil_register_file #(
         .i_value            ({32{1'b0}}),
         .i_mask             ({32{1'b1}}),
         .o_value            (o_pattern_size_data),
+        .o_value_unmasked   ()
+      );
+    end
+  end endgenerate
+  generate if (1) begin : g_word_index
+    wire w_bit_field_valid;
+    wire [31:0] w_bit_field_read_mask;
+    wire [31:0] w_bit_field_write_mask;
+    wire [31:0] w_bit_field_write_data;
+    wire [31:0] w_bit_field_read_data;
+    wire [31:0] w_bit_field_value;
+    `rggen_tie_off_unused_signals(32, 32'hffffffff, w_bit_field_read_data, w_bit_field_value)
+    rggen_default_register #(
+      .READABLE       (0),
+      .WRITABLE       (1),
+      .ADDRESS_WIDTH  (9),
+      .OFFSET_ADDRESS (9'h0c4),
+      .BUS_WIDTH      (32),
+      .DATA_WIDTH     (32)
+    ) u_register (
+      .i_clk                  (i_clk),
+      .i_rst_n                (i_rst_n),
+      .i_register_valid       (w_register_valid),
+      .i_register_access      (w_register_access),
+      .i_register_address     (w_register_address),
+      .i_register_write_data  (w_register_write_data),
+      .i_register_strobe      (w_register_strobe),
+      .o_register_active      (w_register_active[61+:1]),
+      .o_register_ready       (w_register_ready[61+:1]),
+      .o_register_status      (w_register_status[122+:2]),
+      .o_register_read_data   (w_register_read_data[1952+:32]),
+      .o_register_value       (w_register_value[3904+:32]),
+      .o_bit_field_valid      (w_bit_field_valid),
+      .o_bit_field_read_mask  (w_bit_field_read_mask),
+      .o_bit_field_write_mask (w_bit_field_write_mask),
+      .o_bit_field_write_data (w_bit_field_write_data),
+      .i_bit_field_read_data  (w_bit_field_read_data),
+      .i_bit_field_value      (w_bit_field_value)
+    );
+    if (1) begin : g_data
+      rggen_bit_field #(
+        .WIDTH          (32),
+        .INITIAL_VALUE  (32'h00000000),
+        .SW_READ_ACTION (`RGGEN_READ_NONE),
+        .SW_WRITE_ONCE  (0),
+        .TRIGGER        (0)
+      ) u_bit_field (
+        .i_clk              (i_clk),
+        .i_rst_n            (i_rst_n),
+        .i_sw_valid         (w_bit_field_valid),
+        .i_sw_read_mask     (w_bit_field_read_mask[0+:32]),
+        .i_sw_write_enable  (1'b1),
+        .i_sw_write_mask    (w_bit_field_write_mask[0+:32]),
+        .i_sw_write_data    (w_bit_field_write_data[0+:32]),
+        .o_sw_read_data     (w_bit_field_read_data[0+:32]),
+        .o_sw_value         (w_bit_field_value[0+:32]),
+        .o_write_trigger    (),
+        .o_read_trigger     (),
+        .i_hw_write_enable  (1'b0),
+        .i_hw_write_data    ({32{1'b0}}),
+        .i_hw_set           ({32{1'b0}}),
+        .i_hw_clear         ({32{1'b0}}),
+        .i_value            ({32{1'b0}}),
+        .i_mask             ({32{1'b1}}),
+        .o_value            (o_word_index_data),
         .o_value_unmasked   ()
       );
     end

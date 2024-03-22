@@ -71,6 +71,7 @@ import design_1_axi_vip_1_0_pkg::*;
 `define PATTERN14       32'hB8
 `define PATTERN15       32'hBC
 `define PATTERN_SIZE    32'hC0
+`define WORD_INDEX      32'hC4
 
 
 `define READ_ONCE           4'b0000
@@ -101,6 +102,7 @@ import design_1_axi_vip_1_0_pkg::*;
 `define CMD_pos     22
     `define CMD_LEAK        0
     `define CMD_POISON      1
+    `define CMD_TAMPER_CL   2
 
 module devil_tb();
     xil_axi_uint                mst_agent_verbosity = XIL_AXI_VERBOSITY_NONE;
@@ -163,6 +165,7 @@ module devil_tb();
     bit [31:0] reg_PATTERN14;
     bit [31:0] reg_PATTERN15;
     bit [31:0] reg_PATTERN_SIZE;
+    bit [31:0] reg_WORD_INDEX;
     bit acvalid;
     bit crvalid;
     bit crready;
@@ -229,7 +232,8 @@ module devil_tb();
     slv_agent.mem_model.set_memory_fill_policy(XIL_AXI_MEMORY_FILL_RANDOM);      
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
-    leak_key();
+    priv_escal();
+    // leak_key();
     // monitor_transation_devil();
     // data_leak_FMS_new_devil();
     // data_tampering_FSM_devil();
@@ -249,6 +253,89 @@ module devil_tb();
     $display("END Simulation");
     $finish;
     end 
+
+    task priv_escal();       
+        acaddr = 44'h00040000000;  // Emulate Snoop Address
+        reg_ctrl =    (`CMD_TAMPER_CL << `CMD_pos) // Leak Key
+                    | (`FUNC_PDT << `FUNC_pos) // active data leak
+                    | (1 << `PDTEN_pos) 
+                    | (1 << `MONEN_pos)               
+                    | (1 << `EN_pos);
+
+        // Match pattern simulation (this is the same data VIP has)
+        reg_PATTERN0  = 32'he0ddfa35; 
+        reg_PATTERN1  = 32'h3a1fa56b; 
+        reg_PATTERN2  = 32'hdc6beb31; 
+        reg_PATTERN3  = 32'hadf95002;   
+        // reg_PATTERN4  = 32'hd206ceac; 
+        // reg_PATTERN5  = 32'hd260d0b8; 
+        // reg_PATTERN6  = 32'hf65b9c92; 
+        // reg_PATTERN7  = 32'hcd197260; 
+        // reg_PATTERN8  = 32'hfcb01399; 
+        // reg_PATTERN9  = 32'h1443e896; 
+        // reg_PATTERN10 = 32'h893d8de5; 
+        // reg_PATTERN11 = 32'h1cd9b232; 
+        // reg_PATTERN12 = 32'hc8772659; 
+        // reg_PATTERN13 = 32'h1ec5cf46; 
+        // reg_PATTERN14 = 32'hff78efa1; 
+        // reg_PATTERN15 = 32'heb624e0d;
+
+        reg_PATTERN_SIZE = 4;
+
+        // Pattern
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN0,prot, reg_PATTERN0,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN1,prot, reg_PATTERN1,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN2,prot, reg_PATTERN2,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN3,prot, reg_PATTERN3,resp); 
+
+        // Pattern Size
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`PATTERN_SIZE,prot,reg_PATTERN_SIZE,resp);
+
+        // Data tamper CL
+        reg_DATA0   = 32'h00000000;
+        reg_DATA1   = 32'h00000000;
+        reg_DATA2   = 32'h00000000;
+        reg_DATA3   = 32'h00000000;
+        reg_DATA4   = 32'h00000000;
+        reg_DATA5   = 32'h00000000;
+        reg_DATA6   = 32'h00000000; 
+        reg_DATA7   = 32'h00000000;
+        reg_DATA8   = 32'h00000000;
+        reg_DATA9   = 32'h00000000;
+        reg_DATA10  = 32'h00000000;
+        reg_DATA11  = 32'h00000000;
+        reg_DATA12  = 32'h00000000;
+        reg_DATA13  = 32'h00000000;
+        reg_DATA14  = 32'h00000000;
+        reg_DATA15  = 32'h00000000;
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA0,prot, reg_DATA0,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA1,prot, reg_DATA1,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA2,prot, reg_DATA2,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA3,prot, reg_DATA3,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA4,prot, reg_DATA4,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA5,prot, reg_DATA5,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA6,prot, reg_DATA6,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA7,prot, reg_DATA7,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA8,prot, reg_DATA8,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA9,prot, reg_DATA9,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA10,prot,reg_DATA10,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA11,prot,reg_DATA11,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA12,prot,reg_DATA12,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA13,prot,reg_DATA13,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA14,prot,reg_DATA14,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DATA15,prot,reg_DATA15,resp); 
+
+        reg_WORD_INDEX = 16'b0000_0001_0000_0000;
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`WORD_INDEX,prot,reg_WORD_INDEX,resp);
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+        reg_ctrl =  (0 << `EN_pos);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`CTRL,prot,reg_ctrl,resp); 
+        #100ns;
+     endtask :priv_escal
 
      task leak_key();       
         acaddr = 44'h00040000000;  // Emulate Snoop Address

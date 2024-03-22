@@ -58,6 +58,7 @@ module devil_controller#(
         input  wire                       [31:0] i_external_l_araddr_Data,
         input  wire                       [31:0] i_external_l_awaddr_Data,
         input  wire                        [4:0] i_pattern_size,
+        input  wire                       [31:0] i_word_index,
 
         // Internal Signals, from devil controller to BRAM
         output wire                        		  o_trigger_bram_write,
@@ -82,10 +83,12 @@ module devil_controller#(
                                         DEVIL_REPLY             = 7,
                                         DEVIL_END_OP            = 8,
                                         DEVIL_PARTIAL_MATCH     = 9,
-                                        DEVIL_READ_NEXT_CL      = 10;
+                                        DEVIL_READ_NEXT_CL      = 10,
+                                        DEVIL_TAMPER_CL         = 11 ;
 
     `define CMD_LEAK        0
     `define CMD_POISON      1
+    `define CMD_TAMPER_CL   2
     `define CL_LINE_BYTES   64
     `define CL_LINE_BITS    `CL_LINE_BYTES*8 // 512 bits
     `define PEM_SIZE        32'h6C0*8  // Number of bits to fetch -> Enough for a RSA key with 2048 bits
@@ -285,6 +288,10 @@ module devil_controller#(
                         begin
                             fsm_devil_controller <= DEVIL_POISON_ACTION;
                         end
+                        `CMD_TAMPER_CL  : 
+                        begin
+                            fsm_devil_controller <= DEVIL_TAMPER_CL;
+                        end
                         default : fsm_devil_controller <= DEVIL_END_OP; 
                     endcase                                                      
                 end
@@ -369,6 +376,28 @@ module devil_controller#(
                     end
                     else
                         fsm_devil_controller <= fsm_devil_controller;                                                
+                end
+            DEVIL_TAMPER_CL: // 11  
+                begin 
+                    // Tamper CL with word granularity
+                    r_save_cache_line[31+32*0:0+32*0]   =  i_word_index & 16'b0000000000000001 ? i_external_cache_line[31+32*0:0+32*0]   : r_save_cache_line[31+32*0:0+32*0]; 
+                    r_save_cache_line[31+32*1:0+32*1]   =  i_word_index & 16'b0000000000000010 ? i_external_cache_line[31+32*1:0+32*1]   : r_save_cache_line[31+32*1:0+32*1];
+                    r_save_cache_line[31+32*2:0+32*2]   =  i_word_index & 16'b0000000000000100 ? i_external_cache_line[31+32*2:0+32*2]   : r_save_cache_line[31+32*2:0+32*2];
+                    r_save_cache_line[31+32*3:0+32*3]   =  i_word_index & 16'b0000000000001000 ? i_external_cache_line[31+32*3:0+32*3]   : r_save_cache_line[31+32*3:0+32*3];
+                    r_save_cache_line[31+32*4:0+32*4]   =  i_word_index & 16'b0000000000010000 ? i_external_cache_line[31+32*4:0+32*4]   : r_save_cache_line[31+32*4:0+32*4];
+                    r_save_cache_line[31+32*5:0+32*5]   =  i_word_index & 16'b0000000000100000 ? i_external_cache_line[31+32*5:0+32*5]   : r_save_cache_line[31+32*5:0+32*5];
+                    r_save_cache_line[31+32*6:0+32*6]   =  i_word_index & 16'b0000000001000000 ? i_external_cache_line[31+32*6:0+32*6]   : r_save_cache_line[31+32*6:0+32*6];
+                    r_save_cache_line[31+32*7:0+32*7]   =  i_word_index & 16'b0000000010000000 ? i_external_cache_line[31+32*7:0+32*7]   : r_save_cache_line[31+32*7:0+32*7];
+                    r_save_cache_line[31+32*8:0+32*8]   =  i_word_index & 16'b0000000100000000 ? i_external_cache_line[31+32*8:0+32*8]   : r_save_cache_line[31+32*8:0+32*8];
+                    r_save_cache_line[31+32*9:0+32*9]   =  i_word_index & 16'b0000001000000000 ? i_external_cache_line[31+32*9:0+32*9]   : r_save_cache_line[31+32*9:0+32*9];
+                    r_save_cache_line[31+32*10:0+32*10] =  i_word_index & 16'b0000010000000000 ? i_external_cache_line[31+32*10:0+32*10] : r_save_cache_line[31+32*10:0+32*10];  
+                    r_save_cache_line[31+32*11:0+32*11] =  i_word_index & 16'b0000100000000000 ? i_external_cache_line[31+32*11:0+32*11] : r_save_cache_line[31+32*11:0+32*11];  
+                    r_save_cache_line[31+32*12:0+32*12] =  i_word_index & 16'b0001000000000000 ? i_external_cache_line[31+32*12:0+32*12] : r_save_cache_line[31+32*12:0+32*12];  
+                    r_save_cache_line[31+32*13:0+32*13] =  i_word_index & 16'b0010000000000000 ? i_external_cache_line[31+32*13:0+32*13] : r_save_cache_line[31+32*13:0+32*13];  
+                    r_save_cache_line[31+32*14:0+32*14] =  i_word_index & 16'b0100000000000000 ? i_external_cache_line[31+32*14:0+32*14] : r_save_cache_line[31+32*14:0+32*14];  
+                    r_save_cache_line[31+32*15:0+32*15] =  i_word_index & 16'b1000000000000000 ? i_external_cache_line[31+32*15:0+32*15] : r_save_cache_line[31+32*15:0+32*15];     
+                    
+                    fsm_devil_controller <= DEVIL_REPLY;  
                 end
             DEVIL_REPLY:  // 7
                 begin 
