@@ -136,7 +136,6 @@
         input wire                         [2:0] i_external_awsnoop,
         output wire   [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line, 
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line, 
-        input wire    [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_2_monitor,
         output wire                              o_end_active,
         output wire                              o_busy_active,
         output wire                              o_end_passive,
@@ -477,8 +476,6 @@
 
         // Internal Signalas, from devil controller to devil passive
         .i_controller_signals(i_controller_signals),
-
-        .i_cache_line_2_monitor(i_cache_line_2_monitor),
 
         // Internal Signals, Controller In/Out Cache Line
         .i_cache_line(i_cache_line_passive_devil),

@@ -16,15 +16,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="358.519 ns"></ZoomStartTime>
-      <ZoomEndTime time="391.020 ns"></ZoomEndTime>
-      <Cursor1Time time="402.819 ns"></Cursor1Time>
+      <ZoomStartTime time="317.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,137.001 ns"></ZoomEndTime>
+      <Cursor1Time time="745.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="238"></NameColumnWidth>
-      <ValueColumnWidth column_width="111"></ValueColumnWidth>
+      <ValueColumnWidth column_width="103"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="89" />
+   <WVObjectSize size="96" />
    <wvobject type="protoinst" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/s01_axi">
       <obj_property name="children_use_element_short_name">true</obj_property>
       <obj_property name="WaveformStyle">STYLE_ENUM_TRANSACTION</obj_property>
@@ -239,6 +239,7 @@
    <wvobject type="group" fp_name="group168">
       <obj_property name="label">CR Channel</obj_property>
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
       <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/crvalid">
          <obj_property name="ElementShortName">crvalid</obj_property>
          <obj_property name="ObjectShortName">crvalid</obj_property>
@@ -273,7 +274,6 @@
    <wvobject type="group" fp_name="group169">
       <obj_property name="label">AC Channel</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/acaddr">
          <obj_property name="ElementShortName">acaddr[43:0]</obj_property>
          <obj_property name="ObjectShortName">acaddr[43:0]</obj_property>
@@ -290,7 +290,6 @@
    <wvobject type="group" fp_name="group139">
       <obj_property name="label">AW_Channel</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/awaddr">
          <obj_property name="ElementShortName">awaddr[43:0]</obj_property>
          <obj_property name="ObjectShortName">awaddr[43:0]</obj_property>
@@ -431,7 +430,6 @@
    <wvobject type="group" fp_name="group190">
       <obj_property name="label">R_Channel</obj_property>
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="isExpanded"></obj_property>
       <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/rack">
          <obj_property name="ElementShortName">rack</obj_property>
          <obj_property name="ObjectShortName">rack</obj_property>
@@ -578,8 +576,36 @@
       <obj_property name="ObjectShortName">r_controller_araddr[43:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/o_bram_data">
-      <obj_property name="ElementShortName">o_bram_data[127:0]</obj_property>
-      <obj_property name="ObjectShortName">o_bram_data[127:0]</obj_property>
+      <obj_property name="ElementShortName">o_bram_data[511:0]</obj_property>
+      <obj_property name="ObjectShortName">o_bram_data[511:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/r_counter">
+      <obj_property name="ElementShortName">r_counter[31:0]</obj_property>
+      <obj_property name="ObjectShortName">r_counter[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/i_word_index">
+      <obj_property name="ElementShortName">i_word_index[31:0]</obj_property>
+      <obj_property name="ObjectShortName">i_word_index[31:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/r_start_pattern_macth">
+      <obj_property name="ElementShortName">r_start_pattern_macth</obj_property>
+      <obj_property name="ObjectShortName">r_start_pattern_macth</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/w_full_match">
+      <obj_property name="ElementShortName">w_full_match</obj_property>
+      <obj_property name="ObjectShortName">w_full_match</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/i_stenden">
+      <obj_property name="ElementShortName">i_stenden</obj_property>
+      <obj_property name="ObjectShortName">i_stenden</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/r_pattern">
+      <obj_property name="ElementShortName">r_pattern[511:0]</obj_property>
+      <obj_property name="ObjectShortName">r_pattern[511:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/r_pattern_size">
+      <obj_property name="ElementShortName">r_pattern_size[4:0]</obj_property>
+      <obj_property name="ObjectShortName">r_pattern_size[4:0]</obj_property>
    </wvobject>
    <wvobject fp_name="divider371" type="divider">
       <obj_property name="label">MATCH_PATTERN</obj_property>
@@ -722,6 +748,10 @@
          <obj_property name="ElementShortName">i_status_BUSY_hw_set</obj_property>
          <obj_property name="ObjectShortName">i_status_BUSY_hw_set</obj_property>
       </wvobject>
+      <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_register_file_inst/o_control_STENDEN">
+         <obj_property name="ElementShortName">o_control_STENDEN</obj_property>
+         <obj_property name="ObjectShortName">o_control_STENDEN</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="divider687" type="divider">
       <obj_property name="label">BRAM_Interface</obj_property>
@@ -746,8 +776,8 @@
       <obj_property name="ObjectShortName">i_base_addr[14:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/bram_interface_inst/i_wrdata">
-      <obj_property name="ElementShortName">i_wrdata[127:0]</obj_property>
-      <obj_property name="ObjectShortName">i_wrdata[127:0]</obj_property>
+      <obj_property name="ElementShortName">i_wrdata[511:0]</obj_property>
+      <obj_property name="ObjectShortName">i_wrdata[511:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/bram_interface_inst/r_bram_wrdata">
       <obj_property name="ElementShortName">r_bram_wrdata[31:0]</obj_property>
@@ -758,8 +788,8 @@
       <obj_property name="ObjectShortName">r_bram_addr[14:0]</obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/bram_interface_inst/r_word_index">
-      <obj_property name="ElementShortName">r_word_index[2:0]</obj_property>
-      <obj_property name="ObjectShortName">r_word_index[2:0]</obj_property>
+      <obj_property name="ElementShortName">r_word_index[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_word_index[3:0]</obj_property>
    </wvobject>
    <wvobject type="logic" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/bram_interface_inst/i_trigger">
       <obj_property name="ElementShortName">i_trigger</obj_property>

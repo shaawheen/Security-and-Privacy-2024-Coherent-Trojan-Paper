@@ -37,7 +37,6 @@ module devil_controller#(
         input  wire      [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
         input  wire   [C_ACE_ACSNOOP_WIDTH-1:0] i_acsnoop_snapshot,
         output wire      [DEVIL_STATE_SIZE-1:0] o_fsm_devil_controller,
-        output wire  [(C_ACE_DATA_WIDTH*4)-1:0] o_cache_line_2_monitor,
 
         // Internal Signals, from devil to devil controller 
         input  wire                             i_end_active_devil,
@@ -52,13 +51,17 @@ module devil_controller#(
 
         // External Signals, from register file / PS
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line, 
-        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line_pattern, 
+        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line_start_pattern, 
+        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_external_cache_line_end_pattern, 
         input  wire                        [3:0] i_external_arsnoop_Data,
         input  wire                        [2:0] i_external_awsnoop_Data,
         input  wire                       [31:0] i_external_l_araddr_Data,
         input  wire                       [31:0] i_external_l_awaddr_Data,
-        input  wire                        [4:0] i_pattern_size,
+        input  wire                        [4:0] i_start_pattern_size,
+        input  wire                        [4:0] i_end_pattern_size,
         input  wire                       [31:0] i_word_index,
+        input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_delay_reg,
+        input  wire                              i_stenden, 
 
         // Internal Signals, from devil controller to BRAM
         output wire                        		  o_trigger_bram_write,
@@ -73,22 +76,24 @@ module devil_controller#(
 //------------------------------------------------------------------------------
 // FSM STATES AND DEFINES
 //------------------------------------------------------------------------------
-    parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE              = 0,
-                                        DEVIL_SEARCH_PATTERN    = 1,
-                                        DEVIL_CHOOSE_CMD        = 2, 
-                                        DEVIL_LEAK_KEY          = 3,
-                                        DEVIL_LEAK_KEY_READ     = 4,
-                                        DEVIL_LEAK_KEY_ST_BRAM  = 5,
-                                        DEVIL_POISON_ACTION     = 6,
-                                        DEVIL_REPLY             = 7,
-                                        DEVIL_END_OP            = 8,
-                                        DEVIL_PARTIAL_MATCH     = 9,
-                                        DEVIL_READ_NEXT_CL      = 10,
-                                        DEVIL_TAMPER_CL         = 11 ;
+        parameter [DEVIL_STATE_SIZE-1:0]    DEVIL_IDLE              = 0,
+                                            DEVIL_SEARCH_PATTERN    = 1,
+                                            DEVIL_CHOOSE_CMD        = 2, 
+                                            DEVIL_LEAK_KEY          = 3,
+                                            DEVIL_LEAK_KEY_READ     = 4,
+                                            DEVIL_LEAK_KEY_ST_BRAM  = 5,
+                                            DEVIL_POISON_ACTION     = 6,
+                                            DEVIL_REPLY             = 7,
+                                            DEVIL_END_OP            = 8,
+                                            DEVIL_PARTIAL_MATCH     = 9,
+                                            DEVIL_READ_NEXT_CL      = 10,
+                                            DEVIL_TAMPER_CL         = 11,
+                                            DEVIL_DELAY_CR          = 12;
 
     `define CMD_LEAK        0
     `define CMD_POISON      1
     `define CMD_TAMPER_CL   2
+    `define CMD_DELAY_CR    3
     `define CL_LINE_BYTES   64
     `define CL_LINE_BITS    `CL_LINE_BYTES*8 // 512 bits
     `define PEM_SIZE        32'h6C0*8  // Number of bits to fetch -> Enough for a RSA key with 2048 bits
@@ -127,6 +132,8 @@ module devil_controller#(
     reg                              r_trigger_bram_write;
     reg                       [14:0] r_bram_addr;
     reg   [(C_ACE_DATA_WIDTH*4)-1:0] r_bram_data;
+    reg                       [31:0] r_counter; 
+    reg                              r_start_pattern_macth;
 
 
 //------------------------------------------------------------------------------
@@ -151,23 +158,6 @@ module devil_controller#(
     assign o_internal_adt_en = r_internal_adt_en;
     assign o_trigger_active  = r_trigger_active;
 
-    assign o_cache_line_2_monitor[31+32*0:0+32*0]   = i_external_cache_line_pattern[31+32*0:0+32*0];
-    assign o_cache_line_2_monitor[31+32*1:0+32*1]   = i_external_cache_line_pattern[31+32*1:0+32*1];
-    assign o_cache_line_2_monitor[31+32*2:0+32*2]   = i_external_cache_line_pattern[31+32*2:0+32*2];
-    assign o_cache_line_2_monitor[31+32*3:0+32*3]   = i_external_cache_line_pattern[31+32*3:0+32*3];
-    assign o_cache_line_2_monitor[31+32*4:0+32*4]   = i_external_cache_line_pattern[31+32*4:0+32*4];
-    assign o_cache_line_2_monitor[31+32*5:0+32*5]   = i_external_cache_line_pattern[31+32*5:0+32*5];
-    assign o_cache_line_2_monitor[31+32*6:0+32*6]   = i_external_cache_line_pattern[31+32*6:0+32*6];
-    assign o_cache_line_2_monitor[31+32*7:0+32*7]   = i_external_cache_line_pattern[31+32*7:0+32*7];
-    assign o_cache_line_2_monitor[31+32*8:0+32*8]   = i_external_cache_line_pattern[31+32*8:0+32*8];
-    assign o_cache_line_2_monitor[31+32*9:0+32*9]   = i_external_cache_line_pattern[31+32*9:0+32*9];
-    assign o_cache_line_2_monitor[31+32*10:0+32*10] = i_external_cache_line_pattern[31+32*10:0+32*10];
-    assign o_cache_line_2_monitor[31+32*11:0+32*11] = i_external_cache_line_pattern[31+32*11:0+32*11];
-    assign o_cache_line_2_monitor[31+32*12:0+32*12] = i_external_cache_line_pattern[31+32*12:0+32*12];
-    assign o_cache_line_2_monitor[31+32*13:0+32*13] = i_external_cache_line_pattern[31+32*13:0+32*13];
-    assign o_cache_line_2_monitor[31+32*14:0+32*14] = i_external_cache_line_pattern[31+32*14:0+32*14];
-    assign o_cache_line_2_monitor[31+32*15:0+32*15] = i_external_cache_line_pattern[31+32*15:0+32*15];
-
     assign o_trigger_bram_write     = r_trigger_bram_write;
     assign o_bram_addr              = r_bram_addr;
     assign o_bram_data              = r_bram_data;
@@ -181,6 +171,7 @@ module devil_controller#(
         begin
         fsm_devil_controller <= DEVIL_IDLE;
         r_reply <= 0;
+        r_counter <= 0;
         r_pattern <= 0;
         r_pem_size <= 0;
         r_bram_addr <= 0;
@@ -198,6 +189,7 @@ module devil_controller#(
         r_trigger_bram_write <= 0;
         r_controller_arsnoop <= 0;
         r_controller_awsnoop <= 0;
+        r_start_pattern_macth <= 0;
         r_controller_ardomain <= 0;
         r_match_pattern_trigger <= 0;
         r_write_cache_line_active <= 0;
@@ -218,19 +210,37 @@ module devil_controller#(
                     if (i_end_active_devil)
                     begin 
                         r_save_cache_line <= i_cache_line_active_devil;
-                        r_pattern <= i_external_cache_line_pattern;
-                        r_pattern_size <= i_pattern_size;
+
+                        // Choose the Pattern to be searched for
+                        r_pattern <= ((r_start_pattern_macth == 0) ? i_external_cache_line_start_pattern : i_external_cache_line_end_pattern);
+                        r_pattern_size <= ((r_start_pattern_macth == 0) ? i_start_pattern_size : i_end_pattern_size);
+                        
                         r_match_pattern_trigger <= 1;
+
                         if(w_op_end) begin
                             r_match_pattern_trigger <= 0;
-                            if(w_full_match) 
+                            // Match (when we just want to have 1 trigger pattern)
+                            if(w_full_match && !i_stenden) 
                                 fsm_devil_controller <= DEVIL_CHOOSE_CMD;
-                            else if(w_partial_match) 
+                            // Start Pattern Match (when we want to have a Start and End trigger pattern)
+                            else if(w_full_match && i_stenden && !r_start_pattern_macth) 
+                                begin 
+                                    r_start_pattern_macth <= 1;
+                                    fsm_devil_controller <= DEVIL_CHOOSE_CMD;
+                                end
+                            // End Pattern Match (when we want to have a Start and End trigger pattern)
+                            else if(w_full_match && i_stenden && r_start_pattern_macth) 
+                                begin 
+                                    r_start_pattern_macth <= 0;
+                                    fsm_devil_controller <= DEVIL_REPLY;
+                                end
+                            else if(w_partial_match)  
                                 begin
                                     fsm_devil_controller <= DEVIL_READ_NEXT_CL;
                                     r_match_offset <=  w_match_offset;
                                     r_pattern_size_save <= r_pattern_size;
                                 end
+                            // !match && !i_stenden
                             else
                                 fsm_devil_controller <= DEVIL_REPLY;
                         end
@@ -291,6 +301,10 @@ module devil_controller#(
                         `CMD_TAMPER_CL  : 
                         begin
                             fsm_devil_controller <= DEVIL_TAMPER_CL;
+                        end
+                        `CMD_DELAY_CR  : 
+                        begin
+                            fsm_devil_controller <= DEVIL_DELAY_CR;
                         end
                         default : fsm_devil_controller <= DEVIL_END_OP; 
                     endcase                                                      
@@ -398,6 +412,21 @@ module devil_controller#(
                     r_save_cache_line[31+32*15:0+32*15] =  i_word_index & 16'b1000000000000000 ? i_external_cache_line[31+32*15:0+32*15] : r_save_cache_line[31+32*15:0+32*15];     
                     
                     fsm_devil_controller <= DEVIL_REPLY;  
+                end
+            DEVIL_DELAY_CR: // 12 
+                begin 
+                    // Wait some cycles to respond (delay = delay_reg)
+                    if(i_delay_reg == 0 || r_counter == (i_delay_reg-1) )
+                    begin
+                        // Dummy Reply
+                        fsm_devil_controller <= DEVIL_REPLY;  
+                        r_counter <= 0;
+                    end
+                    else
+                    begin
+                        r_counter <= r_counter + 1;
+                        fsm_devil_controller <= fsm_devil_controller;
+                    end                                
                 end
             DEVIL_REPLY:  // 7
                 begin 
