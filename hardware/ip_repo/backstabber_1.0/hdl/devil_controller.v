@@ -226,13 +226,18 @@ module devil_controller#(
                             else if(w_full_match && i_stenden && !r_start_pattern_macth) 
                                 begin 
                                     r_start_pattern_macth <= 1;
-                                    fsm_devil_controller <= DEVIL_CHOOSE_CMD;
+                                    fsm_devil_controller <= DEVIL_CHOOSE_CMD; // Action
+                                end
+                            // Middle Condition (Snoops between Start & Stop)
+                            else if(!w_full_match && !w_partial_match && i_stenden && r_start_pattern_macth) 
+                                begin 
+                                    fsm_devil_controller <= DEVIL_CHOOSE_CMD; // Action
                                 end
                             // End Pattern Match (when we want to have a Start and End trigger pattern)
                             else if(w_full_match && i_stenden && r_start_pattern_macth) 
                                 begin 
                                     r_start_pattern_macth <= 0;
-                                    fsm_devil_controller <= DEVIL_REPLY;
+                                    fsm_devil_controller <= DEVIL_REPLY; // Do nothing
                                 end
                             else if(w_partial_match)  
                                 begin
