@@ -18,5 +18,3 @@ stdenv.mkDerivation rec {
     dontUnpack = true;
     dontBuild = true;
 }
-
-

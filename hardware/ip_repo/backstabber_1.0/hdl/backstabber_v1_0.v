@@ -462,11 +462,12 @@
     wire     [C_ACE_DATA_WIDTH-1:0] w_buff_3;      
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_read_cache_line;
     wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line;                      
-    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line_pattern;                      
-    wire                     [31:0] w_pattern_size_data; 
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line_start_pattern;                      
+    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_write_cache_line_end_pattern;                      
+    wire                     [31:0] w_start_pattern_size_data; 
+    wire                     [31:0] w_end_pattern_size_data; 
     wire                     [31:0] w_word_index;                      
     wire                            w_external_mode;
-    wire [(C_ACE_DATA_WIDTH*4)-1:0] w_cache_line_2_monitor;
     wire                            w_end_active_devil; 
     wire                            w_end_passive_devil; 
     wire [`CTRL_OUT_SIGNAL_WIDTH-1:0] w_signals_from_controller;
@@ -498,6 +499,7 @@
     wire        w_control_PDTEN;
     wire        w_control_MONEN;
     wire  [3:0] w_control_CMD;
+    wire        w_control_STENDEN;
     wire        w_status_OSH_END;
     wire        w_status_OSH_END_hw_set;
     wire [31:0] w_delay_data;
@@ -1012,6 +1014,7 @@
     .o_control_PDTEN(w_control_PDTEN),
     .o_control_MONEN(w_control_MONEN),
     .o_control_CMD(w_control_CMD),
+    .o_control_STENDEN(w_control_STENDEN),
     .o_status_OSH_END(w_read_status_reg[0]),
     .i_status_OSH_END_hw_set(w_write_status_reg[0]),
     .i_status_BUSY_hw_set(w_devil_busy),
@@ -1061,25 +1064,42 @@
     .o_wdata_14_data(w_write_cache_line[31+32*14:0+32*14]),
     .o_wdata_15_data(w_write_cache_line[31+32*15:0+32*15]),
     // Pattern to search 
-     .o_pattern_0_data(w_write_cache_line_pattern[31+32*0:0+32*0]),
-     .o_pattern_1_data(w_write_cache_line_pattern[31+32*1:0+32*1]),
-     .o_pattern_2_data(w_write_cache_line_pattern[31+32*2:0+32*2]),
-     .o_pattern_3_data(w_write_cache_line_pattern[31+32*3:0+32*3]),
-     .o_pattern_4_data(w_write_cache_line_pattern[31+32*4:0+32*4]),
-     .o_pattern_5_data(w_write_cache_line_pattern[31+32*5:0+32*5]),
-     .o_pattern_6_data(w_write_cache_line_pattern[31+32*6:0+32*6]),
-     .o_pattern_7_data(w_write_cache_line_pattern[31+32*7:0+32*7]),
-     .o_pattern_8_data(w_write_cache_line_pattern[31+32*8:0+32*8]),
-     .o_pattern_9_data(w_write_cache_line_pattern[31+32*9:0+32*9]),
-    .o_pattern_10_data(w_write_cache_line_pattern[31+32*10:0+32*10]),
-    .o_pattern_11_data(w_write_cache_line_pattern[31+32*11:0+32*11]),
-    .o_pattern_12_data(w_write_cache_line_pattern[31+32*12:0+32*12]),
-    .o_pattern_13_data(w_write_cache_line_pattern[31+32*13:0+32*13]),
-    .o_pattern_14_data(w_write_cache_line_pattern[31+32*14:0+32*14]),
-    .o_pattern_15_data(w_write_cache_line_pattern[31+32*15:0+32*15]),
+     .o_start_pattern_0_data(w_write_cache_line_start_pattern[31+32*0:0+32*0]),
+     .o_start_pattern_1_data(w_write_cache_line_start_pattern[31+32*1:0+32*1]),
+     .o_start_pattern_2_data(w_write_cache_line_start_pattern[31+32*2:0+32*2]),
+     .o_start_pattern_3_data(w_write_cache_line_start_pattern[31+32*3:0+32*3]),
+     .o_start_pattern_4_data(w_write_cache_line_start_pattern[31+32*4:0+32*4]),
+     .o_start_pattern_5_data(w_write_cache_line_start_pattern[31+32*5:0+32*5]),
+     .o_start_pattern_6_data(w_write_cache_line_start_pattern[31+32*6:0+32*6]),
+     .o_start_pattern_7_data(w_write_cache_line_start_pattern[31+32*7:0+32*7]),
+     .o_start_pattern_8_data(w_write_cache_line_start_pattern[31+32*8:0+32*8]),
+     .o_start_pattern_9_data(w_write_cache_line_start_pattern[31+32*9:0+32*9]),
+    .o_start_pattern_10_data(w_write_cache_line_start_pattern[31+32*10:0+32*10]),
+    .o_start_pattern_11_data(w_write_cache_line_start_pattern[31+32*11:0+32*11]),
+    .o_start_pattern_12_data(w_write_cache_line_start_pattern[31+32*12:0+32*12]),
+    .o_start_pattern_13_data(w_write_cache_line_start_pattern[31+32*13:0+32*13]),
+    .o_start_pattern_14_data(w_write_cache_line_start_pattern[31+32*14:0+32*14]),
+    .o_start_pattern_15_data(w_write_cache_line_start_pattern[31+32*15:0+32*15]),
     // Pattern Size
-    .o_pattern_size_data(w_pattern_size_data),
-    .o_word_index_data(w_word_index)
+    .o_start_pattern_size_data(w_start_pattern_size_data),
+    .o_word_index_data(w_word_index),
+     .o_end_pattern_0_data(w_write_cache_line_end_pattern[31+32*0:0+32*0]),
+     .o_end_pattern_1_data(w_write_cache_line_end_pattern[31+32*1:0+32*1]),
+     .o_end_pattern_2_data(w_write_cache_line_end_pattern[31+32*2:0+32*2]),
+     .o_end_pattern_3_data(w_write_cache_line_end_pattern[31+32*3:0+32*3]),
+     .o_end_pattern_4_data(w_write_cache_line_end_pattern[31+32*4:0+32*4]),
+     .o_end_pattern_5_data(w_write_cache_line_end_pattern[31+32*5:0+32*5]),
+     .o_end_pattern_6_data(w_write_cache_line_end_pattern[31+32*6:0+32*6]),
+     .o_end_pattern_7_data(w_write_cache_line_end_pattern[31+32*7:0+32*7]),
+     .o_end_pattern_8_data(w_write_cache_line_end_pattern[31+32*8:0+32*8]),
+     .o_end_pattern_9_data(w_write_cache_line_end_pattern[31+32*9:0+32*9]),
+    .o_end_pattern_10_data(w_write_cache_line_end_pattern[31+32*10:0+32*10]),
+    .o_end_pattern_11_data(w_write_cache_line_end_pattern[31+32*11:0+32*11]),
+    .o_end_pattern_12_data(w_write_cache_line_end_pattern[31+32*12:0+32*12]),
+    .o_end_pattern_13_data(w_write_cache_line_end_pattern[31+32*13:0+32*13]),
+    .o_end_pattern_14_data(w_write_cache_line_end_pattern[31+32*14:0+32*14]),
+    .o_end_pattern_15_data(w_write_cache_line_end_pattern[31+32*15:0+32*15]),
+    .o_end_pattern_size_data(w_end_pattern_size_data)
     );
 
     // Instantiation of devil-controller module
@@ -1097,7 +1117,6 @@
         .i_acaddr_snapshot(r_acaddr_snapshot),
         .i_acsnoop_snapshot(r_acsnoop_snapshot),
         .o_fsm_devil_controller(w_fsm_devil_controller), 
-        .o_cache_line_2_monitor(w_cache_line_2_monitor),
         
         // Internal Signals, from devil to devil controller  
         .i_end_active_devil(w_end_active_devil),
@@ -1112,13 +1131,17 @@
 
         // External Signals, from register file
         .i_external_cache_line(w_write_cache_line),
-        .i_external_cache_line_pattern(w_write_cache_line_pattern),
+        .i_external_cache_line_start_pattern(w_write_cache_line_start_pattern),
+        .i_external_cache_line_end_pattern(w_write_cache_line_end_pattern),
         .i_external_arsnoop_Data(w_arsnoop_Data[3:0]),
         .i_external_awsnoop_Data(w_awsnoop_Data[2:0]),
         .i_external_l_araddr_Data(w_l_araddr_Data),
         .i_external_l_awaddr_Data(w_l_awaddr_Data),
-        .i_pattern_size(w_pattern_size_data[4:0]),
+        .i_start_pattern_size(w_start_pattern_size_data[4:0]),
+        .i_end_pattern_size(w_end_pattern_size_data[4:0]),
         .i_word_index(w_word_index),
+        .i_delay_reg(w_delay_reg),
+        .i_stenden(w_control_STENDEN),
 
         // Internal Signals, from devil controller to BRAM
         .o_trigger_bram_write(w_bram_trigger),
@@ -1246,7 +1269,6 @@
         .o_cache_line(w_read_cache_line),
         .i_external_cache_line(w_write_cache_line),
         .o_external_mode(w_external_mode),
-        .i_cache_line_2_monitor(w_cache_line_2_monitor),
         .o_end_active(w_end_active_devil),
         // .o_busy_active(),
         .o_devil_cache_line(w_cache_line_from_devil),

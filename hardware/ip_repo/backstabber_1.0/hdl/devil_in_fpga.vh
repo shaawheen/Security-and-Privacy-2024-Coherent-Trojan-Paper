@@ -17,6 +17,7 @@
         `define ADL  2
         `define ADT  3
         `define PDT  4
+        `define DMY  5
     `define CRRESP_pos  9
     `define ACFLT_pos   14
     `define ADDRFLT_pos 15

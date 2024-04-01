@@ -464,55 +464,6 @@ module passive_devil #(
                             fsm_devil_state_passive <= fsm_devil_state_passive;
                     end
                 end
-            // DEVIL_TAKE_ACTIONS:
-            //     begin
-            //         r_pattern_match <= 0;
-
-            //         // Config Active Devil ACE transaction
-            //         r_araddr <= w_from_ctrl_araddr;
-            //         r_arsnoop <= w_from_ctrl_arsnoop;
-            //         r_awaddr <= w_from_ctrl_awaddr;
-            //         r_awsnoop <= w_from_ctrl_awsnoop;
-            //         r_ardomain <= w_from_ctrl_ardomain;
-
-            //         // Type of active function to be performed
-            //         r_active_func <= w_from_ctrl_active_func; 
-
-            //         if(w_from_ctrl_active_func == `ADL)
-            //             begin
-            //                 r_trigger_active <= 1;
-            //                 r_internal_adl_en <= 1; // Enable Read Snoop (internal trigger)
-            //             end
-            //         else if(w_from_ctrl_active_func == `ADT)
-            //             begin
-            //                 r_trigger_active <= 1;
-            //                 r_internal_adt_en <= 1; // En Write Snoop (internal trigger)
-            //             end
-            //         else
-                    
-            //         // this register is used to inform that active devil performed 
-            //         // an action, e.g., read snoop. This signal is used to choose
-            //         // the source of the cache line, when zero, we are using a
-            //         // cache line sent by APU/PS, when one, we are using a cache
-            //         // line sent by active devil (i.e., that was snooped)
-            //         r_action_taken <= 0;       
-
-            //         fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS_WAIT;  
-            //     end
-            // DEVIL_TAKE_ACTIONS_WAIT:
-            //     begin
-            //         if (i_active_end)
-            //         begin
-            //             r_trigger_active <= 0;
-            //             r_internal_adl_en <= 0;
-            //             r_internal_adt_en <= 0;
-            //             fsm_devil_state_passive  <= DEVIL_FUNCTION;
-            //         end                           
-            //         else
-            //             fsm_devil_state_passive <= fsm_devil_state_passive;
-            //     end
-            // TODO: Change the name of the functions and also remove the unsued 
-            //      states
             DEVIL_FUNCTION: // 6
                 begin
                     case (w_func[3:0])
@@ -545,35 +496,22 @@ module passive_devil #(
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
+                        `DMY  :
+                        begin
+                            fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
+                        end
                         default : fsm_devil_state_passive <= DEVIL_DUMMY_REPLY; 
                     endcase                                                      
                 end
-            DEVIL_ONE_SHOT_DELAY: // 1
+            DEVIL_DUMMY_REPLY: // 8
                 begin
-                    if (i_read_status_reg[0] == 0 && i_crready) // just one reply with delay                                      
-                    begin                                                            
-                        fsm_devil_state_passive  <= DEVIL_RESPONSE;
-                        r_return <= DEVIL_END_OP;                              
-                    end  
-                    else if(i_read_status_reg[0] && i_crready) // normal reply                                                         
-                    begin                          
-                        fsm_devil_state_passive  <= DEVIL_DUMMY_REPLY;                                
-                    end 
-                    else          
-                        fsm_devil_state_passive <= fsm_devil_state_passive;                                                                                  
-                end
-            DEVIL_CONTINUOS_DELAY: //2
-                begin
-                    if (!w_con_en && i_crready)                                      
-                    begin                                                   // just one reply with delay            
-                        fsm_devil_state_passive  <= DEVIL_RESPONSE;  
-                        r_return <= DEVIL_END_OP; // last reply      
-                    end  
-                    else if(i_crready) 
-                    begin         
-                        fsm_devil_state_passive  <= DEVIL_RESPONSE;                                     
-                        r_return <= DEVIL_END_REPLY;      
-                    end                                                                                               
+                    if (i_crready)
+                    begin
+                            r_crresp <= 0;
+                            r_rdata <= 0;
+                            r_crvalid <= 1;
+                            fsm_devil_state_passive  <= DEVIL_END_REPLY;
+                    end                           
                     else
                         fsm_devil_state_passive <= fsm_devil_state_passive;
                 end
@@ -669,19 +607,32 @@ module passive_devil #(
                     // else
                     //     fsm_devil_state_passive <= DEVIL_RESPONSE;                             
                 end
-            DEVIL_DUMMY_REPLY: // 8
+            DEVIL_ONE_SHOT_DELAY: // 1
                 begin
-                    if (i_crready)
-                    begin
-                        // if(handshake) begin
-                            r_crresp <= 0;
-                            r_rdata <= 0;
-                            r_crvalid <= 1;
-                            fsm_devil_state_passive  <= DEVIL_END_REPLY;
-                        // end
-                        // else
-                        //     fsm_devil_state_passive  <= DEVIL_DUMMY_REPLY;
-                    end                           
+                    if (i_read_status_reg[0] == 0 && i_crready) // just one reply with delay                                      
+                    begin                                                            
+                        fsm_devil_state_passive  <= DEVIL_RESPONSE;
+                        r_return <= DEVIL_END_OP;                              
+                    end  
+                    else if(i_read_status_reg[0] && i_crready) // normal reply                                                         
+                    begin                          
+                        fsm_devil_state_passive  <= DEVIL_DUMMY_REPLY;                                
+                    end 
+                    else          
+                        fsm_devil_state_passive <= fsm_devil_state_passive;                                                                                  
+                end
+            DEVIL_CONTINUOS_DELAY: //2
+                begin
+                    if (!w_con_en && i_crready)                                      
+                    begin                                                   // just one reply with delay            
+                        fsm_devil_state_passive  <= DEVIL_RESPONSE;  
+                        r_return <= DEVIL_END_OP; // last reply      
+                    end  
+                    else if(i_crready) 
+                    begin         
+                        fsm_devil_state_passive  <= DEVIL_RESPONSE;                                     
+                        r_return <= DEVIL_END_REPLY;      
+                    end                                                                                               
                     else
                         fsm_devil_state_passive <= fsm_devil_state_passive;
                 end

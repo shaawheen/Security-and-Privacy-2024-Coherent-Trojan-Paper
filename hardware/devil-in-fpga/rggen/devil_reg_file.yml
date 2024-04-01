@@ -95,7 +95,13 @@ register_blocks:
             0b0001: Upon an event/trigger detection, the IP will tamper with a data structure.
             0bxxxx: Reserved
       - <<:
-        - { name:  Res, bit_assignment:  { width: 10 }, type: reserved}
+        - { name:  STENDEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - comment: |
+            Enable or disable the Coherent Trojan capability to perform actions between two trigger patterns. **St**art pattern and a **En**d pattern.
+            0: Feature Disabled. Just **St**art pattern is used. 
+            1: Feature Enabled. **St**art pattern and a **En**d pattern are used.
+      - <<:
+        - { name:  Res, bit_assignment:  { width: 5 }, type: reserved}
 
 ################################################################           
     - name: status
@@ -532,7 +538,7 @@ register_blocks:
 ## This registers are used to store the cache line patetrn that
 ## we want to detect. 
 ################################################################
-    - name: pattern_0
+    - name: start_pattern_0
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0x80
@@ -540,7 +546,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_1
+    - name: start_pattern_1
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0x84
@@ -548,7 +554,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_2
+    - name: start_pattern_2
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0x88
@@ -556,7 +562,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_3
+    - name: start_pattern_3
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0x8C
@@ -564,7 +570,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_4
+    - name: start_pattern_4
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0x90
@@ -572,7 +578,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_5
+    - name: start_pattern_5
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0x94
@@ -580,7 +586,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_6
+    - name: start_pattern_6
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0x98
@@ -588,7 +594,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_7
+    - name: start_pattern_7
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0x9C
@@ -596,7 +602,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_8
+    - name: start_pattern_8
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xA0
@@ -604,7 +610,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_9
+    - name: start_pattern_9
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xA4
@@ -612,7 +618,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_10
+    - name: start_pattern_10
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xA8
@@ -620,7 +626,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_11
+    - name: start_pattern_11
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xAC
@@ -628,7 +634,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_12
+    - name: start_pattern_12
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xB0
@@ -636,7 +642,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_13
+    - name: start_pattern_13
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xB4
@@ -644,7 +650,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: pattern_14
+    - name: start_pattern_14
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xB8
@@ -652,7 +658,7 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 #################################################################
-    - name: pattern_15
+    - name: start_pattern_15
       comment: |
         Word X of the cache line pattern to be searched for
       offset_address: 0xBC
@@ -663,7 +669,7 @@ register_blocks:
 ## The size of the pattern in words, it could range from 1 word
 ## up to 16 (i.e., cache line)
 ################################################################
-    - name: pattern_size
+    - name: start_pattern_size
       comment: |
         The size of the pattern in words, it could range from 1 word up to 16 (i.e., cache line)
       offset_address: 0xC0
@@ -677,6 +683,148 @@ register_blocks:
       comment: |
         Define the words to be tamper with in a CL. This registers uses 16 bits, one bit per word. When the bit is 1, the word will be tampered with the data written to DATAX registers.
       offset_address: 0xC4
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+## This registers are used to store the cache line patetrn that
+## we want to detect. 
+################################################################
+    - name: end_pattern_0
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xC8
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_1
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xCC
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_2
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xD0
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_3
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xD4
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_4
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xD8
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_5
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xDC
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_6
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xE0
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_7
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xE4
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_8
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xE8
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_9
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xEC
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_10
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xF0
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_11
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xF4
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_12
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xF8
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_13
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0xFC
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: end_pattern_14
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0x100
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+#################################################################
+    - name: end_pattern_15
+      comment: |
+        Word X of the cache line pattern to be searched for
+      offset_address: 0x104
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+## The size of the pattern in words, it could range from 1 word
+## up to 16 (i.e., cache line)
+################################################################
+    - name: end_pattern_size
+      comment: |
+        The size of the pattern in words, it could range from 1 word up to 16 (i.e., cache line)
+      offset_address: 0x108
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
