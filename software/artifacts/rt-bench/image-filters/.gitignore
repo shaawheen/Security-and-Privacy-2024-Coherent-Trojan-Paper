@@ -1,0 +1,13 @@
+grayscale
+sepia
+threshold
+sobel
+sobel5
+gaussian_noise3
+gaussian_noise5
+gaussian_noise7
+canny
+
+*.bmp
+
+README.dox

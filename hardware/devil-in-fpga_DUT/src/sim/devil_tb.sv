@@ -307,7 +307,9 @@ module devil_tb();
 
         // Match End pattern simulation (this is the same data VIP has)
         // Is the same pattern, because we are getting the same snoop (just because we are test mode)
-        reg_end_PATTERN0  = 32'he0ddfa35; 
+
+        // wrong pattern
+        reg_end_PATTERN0  = 32'h10ddfa35; 
         reg_end_PATTERN1  = 32'h3a1fa56b; 
         reg_end_PATTERN2  = 32'hdc6beb31; 
         reg_end_PATTERN3  = 32'hadf95002; 
@@ -338,6 +340,25 @@ module devil_tb();
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_DELAY_BYTE_OFFSET,prot,reg_delay,resp);
 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_CONTROL_BYTE_OFFSET,prot,reg_ctrl,resp); 
+        
+        #500ns
+
+        // Match End pattern simulation (this is the same data VIP has)
+        // Is the same pattern, because we are getting the same snoop (just because we are test mode)
+
+        // right pattern
+        reg_end_PATTERN0  = 32'he0ddfa35; 
+        reg_end_PATTERN1  = 32'h3a1fa56b; 
+        reg_end_PATTERN2  = 32'hdc6beb31; 
+        reg_end_PATTERN3  = 32'hadf95002; 
+
+        // End Pattern
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_END_PATTERN_0_BYTE_OFFSET,prot, reg_end_PATTERN0,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_END_PATTERN_1_BYTE_OFFSET,prot, reg_end_PATTERN1,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_END_PATTERN_2_BYTE_OFFSET,prot, reg_end_PATTERN2,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_END_PATTERN_3_BYTE_OFFSET,prot, reg_end_PATTERN3,resp);  
+
+
         #1000ns;
         reg_ctrl =  (0 << `EN_pos);
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_CONTROL_BYTE_OFFSET,prot,reg_ctrl,resp); 
