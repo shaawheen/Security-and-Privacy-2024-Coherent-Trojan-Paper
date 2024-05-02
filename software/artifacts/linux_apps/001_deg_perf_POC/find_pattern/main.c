@@ -207,10 +207,10 @@ int main(int argc, char *argv[]) {
     END_PATTERN_SIZE = map_base+66;
     
     // Pattern to search 
-    *PATTERN0  = 0xaa1c03e1; 
-    *PATTERN1  = 0x2a1503e0; 
-    *PATTERN2  = 0xd2800002; 
-    *PATTERN3  = 0xf90043e3; 
+    *PATTERN0  = 0xa9bd7bfd; //0xaa1c03e1; 
+    *PATTERN1  = 0x52800000; //0x2a1503e0; 
+    *PATTERN2  = 0x910003fd; //0xd2800002; 
+    *PATTERN3  = 0xa90153f3; //0xf90043e3;    
     // *PATTERN4  = 0xb9001be0; 
     // *PATTERN5  = 0xb9001fff; 
     // *PATTERN6  = 0x52a80000; 
@@ -226,10 +226,11 @@ int main(int argc, char *argv[]) {
 
     *PATTERN_SIZE = 4;
 
-    *END_PATTERN0  = 0xfa401042; 
-    *END_PATTERN1  = 0x54001389; 
-    *END_PATTERN2  = 0xf100003f; 
-    *END_PATTERN3  = 0x54fffc8d; 
+    // Same as 
+    *END_PATTERN0  = 0x1e621800; 
+    *END_PATTERN1  = 0x1e611800; 
+    *END_PATTERN2  = 0xfd002660; 
+    *END_PATTERN3  = 0xa94153f3; 
 
     *END_PATTERN_SIZE = 4;
 

@@ -255,6 +255,7 @@ module devil_tb();
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
     deg_perf();
+    deg_perf();
     // priv_escal();
     // leak_key();
     // monitor_transation_devil();
@@ -341,16 +342,16 @@ module devil_tb();
 
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_CONTROL_BYTE_OFFSET,prot,reg_ctrl,resp); 
         
+        acaddr = 44'h00040000040;  // Emulate Snoop Address
+
         #500ns
-
-        // Match End pattern simulation (this is the same data VIP has)
-        // Is the same pattern, because we are getting the same snoop (just because we are test mode)
-
+        // Match End pattern simulation
         // right pattern
-        reg_end_PATTERN0  = 32'he0ddfa35; 
-        reg_end_PATTERN1  = 32'h3a1fa56b; 
-        reg_end_PATTERN2  = 32'hdc6beb31; 
-        reg_end_PATTERN3  = 32'hadf95002; 
+        
+        reg_end_PATTERN0  = 32'hd57c5032; 
+        reg_end_PATTERN1  = 32'hf9bed424; 
+        reg_end_PATTERN2  = 32'hf72ff52c; 
+        reg_end_PATTERN3  = 32'hc5bbab29; 
 
         // End Pattern
         mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_END_PATTERN_0_BYTE_OFFSET,prot, reg_end_PATTERN0,resp); 
