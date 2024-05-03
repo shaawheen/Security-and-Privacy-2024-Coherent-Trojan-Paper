@@ -45,8 +45,8 @@
 
 int main(int argc, char *argv[]) {
 
-    if (argc < 3) {
-        printf("Usage: %s <en|dis> <delay>\n", argv[0]);
+    if (argc < 4) {
+        printf("Usage: %s <en|dis> <delay> <isol|dis>\n", argv[0]);
         return 1;
     }
 
@@ -206,33 +206,92 @@ int main(int argc, char *argv[]) {
     END_PATTERN15 = map_base+65;
     END_PATTERN_SIZE = map_base+66;
     
-    // Pattern to search 
-    *PATTERN0  = 0xa9bd7bfd; //0xaa1c03e1; 
-    *PATTERN1  = 0x52800000; //0x2a1503e0; 
-    *PATTERN2  = 0x910003fd; //0xd2800002; 
-    *PATTERN3  = 0xa90153f3; //0xf90043e3;    
-    // *PATTERN4  = 0xb9001be0; 
-    // *PATTERN5  = 0xb9001fff; 
-    // *PATTERN6  = 0x52a80000; 
-    // *PATTERN7  = 0xb90023e0; 
-    // *PATTERN8  = 0x52820041; 
-    // *PATTERN9  = 0x72a00201; 
-    // *PATTERN10 = 0x90000000; 
-    // *PATTERN11 = 0x91376000; 
-    // *PATTERN12 = 0x97ffff80; 
-    // *PATTERN13 = 0xb90027e0; 
-    // *PATTERN14 = 0xb94027e0; 
-    // *PATTERN15 = 0x3100041f; 
+    if (strcmp(argv[3], "isol") == 0) // ISOL Patterns
+    {
+        // ISOL START
+        *PATTERN0  = 0xa9bd7bfd; 
+        *PATTERN1  = 0x52800000; 
+        *PATTERN2  = 0x910003fd; 
+        *PATTERN3  = 0xa90153f3; 
+        *PATTERN4  = 0xf90013f5; 
+        *PATTERN5  = 0xd0000053; 
+        *PATTERN6  = 0x9100a275; 
+        *PATTERN7  = 0x910082a1; 
+        *PATTERN8  = 0x97fffc64; 
+        *PATTERN9  = 0xd0000054; 
+        *PATTERN10 = 0x91004280; 
+        *PATTERN11 = 0xb9400406; 
+        *PATTERN12 = 0x710000df; 
+        *PATTERN13 = 0x5400030d; 
+        *PATTERN14 = 0xf94006a7; 
+        *PATTERN15 = 0x52800005; 
 
-    *PATTERN_SIZE = 4;
+        *PATTERN_SIZE = 16;
 
-    // Same as 
-    *END_PATTERN0  = 0x1e621800; 
-    *END_PATTERN1  = 0x1e611800; 
-    *END_PATTERN2  = 0xfd002660; 
-    *END_PATTERN3  = 0xa94153f3; 
+         //ISOL STOP 
+        *END_PATTERN0   = 0x9b028c21;   
+        *END_PATTERN1   = 0xf9401663;
+        *END_PATTERN2   = 0x9b020400;
+        *END_PATTERN3   = 0x1e620082;
+        *END_PATTERN4   = 0xb9400681;
+        *END_PATTERN5   = 0xcb030000;
+        *END_PATTERN6   = 0x9e630000;
+        *END_PATTERN7   = 0x1e620021;
+        *END_PATTERN8   = 0x1e621800;
+        *END_PATTERN9   = 0x1e611800;
+        *END_PATTERN10  = 0xfd002660;
+        *END_PATTERN11  = 0xa94153f3;
+        *END_PATTERN12  = 0xa8c37bfd;
+        *END_PATTERN13  = 0xd65f03c0;
+        *END_PATTERN14  = 0xd503201f;
+        *END_PATTERN15  = 0xd503201f;
 
-    *END_PATTERN_SIZE = 4;
+        *END_PATTERN_SIZE = 16;
+    }
+
+    if (strcmp(argv[3], "dis") == 0) // DIS Patterns
+    {
+        // DIS START -> benchmark_execution: first two words are 20 and 30 offset, 
+        //and last two of the patter are 00 adn 10, because the acces is not aligned
+        *PATTERN0  = 0xa9be7bfd;
+        *PATTERN1  = 0x7100001f;
+        *PATTERN2  = 0x910003fd;
+        *PATTERN3  = 0xa90153f3;
+        *PATTERN4  = 0x540003cd;
+        *PATTERN5  = 0x90000054;
+        *PATTERN6  = 0x9107e281;
+        *PATTERN7  = 0x52800803;
+        *PATTERN8  = 0x97ffe248;
+        *PATTERN9  = 0x17fffff2;
+        *PATTERN10 = 0xa90153f3;
+        *PATTERN11 = 0xf90013f5;
+        *PATTERN12 = 0x97ffe1e4;
+        *PATTERN13 = 0xd503201f;
+        *PATTERN14 = 0xd503201f;
+        *PATTERN15 = 0xd503201f;
+
+        *PATTERN_SIZE = 16;
+    
+        //DIS STOP -> the cache line that has the benchmark_execution
+        *END_PATTERN0   = 0xb94082c0;
+        *END_PATTERN1   = 0xf9403ec1;
+        *END_PATTERN2   = 0x940012d6;
+        *END_PATTERN3   = 0x97fff70d;
+        *END_PATTERN4   = 0xf9006ac0;
+        *END_PATTERN5   = 0x97fff70f;
+        *END_PATTERN6   = 0x3d803ec0;
+        *END_PATTERN7   = 0xf94082c0;
+        *END_PATTERN8   = 0xf9401e81;
+        *END_PATTERN9   = 0x91000400;
+        *END_PATTERN10  = 0xf90082c0;
+        *END_PATTERN11  = 0xb5000061;
+        *END_PATTERN12  = 0xf9401a82;
+        *END_PATTERN13  = 0xb4001302;
+        *END_PATTERN14  = 0xf9406a82;
+        *END_PATTERN15  = 0xf100005f;
+
+        *END_PATTERN_SIZE = 16;
+    }
 
     *p_delay = atoi(argv[2]);
     

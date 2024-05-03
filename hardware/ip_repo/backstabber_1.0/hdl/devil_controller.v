@@ -236,17 +236,6 @@ module devil_controller#(
                                                 r_start_pattern_macth <= 1;
                                         end
                                 end
-                            // Start Pattern Match (when we want to have a Start and End trigger pattern)
-                            // else if(w_full_match && i_stenden && !r_start_pattern_macth) 
-                            //     begin 
-                            //         r_start_pattern_macth <= 1;
-                            //         fsm_devil_controller <= DEVIL_CHOOSE_CMD; // Action
-                            //     end
-                            // else if(w_full_match && i_stenden && r_start_pattern_macth) 
-                            //     begin 
-                            //         r_start_pattern_macth <= 0;
-                            //         fsm_devil_controller <= DEVIL_REPLY; // Do nothing
-                            //     end
                             else if(w_partial_match)  
                                 begin
                                     fsm_devil_controller <= DEVIL_READ_NEXT_CL;
