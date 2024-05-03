@@ -1,25 +1,24 @@
-# Data Leak (Active new devil Ip design)
+# Performance Degradation
 
-This elevates the privileges of a user application to root (priv. escalation). 
+This attack inflicts arbitrary delays. We measure the performance degradation with [RT-Bench](https://gitlab.com/rt-bench/rt-bench).
 
 ## Description 
 
 Artifacts of this attack:
-- `find_pattern` -> Configures the coherent Trojan and triggers the malicious IP
-- `gain_root_priv` -> Sets the RUID, EUID and SUID to 0 (root)
-- `priv_escal_setup.sh` -> Setup of the attack
-- `priv_escal_attack.sh` -> Runs the attack
+- `send.sh` -> sends to the board all necessary artifacts to run the attack
+- `performance_degradation.sh` -> script to run the attack on the board
+- `get_results.sh` -> script to read the results of the test (copy the csv files from board to PC)
   
 ## Setup
-- Commit: [8d92f2a29bf8d2d70e296bc65dd1d1e42231dd55](https://github.com/ESCristiano/devil-in-the-fpga/tree/8d92f2a29bf8d2d70e296bc65dd1d1e42231dd55)
-- Attack Scenario: Attack Cross-Process ( But working in all 3 scenarios)
+- Commit: [5135da9f2b757391c52214c84a7bf8d61e0d0a05](https://github.com/ESCristiano/devil-in-the-fpga/tree/5135da9f2b757391c52214c84a7bf8d61e0d0a05)
+- Attack Scenario: Attack Cross-Process ( But should work in all 3 scenarios)
 - Board: zcu104
   
-## To Replicate (Automatically)
+## To Replicate 
 1. Run `send.sh` on host linux
-2. Run `priv_escal_setup.sh` on boards's linux
-3. Run `priv_escal_attack.sh` on boards's linux
-4. User1 should have now gained root priv
+2. Run `performance_degradation.sh` on boards's linux
+3. Run `get_results.sh` on host linux
+4. You should get a `results` folder with all the csv from the experiments
 
 ## Results 
-- We can corrupt arbitrary memory (EL1, EL2, EL3) breaking Integrity
+- We can inflict arbitrary delays breaking Availability
