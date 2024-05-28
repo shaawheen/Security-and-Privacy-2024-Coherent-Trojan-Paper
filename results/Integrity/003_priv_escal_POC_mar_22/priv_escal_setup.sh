@@ -6,7 +6,7 @@ USER="user1"
 
 echo "--------------------------------------------------------------------------"
 echo "Coherent Trojan Configured"
-./find_pattern
+./find_pattern en
 
 echo "--------------------------------------------------------------------------"
 #create user
@@ -36,6 +36,3 @@ echo "Switching to the new user"
 # Switch to the user
 cd /home/${USER}
 su ${USER}
-
-# if I want to go back to root
-# su -l
