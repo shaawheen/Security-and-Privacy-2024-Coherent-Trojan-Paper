@@ -39,7 +39,7 @@
 #define WRITE_LINE_UNIQUE   0b001
 #define WRITE_BACK          0b011
 
-int main() {
+int main(int argc, char *argv[]) {
     int mem_fd;
     int counter = 0;
     unsigned int *map_base;
@@ -93,6 +93,11 @@ int main() {
     static unsigned int *PATTERN14;          
     static unsigned int *PATTERN15; 
     static unsigned int *PATTERN_SIZE; 
+
+    if (argc < 2) {
+        printf("Usage: %s <en|dis>\n", argv[0]);
+        return 1;
+    }
 
     // Open /dev/mem to access physical memory
     mem_fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -197,47 +202,27 @@ int main() {
 
     *PATTERN_SIZE = 4;
 
-    // Address Filter
-    // *base_addr  = 0x03801600; 
-    // *base_addr  = 0x40000000; 
-    // *base_addr  = 0x20001580; // without bao
-    // 0x20001600 // without bao
-    // 0x03801600 // with bao
+    if (strcmp(argv[1], "en") == 0) {
+        *ctrl = 0; // Disable IP
+        *ctrl    =    (0b00001 << CRRESP_pos) 
+                    // | (1 << ACFLT_pos) 
+                    // | (1 << ADDRFLT_pos) 
+                    | (CMD_LEAK << CMD_pos)
+                    | (FUNC_PDT << FUNC_pos) 
+                    | (1 << PDTEN_pos)               
+                    | (1 << MONEN_pos)               
+                    | (1<< EN_pos);
+        printf(" Coherent Trojan Configured!\n");
+    }
 
-    // *base_addr  = 0x038016c0; // with bao
-    // *mem_size   = 0x4;
-
-    // Snoop Filter
-    // *acsnoop = 0x1;
-
-    // Target Address
-    *awsnoop =  0b001;
-    *l_awaddr = 0x40000100;
-    
-    *ctrl = 0; // Disable IP
-    *ctrl    =    (0b00001 << CRRESP_pos) 
-                // | (1 << ACFLT_pos) 
-                // | (1 << ADDRFLT_pos) 
-                | (CMD_LEAK << CMD_pos)
-                | (FUNC_PDT << FUNC_pos) 
-                | (1 << PDTEN_pos)               
-                | (1 << MONEN_pos)               
-                | (1<< EN_pos);
-
-    // Wait for the end of the reply
-    // printf(" status = 0x%08x\n", *status);   
-    // while(!*status);
-    // printf(" status = 0x%08x\n", *status);   
-    // while(*status);
-    // printf(" ctrl = 0x%08x\n", *ctrl);   
-    // *ctrl = 0; // Disable IP
-    printf(" Coherent Trojan Configured!\n");
+    if (strcmp(argv[1], "dis") == 0) {
+        *ctrl = 0; // Disable IP
+        printf(" Coherent Trojan Disable!\n");
+    }
 
     // Unmap memory and close /dev/mem
     munmap(map_base, 4096);
     close(mem_fd);
     
-    printf("Done!\n");
-
     return 0;
 }
