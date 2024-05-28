@@ -3,7 +3,7 @@ rm #!/bin/bash
 # Run the attack
 echo "--------------------------------------------------------------------------"
 echo "Coherent Trojan Configrued"
-./find_pattern
+./find_pattern en
 
 echo "--------------------------------------------------------------------------"
 echo "Generating a RSA private key and encrypting a file"
@@ -30,3 +30,8 @@ echo "Original Plaintext"
 cat file.txt
 echo "Decrypted Plaintext with stolen key"
 cat file.dec
+
+echo "--------------------------------------------------------------------------"
+echo "Clear BRAM"
+./read_BRAM -cmd c
+./find_pattern dis

@@ -3,6 +3,7 @@
 
 ROOT=$(realpath ".")
 ROOT_DIR=$(realpath "../../../")
+SCRIPT=${ROOT}/scripts
 ARTIFACTS_DIR=${ROOT_DIR}/software/artifacts
 LINUX_APPS_DIR=${ARTIFACTS_DIR}/linux_apps
 ATTACK_DIR=${LINUX_APPS_DIR}/002_rsa_key_leak_POC_mar_19
@@ -24,7 +25,8 @@ echo "Sending artifacts to the target board"
 echo "--------------------------------------"
 
 scp -r                                  \
-    ${ROOT}/rsa_attack.sh               \
+    ${SCRIPT}/rsa_attack.sh             \
+    ${SCRIPT}/eval.sh                   \
     ${READ_BRAM_DIR}/read_BRAM          \
     ${OPENSSL_DIR}/openssl.sh           \
     ${OPENSSL_DIR}/bin/openssl          \
