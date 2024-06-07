@@ -63,3 +63,4 @@ fatload mmc 0 0x200000 bao.img; bootm start 0x200000; bootm loados; bootm go
 
 You should see Bao running a dual-guest setup (either dual-baremetal or baremetal+linux). 
 
+# Security-and-Privacy-2024-Coherent-Trojan-Paper
