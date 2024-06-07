@@ -65,3 +65,4 @@ You should see Bao running a dual-guest setup (either dual-baremetal or baremeta
 
 # Security-and-Privacy-2024-Coherent-Trojan-Paper
 # Security-and-Privacy-2024-Coherent-Trojan-Paper
+# Security-and-Privacy-2024-Coherent-Trojan-Paper
