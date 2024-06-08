@@ -121,7 +121,11 @@ register_blocks:
             0: Not busy
             1: Busy doing a reply
       - <<:
-        - {name: Res, bit_assignment:  { width: 30 }, type: reserved}
+        - { name:  DEANON_COUNT, bit_assignment:  { width: 16 }, type: ro  ,  initial_value: 0}
+        - comment: |
+            Counts the number of successful matches (i.e., deanonimizitions), up to 65535. This field is cleaned when the IP is disabled, i.e., control.en = 0.
+      - <<:
+        - {name: Res, bit_assignment:  { width: 14 }, type: reserved}
 
 ################################################################
     - name: delay
@@ -827,6 +831,14 @@ register_blocks:
       offset_address: 0x108
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: deanon_addr
+      comment: |
+        The Physical address corresponding to the deanonimize code/data.
+      offset_address: 0x10C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
 
     # - name: register_2
     #   offset_address: 0x08

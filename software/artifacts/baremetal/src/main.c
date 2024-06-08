@@ -372,7 +372,124 @@ inline void monitor_transaction_test(){
 
 
 void main(void){
+    main_2();
+    // static volatile bool master_done = false;
+    // int beat = 0, key = 1, count = 0;
 
+    // if(cpu_is_master()){
+    //     spin_lock(&print_lock);
+    //     printf("Malicious Baremetal Guest\n");
+    //     spin_unlock(&print_lock);
+
+    //     // irq_set_handler(TIMER_IRQ_ID, timer_handler);
+
+    //     // timer_set(TIMER_INTERVAL);
+    //     // irq_enable(TIMER_IRQ_ID);
+    //     // irq_set_prio(TIMER_IRQ_ID, IRQ_MAX_PRIO);
+
+    //     shmem_init();
+
+    //     master_done = true;
+    //     // spin_lock(&print_lock);
+    //     // printf("IPC\n");
+    //     // spin_unlock(&print_lock);
+    //     // sprintf(shmem_buff, "%d", irq_count);
+    //     // irq_count++;
+    //     // osh_cr_delay(4);
+    // }
+
+    // while(!master_done);
+
+    // while (1)
+    // {   
+    //     // Pattern Slip between two cache lines
+    //     // CL 0
+    //     // *ptr   = 0xDEEDBEEF;
+    //     // *ptr1  = 0x1FFFFFFF;
+    //     // *ptr2  = 0xDEEDBEEF;
+    //     // *ptr3  = 0x2FFFFFFF;
+    //     // *ptr4  = 0xDEEDBEEF;
+    //     // *ptr5  = 0x3FFFFFFF;
+    //     // *ptr6  = 0xDEEDBEEF;
+    //     // *ptr7  = 0x4FFFFFFF;
+    //     // *ptr8  = 0xDEEDBEEF;
+    //     // *ptr9  = 0x5FFFFFFF;
+    //     // *ptr10 = 0xDEEDBEEF;
+    //     // *ptr11 = 0x6FFFFFFF;
+    //     // *ptr12 = 0xDEEDBEEF;
+    //     // *ptr13 = 0x7FFFFFFF;
+    //     // *ptr14 = 0xDEEDBEEF;
+    //     // *ptr15 = 0x8FFFFFFF;
+    //     // // CL 1
+    //     // *ptr_1_0  = 0xff78efa1; 
+    //     // *ptr_1_1  = 0xeb624e0d;
+    //     // *ptr_1_2  = 0;
+    //     // *ptr_1_3  = 0;
+    //     // *ptr_1_4  = 0;
+    //     // *ptr_1_5  = 0;
+    //     // *ptr_1_6  = 0;
+    //     // *ptr_1_7  = 0;
+    //     // *ptr_1_8  = 0;
+    //     // *ptr_1_9  = 0;
+    //     // *ptr_1_10 = 0;
+    //     // *ptr_1_11 = 0;
+    //     // *ptr_1_12 = 0;
+    //     // *ptr_1_13 = 0;
+    //     // *ptr_1_14 = 0;
+    //     // *ptr_1_15 = 0;
+
+    //     // *ptr8b  = 0xF00DBABE; // 0x40000100
+    //     // *ptr9b  = 0xF00DBABE;
+    //     // *ptr10b = 0xF00DBABE;
+    //     // *ptr11b = 0xF00DBABE;
+    //     // *ptr12b = 0xF00DBABE;
+    //     // *ptr13b = 0xF00DBABE;
+    //     // *ptr14b = 0xF00DBABE;
+    //     // *ptr15b = 0xF00DBABE;
+    //     for (size_t i = 0; i < 3000000000; i++);  
+    //     // invalidateCache(ptr15);
+    //     // invalidateCache(ptr_1_0); // this is needed for the data to be written to memory
+    //     // monitor_transaction_test();
+    //     printf("Count   = 0x%08x\n", count++);
+    //     printf("Ptr8b   = 0x%08x\n", *ptr8b);
+    //     // printf("Ptr8b   = 0x%08x\n", *ptr8b);
+    //     // printf("Ptr9b   = 0x%08x\n", *ptr9b);
+    //     // printf("Ptr10b  = 0x%08x\n", *ptr10b);
+    //     // printf("Ptr11b  = 0x%08x\n", *ptr11b);
+    //     // active_data_leak();
+    //     // active_data_tampering();
+    //     // data_tamper();
+    // }
+
+    // while(1) wfi();    
+}
+
+#define CACHE_LINE_SIZE 64
+#define N_WORDS CACHE_LINE_SIZE/sizeof(int)
+// #define VECTOR_SIZE 1024*1024 // 1MB -> L2 cache size
+// #define VECTOR_SIZE 128*1024 // 128KB
+#define VECTOR_SIZE 64*1024 // 64KB
+// #define VECTOR_SIZE 4*1024 // 4KB
+
+int *vector;
+
+int data_test() {
+
+    // int vector[N_WORDS];
+    vector = (int*)aligned_alloc(CACHE_LINE_SIZE, VECTOR_SIZE);
+    for (int i = 0; i < (VECTOR_SIZE)/4; i++) {
+        vector[i] = 0xFF00FF00 + i+1;
+        printf("vector[%d] (0x%08x) = 0x%08x\n", i, &vector[i], vector[i]);
+    }
+    
+    // getPhysicalAddress((void*)&vector[0]);
+
+    free(vector); 
+
+    return 0;
+}
+
+void main_2(void){
     static volatile bool master_done = false;
     int beat = 0, key = 1, count = 0;
 
@@ -380,86 +497,24 @@ void main(void){
         spin_lock(&print_lock);
         printf("Malicious Baremetal Guest\n");
         spin_unlock(&print_lock);
-
-        // irq_set_handler(TIMER_IRQ_ID, timer_handler);
-
-        // timer_set(TIMER_INTERVAL);
-        // irq_enable(TIMER_IRQ_ID);
-        // irq_set_prio(TIMER_IRQ_ID, IRQ_MAX_PRIO);
-
         shmem_init();
 
         master_done = true;
-        // spin_lock(&print_lock);
-        // printf("IPC\n");
-        // spin_unlock(&print_lock);
-        // sprintf(shmem_buff, "%d", irq_count);
-        // irq_count++;
-        // osh_cr_delay(4);
     }
 
     while(!master_done);
+    // Determine the number of elements in the array
 
-    while (1)
-    {   
-        // Pattern Slip between two cache lines
-        // CL 0
-        // *ptr   = 0xDEEDBEEF;
-        // *ptr1  = 0x1FFFFFFF;
-        // *ptr2  = 0xDEEDBEEF;
-        // *ptr3  = 0x2FFFFFFF;
-        // *ptr4  = 0xDEEDBEEF;
-        // *ptr5  = 0x3FFFFFFF;
-        // *ptr6  = 0xDEEDBEEF;
-        // *ptr7  = 0x4FFFFFFF;
-        // *ptr8  = 0xDEEDBEEF;
-        // *ptr9  = 0x5FFFFFFF;
-        // *ptr10 = 0xDEEDBEEF;
-        // *ptr11 = 0x6FFFFFFF;
-        // *ptr12 = 0xDEEDBEEF;
-        // *ptr13 = 0x7FFFFFFF;
-        // *ptr14 = 0xDEEDBEEF;
-        // *ptr15 = 0x8FFFFFFF;
-        // // CL 1
-        // *ptr_1_0  = 0xff78efa1; 
-        // *ptr_1_1  = 0xeb624e0d;
-        // *ptr_1_2  = 0;
-        // *ptr_1_3  = 0;
-        // *ptr_1_4  = 0;
-        // *ptr_1_5  = 0;
-        // *ptr_1_6  = 0;
-        // *ptr_1_7  = 0;
-        // *ptr_1_8  = 0;
-        // *ptr_1_9  = 0;
-        // *ptr_1_10 = 0;
-        // *ptr_1_11 = 0;
-        // *ptr_1_12 = 0;
-        // *ptr_1_13 = 0;
-        // *ptr_1_14 = 0;
-        // *ptr_1_15 = 0;
-
-        // *ptr8b  = 0xF00DBABE; // 0x40000100
-        // *ptr9b  = 0xF00DBABE;
-        // *ptr10b = 0xF00DBABE;
-        // *ptr11b = 0xF00DBABE;
-        // *ptr12b = 0xF00DBABE;
-        // *ptr13b = 0xF00DBABE;
-        // *ptr14b = 0xF00DBABE;
-        // *ptr15b = 0xF00DBABE;
-        for (size_t i = 0; i < 3000000000; i++);  
-        // invalidateCache(ptr15);
-        // invalidateCache(ptr_1_0); // this is needed for the data to be written to memory
-        // monitor_transaction_test();
-        printf("Count   = 0x%08x\n", count++);
-        printf("Ptr8b   = 0x%08x\n", *ptr8b);
-        // printf("Ptr8b   = 0x%08x\n", *ptr8b);
-        // printf("Ptr9b   = 0x%08x\n", *ptr9b);
-        // printf("Ptr10b  = 0x%08x\n", *ptr10b);
-        // printf("Ptr11b  = 0x%08x\n", *ptr11b);
-        // active_data_leak();
-        // active_data_tampering();
-        // data_tamper();
+    // Loop over the array and call each function
+    for (size_t i = 0; i < 1000; i++) {
+        while(*ptr != 0xdeadbeef) { // Written by other VM
+            invalidateCache(ptr); // Update Cache
+        }
+        *ptr = 0;
+        invalidateCache(ptr); // Update memory
+        printf("\nFunction %zu\n", i);
+        // printf("PA:0x%08x\n", *ptr);
+        data_test();
     }
 
-    while(1) wfi();    
 }

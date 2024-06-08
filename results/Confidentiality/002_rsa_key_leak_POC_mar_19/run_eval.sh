@@ -19,7 +19,7 @@ case $# in
                 ;;
             "results")
                 # Retrieve the results from the target board
-                scp -r root@192.168.42.15:/root/results.txt ./results/
+                # scp -r root@192.168.42.15:/root/results.txt ./results/
 
                 # Analyze the results
                 python3 ./scripts/get_stats.py ./results/results.txt 1000
