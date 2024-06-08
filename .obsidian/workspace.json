@@ -1,0 +1,247 @@
+{
+  "main": {
+    "id": "4d2d1511b506ba46",
+    "type": "split",
+    "children": [
+      {
+        "id": "c20de994abd98d3a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4ec660b888a49e5b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "a6235b3db53d5fb9",
+    "type": "split",
+    "children": [
+      {
+        "id": "4b880d0b9fe0fc54",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "0a4d5d17a76a4432",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "a4e50f470324a6ae",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "tag:#48B",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "48473ca208851db5",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          },
+          {
+            "id": "f643647fd4db549b",
+            "type": "leaf",
+            "state": {
+              "type": "recent-files",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 354.5
+  },
+  "right": {
+    "id": "ae36645b2b26bc0f",
+    "type": "split",
+    "children": [
+      {
+        "id": "ee80a7a829cbe09b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e50161a3784a1fff",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "README.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "96a4b32fbce4729b",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "README.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "6bc7b6ad3f7096c0",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "624645d3a12df127",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "README.md"
+              }
+            }
+          },
+          {
+            "id": "ea29adc6bff31ffb",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              }
+            }
+          },
+          {
+            "id": "9fe6a6fd35888b48",
+            "type": "leaf",
+            "state": {
+              "type": "calendar",
+              "state": {}
+            }
+          },
+          {
+            "id": "6edbcbdc2fc82690",
+            "type": "leaf",
+            "state": {
+              "type": "reminder-list",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "obsidian-excalidraw-plugin:Create new drawing": false,
+      "table-editor-obsidian:Advanced Tables Toolbar": false,
+      "obsidian-advanced-slides:Show Slide Preview": false
+    }
+  },
+  "active": "4ec660b888a49e5b",
+  "lastOpenFiles": [
+    "software/README.md",
+    "README.md",
+    "hardware/README.md",
+    "results/Deanonymization/001_match_pattern_may_27/README.md",
+    "results/Confidentiality/002_rsa_key_leak_POC_mar_19/README.md",
+    "results/Integrity/003_priv_escal_POC_mar_22/README.md",
+    "results/Availability/001_deg_perf_POC_may_2/README.md",
+    "results/Availability/001_match_pattern_may_27/README.md",
+    "results/Availability/001_match_pattern_may_27",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Writing.md",
+    "4_Input_Box/2024-06-01.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Related Work.md",
+    "4_Input_Box/2024-06-02.md",
+    "4_Input_Box/paper.pdf",
+    "4_Input_Box/2024-06-07.md",
+    "3_Archive/10_Miscelanea/Excalidraw/fig_planning.excalidraw.md",
+    "Devil in FPGA » Related Work.canvas",
+    "4_Input_Box/2024-06-06.md",
+    "4_Input_Box/2024-06-05.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Writing » Hardware Trojan Paper Analyzes.md",
+    "4_Input_Box/Pasted image 20240605201149.png",
+    "Pasted image 20240605133016.png",
+    "Pasted image 20240605132845.png",
+    "Pasted image 20240605132829.png",
+    "Pasted image 20240605132649.png",
+    "Pasted image 20240605132134.png",
+    "Pasted image 20240605132131.png",
+    "Pasted image 20240605131516.png",
+    "Pasted image 20240605130650.png",
+    "Pasted image 20240605095513.png",
+    "4_Input_Box/2024-06-03.md",
+    "4_Input_Box/2024-06-04.md",
+    "4_Input_Box/Devil_in_the_fpga (7).pdf",
+    "1_Areas/7_Tools/PKM/Week - Dashboard.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Brainstorming.canvas",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Brainstorming_Clean.canvas",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Heterogeneous Systems.canvas",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Writing » Related Work.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Devil Controller.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » FPGAs.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » PolarFire SoC.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » ZCU102_4.md",
+    "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » SMMU Protections.canvas",
+    "0_Projects/Startup/SpinalHDL_docs-master.pdf",
+    "1_Areas/7_Tools/PKM/313000a090 (1).pdf",
+    "1_Areas/7_Tools/PKM/Andre_Paper-cris.pdf",
+    "0_Projects/Startup/[startup] Technical Description and Flow.pdf",
+    "0_Projects/Startup/startup-slides-all.pdf",
+    "1_Areas/7_Tools/PKM/Andre_Paper (26).pdf",
+    "0_Projects/Startup/Call_for_posters_genzero.pdf",
+    "0_Projects/0_Papers/Devil_In_FPGA/priv_escalation_flow.canvas",
+    "3_Archive/BlackHat_Asia_24/Black Hat Asia 24 » brainstorm.canvas",
+    "2nd_brain/0_Projects/0_Papers/Devil_In_FPGA/priv_escalation_flow.canvas",
+    "0_Projects/0_Papers/Devil_In_FPGA/Paper - SoK, Secure FPGA Multi-Tenancy in the Cloud, Challenges and Opportunities.canvas",
+    "3_Archive/Dashboard/Dashboard.canvas"
+  ]
+}

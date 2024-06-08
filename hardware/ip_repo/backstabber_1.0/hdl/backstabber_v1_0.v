@@ -1,22 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Company: Boston University
-// Engineer: Shahin Roozkhosh
-//
-// Create Date: 03/04/2022 04:57:49 PM
-// Design Name:
-// Module Name: Back Stabber
-// Project Name: Backstabbing
-// Target Devices: zcu102 with ACE port
-// Tool Versions:
-// Description:
-//
-// Dependencies:
-//
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-//
-//////////////////////////////////////////////////////////////////////////////////
 `timescale 1 ns / 1 ps
     
 

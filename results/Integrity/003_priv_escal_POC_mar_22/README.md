@@ -1,4 +1,4 @@
-# Data Leak (Active new devil Ip design)
+# Integrity Attack
 
 This elevates the privileges of a user application to root (priv. escalation). 
 
@@ -27,6 +27,3 @@ If you want to run several times the experiments to get the rate of success, you
 - `run_eval.sh send` -> [**Host**] To send the scripts to the target board
 - `eval.sh` -> [**Board**] Run the following scripts
 - `run_eval.sh results` -> [**Host**] To get the results and the success rate
-
-## Results 
-- We can corrupt arbitrary memory (EL1, EL2, EL3) breaking Integrity
