@@ -1,9 +1,0 @@
-{
-  "citationExportFormat": "biblatex",
-  "literatureNoteTitleTemplate": "{{title}}",
-  "literatureNoteFolder": "3_Archive/Sources/PhD/CitationPluginNotes",
-  "literatureNoteContentTemplate": "---\naliases: [{{citekey}}]\n---\n**Authors:** {{authorString}}\n**Year:** {{year}}\n**Zotero container:** {{containerTitle}}\n**Zotero Location:** [{{title}}]({{zoteroSelectURI}})\n\n# {{title}}\n\n{{note}}\n\n",
-  "markdownCitationTemplate": "{{citekey}}",
-  "alternativeMarkdownCitationTemplate": "@{{citekey}}",
-  "citationExportPath": "/home/cris/Documents/obsdian/2nd_brain/3_Archive/PhD/Zotero/My_Library.bib"
-}
