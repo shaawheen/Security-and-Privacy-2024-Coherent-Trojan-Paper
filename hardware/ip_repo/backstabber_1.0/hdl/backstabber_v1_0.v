@@ -486,26 +486,28 @@
     wire [3:0] w_arsnoop;
 
     // Register File Signals
-    wire        w_control_EN;
-    wire  [3:0] w_control_TEST;
-    wire  [3:0] w_control_FUNC;
-    wire  [4:0] w_control_CRRESP;
-    wire        w_control_ACFLT;
-    wire        w_control_ADDRFLT;
-    wire        w_control_OSHEN;
-    wire        w_control_CONEN;
-    wire        w_control_ADLEN;
-    wire        w_control_ADTEN;
-    wire        w_control_PDTEN;
-    wire        w_control_MONEN;
-    wire  [3:0] w_control_CMD;
-    wire        w_control_STENDEN;
-    wire        w_status_OSH_END;
-    wire        w_status_OSH_END_hw_set;
-    wire [31:0] w_delay_data;
-    wire  [3:0] w_acsnoop_type;
-    wire [31:0] w_base_addr_Data;
-    wire [31:0] w_mem_size_Data;
+    wire                        w_control_EN;
+    wire                  [3:0] w_control_TEST;
+    wire                  [3:0] w_control_FUNC;
+    wire                  [4:0] w_control_CRRESP;
+    wire                        w_control_ACFLT;
+    wire                        w_control_ADDRFLT;
+    wire                        w_control_OSHEN;
+    wire                        w_control_CONEN;
+    wire                        w_control_ADLEN;
+    wire                        w_control_ADTEN;
+    wire                        w_control_PDTEN;
+    wire                        w_control_MONEN;
+    wire                  [3:0] w_control_CMD;
+    wire                        w_control_STENDEN;
+    wire                 [15:0] w_deanon_counter;
+    wire [C_ACE_ADDR_WIDTH-1:0] w_output_addr;
+    wire                        w_status_OSH_END;
+    wire                        w_status_OSH_END_hw_set;
+    wire                 [31:0] w_delay_data;
+    wire                  [3:0] w_acsnoop_type;
+    wire                 [31:0] w_base_addr_Data;
+    wire                 [31:0] w_mem_size_Data;
     // wire [31:0] w_wdata_0_data;
     // wire [31:0] w_wdata_1_data;
     // wire [31:0] w_wdata_2_data;
@@ -1019,6 +1021,7 @@
     .i_status_OSH_END_hw_set(w_write_status_reg[0]),
     .i_status_BUSY_hw_set(w_devil_busy),
     .i_status_BUSY_hw_clear(~w_devil_busy),
+    .i_status_DEANON_COUNT(w_deanon_counter),
     .o_delay_data(w_delay_reg),
     .o_acsnoop_type(w_acsnoop_reg[3:0]),
     .o_base_addr_Data(w_base_addr_reg),
@@ -1099,7 +1102,8 @@
     .o_end_pattern_13_data(w_write_cache_line_end_pattern[31+32*13:0+32*13]),
     .o_end_pattern_14_data(w_write_cache_line_end_pattern[31+32*14:0+32*14]),
     .o_end_pattern_15_data(w_write_cache_line_end_pattern[31+32*15:0+32*15]),
-    .o_end_pattern_size_data(w_end_pattern_size_data)
+    .o_end_pattern_size_data(w_end_pattern_size_data),
+    .i_deanon_addr_data(w_output_addr)
     );
 
     // Instantiation of devil-controller module
@@ -1112,6 +1116,7 @@
     ) devil_controller_inst(
         .ace_aclk(ace_aclk),
         .ace_aresetn(ace_aresetn),
+        .i_en(w_en),
         .i_cmd(w_control_CMD),
         .i_trigger(w_trigger_devil_controller),
         .i_acaddr_snapshot(r_acaddr_snapshot),
@@ -1142,6 +1147,8 @@
         .i_word_index(w_word_index),
         .i_delay_reg(w_delay_reg),
         .i_stenden(w_control_STENDEN),
+        .o_deanon_counter(w_deanon_counter),
+        .o_output_addr(w_output_addr),
 
         // Internal Signals, from devil controller to BRAM
         .o_trigger_bram_write(w_bram_trigger),
