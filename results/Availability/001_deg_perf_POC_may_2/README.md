@@ -12,7 +12,7 @@ Artifacts of this attack:
 ## Setup
 - Commit: [5135da9f2b757391c52214c84a7bf8d61e0d0a05](https://github.com/ESCristiano/devil-in-the-fpga/tree/5135da9f2b757391c52214c84a7bf8d61e0d0a05)
 - Attack Scenario: Attack Cross-Process ( But should work in all 3 scenarios)
-- Board: zcu104
+- Board: zcu102/4
   
 ## To Replicate 
 1. Run `send.sh` on host linux
@@ -20,5 +20,3 @@ Artifacts of this attack:
 3. Run `get_results.sh` on host linux
 4. You should get a `results` folder with all the csv from the experiments
 
-## Results 
-- We can inflict arbitrary delays breaking Availability

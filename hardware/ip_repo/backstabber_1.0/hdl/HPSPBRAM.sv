@@ -1,26 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: Technische Universitat Munchen. Chair of Cyber-Physical Systems
-// Engineer: Denis Hoornaert
-//
-// Create Date: 01/17/2020 02:22:57 PM
-// Design Name: Queue
-// Module Name: Queue
-// Project Name: MemorEDF
-// Target Devices: Generic
-// Tool Versions:
-// Description:
-//
-// Dependencies:
-//
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-//      Xilinx Simple Dual Port Single Clock RAM with Byte-write
-//      This code implements a parameterizable SDP single clock memory.
-//      If a reset or enable is not necessary, it may be tied off or removed from the code.
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module HPSPBRAM #(
         parameter RAM_WIDTH = 678,                 // Specify RAM data width

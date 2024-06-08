@@ -1,0 +1,103 @@
+{
+  "obsidianCss": true,
+  "isSidebarCollapsed": false,
+  "isRightSidedockCollapsed": false,
+  "lastOpenSidebarTab": "File explorer",
+  "workspaceLayout": {
+    "id": "e573815af37b7710",
+    "type": "split",
+    "dimension": null,
+    "direction": "vertical",
+    "children": [
+      {
+        "id": "09e25a6eb241340c",
+        "type": "leaf",
+        "dimension": null,
+        "active": true,
+        "master": "",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "Medir a efetividade do uso do meu tempo.md",
+            "mode": "source"
+          }
+        }
+      }
+    ]
+  },
+  "lastOpenFiles": [
+    "Medir a efetividade do uso do meu tempo.md",
+    "You Can Control Time With Your Mind!.md",
+    "Abrandar o tempo, viver mais (Einstein) - 202006141059.md",
+    "Stocks Going Up.md",
+    "criar mais tempo.md"
+  ],
+  "trashOption": "local",
+  "alwaysUpdateLinks": true,
+  "lastOpenRightSidedockTab": "Backlinks",
+  "sideDockWidth": {
+    "left": 475,
+    "right": 300
+  },
+  "foldIndent": true,
+  "foldHeading": true,
+  "promptDelete": false,
+  "fileSortOrder": "alphabetical",
+  "spellcheck": true,
+  "readableLineLength": false,
+  "strictLineBreaks": false,
+  "showFrontmatter": false,
+  "spellcheckDictionary": [
+    "Untrusted",
+    "untrusted",
+    "microarchitectural",
+    "Microarchitecture",
+    "bitstreams",
+    "bitstream",
+    "cryptographic",
+    "effectivity",
+    "mitigations",
+    "microcontroller"
+  ],
+  "attachmentFolderPath": "./",
+  "newFileLocation": "current",
+  "defaultViewMode": "source",
+  "pdfExportSettings": {
+    "pageSize": "A4",
+    "landscape": false,
+    "margin": "0",
+    "downscalePercent": 100
+  },
+  "newLinkFormat": "shortest",
+  "useMarkdownLinks": false,
+  "legacyEditor": false,
+  "livePreview": true,
+  "spellcheckLanguages": null,
+  "showLineNumber": false,
+  "showInlineTitle": false,
+  "vimMode": false,
+  "mobilePullAction": "switcher:open",
+  "mobileToolbarCommands": [
+    "command-palette:open",
+    "workspace:split-vertical",
+    "editor:insert-wikilink",
+    "editor:attach-file",
+    "editor:set-heading",
+    "editor:toggle-bold",
+    "editor:toggle-italics",
+    "editor:toggle-strikethrough",
+    "editor:toggle-highlight",
+    "editor:toggle-code",
+    "editor:toggle-blockquote",
+    "editor:insert-link",
+    "editor:toggle-bullet-list",
+    "editor:toggle-numbered-list",
+    "editor:toggle-checklist-status",
+    "editor:indent-list",
+    "editor:unindent-list",
+    "editor:undo",
+    "editor:redo",
+    "editor:configure-toolbar",
+    "workspace:copy-path"
+  ]
+}

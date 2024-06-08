@@ -1,0 +1,207 @@
+{
+  "recentFiles": [
+    {
+      "basename": "README",
+      "path": "README.md"
+    },
+    {
+      "basename": "README",
+      "path": "software/README.md"
+    },
+    {
+      "basename": "README",
+      "path": "hardware/README.md"
+    },
+    {
+      "basename": "README",
+      "path": "results/Deanonymization/001_match_pattern_may_27/README.md"
+    },
+    {
+      "basename": "README",
+      "path": "results/Confidentiality/002_rsa_key_leak_POC_mar_19/README.md"
+    },
+    {
+      "basename": "README",
+      "path": "results/Integrity/003_priv_escal_POC_mar_22/README.md"
+    },
+    {
+      "basename": "README",
+      "path": "results/Availability/001_deg_perf_POC_may_2/README.md"
+    },
+    {
+      "basename": "Week - Dashboard",
+      "path": "1_Areas/7_Tools/PKM/Week - Dashboard.md"
+    },
+    {
+      "basename": "Devil in FPGA » Writing",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Writing.md"
+    },
+    {
+      "basename": "2024-06-01",
+      "path": "4_Input_Box/2024-06-01.md"
+    },
+    {
+      "basename": "Devil in FPGA » Related Work",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Related Work.md"
+    },
+    {
+      "basename": "2024-06-02",
+      "path": "4_Input_Box/2024-06-02.md"
+    },
+    {
+      "basename": "Devil in FPGA » Brainstorming",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Brainstorming.canvas"
+    },
+    {
+      "basename": "Devil in FPGA » Brainstorming_Clean",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Brainstorming_Clean.canvas"
+    },
+    {
+      "basename": "Devil in FPGA » Heterogeneous Systems",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Heterogeneous Systems.canvas"
+    },
+    {
+      "basename": "Pasted image 20230905161939",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Pasted image 20230905161939.png"
+    },
+    {
+      "basename": "Devil in FPGA",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA.md"
+    },
+    {
+      "basename": "Devil in FPGA » Writing » Related Work",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Writing » Related Work.md"
+    },
+    {
+      "basename": "Devil in FPGA » Devil Controller",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Devil Controller.md"
+    },
+    {
+      "basename": "Devil in FPGA » FPGAs",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » FPGAs.md"
+    },
+    {
+      "basename": "Devil in FPGA » PolarFire SoC",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » PolarFire SoC.md"
+    },
+    {
+      "basename": "Devil in FPGA » ZCU102_4",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » ZCU102_4.md"
+    },
+    {
+      "basename": "Devil in FPGA » Eval » Deanon",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Eval » Deanon.md"
+    },
+    {
+      "basename": "Devil in FPGA » Devil IP Design",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Devil IP Design.md"
+    },
+    {
+      "basename": "Devil in FPGA » Devil Register File 2",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Devil Register File 2.md"
+    },
+    {
+      "basename": "Devil in FPGA » Devil Register File 1",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Devil Register File 1.md"
+    },
+    {
+      "basename": "2024-05-31",
+      "path": "4_Input_Box/2024-05-31.md"
+    },
+    {
+      "basename": "Devil in FPGA » Implementation",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Implementation.md"
+    },
+    {
+      "basename": "Devil in FPGA » Transactions Monitor",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Transactions Monitor.md"
+    },
+    {
+      "basename": "Devil in FPGA » Writing » Paper Layout",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Writing » Paper Layout.md"
+    },
+    {
+      "basename": "Devil in FPGA » SMMU Protections",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » SMMU Protections.canvas"
+    },
+    {
+      "basename": "FPGA_isolation.excalidraw",
+      "path": "3_Archive/10_Miscelanea/Excalidraw/FPGA_isolation.excalidraw.md"
+    },
+    {
+      "basename": "Devil in FPGA » Writing » FPGA Multi-Tenancy",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Writing » FPGA Multi-Tenancy.md"
+    },
+    {
+      "basename": "Versal Adaptive SoC",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Versal Adaptive SoC.md"
+    },
+    {
+      "basename": "Devil in FPGA » Stratix 10",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Stratix 10.md"
+    },
+    {
+      "basename": "2022 - Single Chip FIPS 140-3 on Zynq UltraScale+ MPSoC",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/2022 - Single Chip FIPS 140-3 on Zynq UltraScale+ MPSoC.pdf"
+    },
+    {
+      "basename": "Devil in FPGA » CCI-400",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » CCI-400.md"
+    },
+    {
+      "basename": "Devil in FPGA » SMMU",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » SMMU.md"
+    },
+    {
+      "basename": "Devil in FPGA » Availability » RT-Bench Attack",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Availability » RT-Bench Attack.md"
+    },
+    {
+      "basename": "Devil in FPGA » Eval » Priv Escal",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Eval » Priv Escal.md"
+    },
+    {
+      "basename": "2024-05-27",
+      "path": "4_Input_Box/2024-05-27.md"
+    },
+    {
+      "basename": "Devil in FPGA » Invalidation No Write-Back",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Invalidation No Write-Back.md"
+    },
+    {
+      "basename": "Devil in FPGA » Redirect Writes",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Redirect Writes.md"
+    },
+    {
+      "basename": "Nix",
+      "path": "2_Resources/Nix/Nix.md"
+    },
+    {
+      "basename": "Devil in FPGA » Devil",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Devil.md"
+    },
+    {
+      "basename": "Devil in FPGA » Eval » Leak RSA",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Devil in FPGA » Eval » Leak RSA.md"
+    },
+    {
+      "basename": "Eval-Priv-Escal",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Eval-Priv-Escal.svg"
+    },
+    {
+      "basename": "Project Mongkol",
+      "path": "0_Projects/Project_Mongkol/Project Mongkol.md"
+    },
+    {
+      "basename": "proj-mongkol-design",
+      "path": "0_Projects/Project_Mongkol/proj-mongkol-design.svg"
+    },
+    {
+      "basename": "Eval-leak-RSA",
+      "path": "0_Projects/0_Papers/Devil_In_FPGA/Eval-leak-RSA.svg"
+    }
+  ],
+  "omittedPaths": [],
+  "maxLength": null,
+  "openType": "tab"
+}
