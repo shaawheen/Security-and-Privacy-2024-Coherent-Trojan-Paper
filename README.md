@@ -1,6 +1,6 @@
 # Coherent Trojan Tool
 
-This GitHub repository aggregates the artifacts of the paper "Coherent Trojans: Achilles’ Heel of Heterogeneous Computing" submitted to IEEE S&P 25. Specifically, the **Trojan Tool** is a runtime configurable tool designed with a dual purpose – advancing practical research and serving as a hackers’ playground. It was developed to serve as a ”Swiss army knife” for coherence attacks on the considered system architecture and allow the creation of endless Coherent Trojans.
+This GitHub repository aggregates the artifacts of the paper "Coherent Trojans: Achilles’ Heel of Heterogeneous Computing" submitted to ACM CCS 25. Specifically, the **Trojan Tool** is a runtime configurable tool designed with a dual purpose – advancing practical research and serving as a hackers’ playground. It was developed to serve as a ”Swiss army knife” for coherence attacks on the considered system architecture and allow the creation of endless Coherent Trojans.
 ## Repo Structure
 
 **Hardware**
