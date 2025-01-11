@@ -125,7 +125,13 @@ import design_1_axi_vip_1_0_pkg::*;
     `define CMD_TAMPER_CL   2
     `define CMD_DELAY_CR    3
     `define CMD_DEANON      4
+    `define CMD_HOLD        5
+    `define CMD_REDIRECT    6
+    `define CMD_LEAK_TZ     7
+    `define CMD_CLEAN       8
 `define STENDEN_pos   26
+`define SNEAKEN_pos   27
+`define REREADSEN_pos 28
 
 
 module devil_tb();
@@ -209,6 +215,12 @@ module devil_tb();
     bit [31:0] reg_end_PATTERN15;
     bit [31:0] reg_end_PATTERN_SIZE; 
     bit [31:0] reg_deanon_addr_data; 
+    bit [31:0] reg_sneak_target_snoop; 
+    bit [31:0] reg_sneak_target_addr; 
+    bit [31:0] reg_sneak_target_size; 
+    bit [31:0] reg_sneak_addr; 
+    bit [31:0] reg_sneak_snoop; 
+
     bit acvalid;
     bit crvalid;
     bit crready;
@@ -275,8 +287,11 @@ module devil_tb();
     slv_agent.mem_model.set_memory_fill_policy(XIL_AXI_MEMORY_FILL_RANDOM);      
     // slv_agent.mem_model.set_default_memory_value(32'hF0F0F0F0);   
 
-    deanon();
-    deanon();
+    leak_tz();
+    // redirect_read();
+    // sneak_snoop();
+    // deanon();
+    // deanon();
     // deg_perf();
     // priv_escal();
     // leak_key();
@@ -299,6 +314,146 @@ module devil_tb();
     $display("END Simulation");
     $finish;
     end 
+    
+    task leak_tz();                        
+        reg_ctrl =  (5'b01001 << `CRRESP_pos) 
+                    |  (`CMD_LEAK_TZ << `CMD_pos)
+                    // | (1 << `SNEAKEN_pos)
+                    | (1 << `MONEN_pos)               
+                    // | (1 << `REREADSEN_pos)    
+                    // | (1 << `ADLEN_pos)               
+                    | (1 << `EN_pos);
+
+        reg_sneak_addr  = 32'h40000000;
+        reg_sneak_snoop = 4'b0111;
+
+        
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_SNEAK_ADDR_BYTE_OFFSET,prot,reg_sneak_addr,resp);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_SNEAK_SNOOP_BYTE_OFFSET,prot,reg_sneak_snoop,resp);
+
+        // Match start pattern simulation (this is the same data VIP has)
+        reg_PATTERN0  = 32'hd0a8dc03; 
+        reg_PATTERN1  = 32'h1ed079ed; 
+        reg_PATTERN2  = 32'h3bcd5761; 
+        reg_PATTERN3  = 32'hea48f9c0; 
+
+        reg_PATTERN_SIZE = 4;
+
+        // Start Pattern
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_START_PATTERN_0_BYTE_OFFSET,prot, reg_PATTERN0,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_START_PATTERN_1_BYTE_OFFSET,prot, reg_PATTERN1,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_START_PATTERN_2_BYTE_OFFSET,prot, reg_PATTERN2,resp); 
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_START_PATTERN_3_BYTE_OFFSET,prot, reg_PATTERN3,resp);
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_START_PATTERN_SIZE_BYTE_OFFSET,prot,reg_PATTERN_SIZE,resp);
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_CONTROL_BYTE_OFFSET,prot,reg_ctrl,resp); 
+        
+        #200ns;
+
+        // reg_ctrl =  (5'b01001 << `CRRESP_pos) 
+        //             |  (`CMD_CLEAN << `CMD_pos)    
+        //             | (1 << `EN_pos);
+
+        // mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_CONTROL_BYTE_OFFSET,prot,reg_ctrl,resp); 
+
+        #40ns;
+
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR + `DEVIL_REGISTER_FILE_DEANON_ADDR_BYTE_OFFSET,prot,reg_rdata,resp);
+        $display("DATA = %h",reg_rdata);
+
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA0,prot,reg_rdata,resp);
+        $display("RDATA0 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA1,prot,reg_rdata,resp);
+        $display("RDATA1 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA2,prot,reg_rdata,resp);
+        $display("RDATA2 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA3,prot,reg_rdata,resp);
+        $display("RDATA3 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA4,prot,reg_rdata,resp);
+        $display("RDATA4 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA5,prot,reg_rdata,resp);
+        $display("RDATA5 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA6,prot,reg_rdata,resp);
+        $display("RDATA6 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA7,prot,reg_rdata,resp);
+        $display("RDATA7 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA8,prot,reg_rdata,resp);
+        $display("RDATA8 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA9,prot,reg_rdata,resp);
+        $display("RDATA9 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA10,prot,reg_rdata,resp);
+        $display("RDATA10 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA11,prot,reg_rdata,resp);
+        $display("RDATA11 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA12,prot,reg_rdata,resp);
+        $display("RDATA12 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA13,prot,reg_rdata,resp);
+        $display("RDATA13 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA14,prot,reg_rdata,resp);
+        $display("RDATA14 = %h",reg_rdata);
+        mst_agent.AXI4LITE_READ_BURST(`DEVIL_BASE_ADDR +`DATA15,prot,reg_rdata,resp);
+        $display("RDATA15 = %h",reg_rdata);
+        
+        #1000ns;
+    
+    endtask :leak_tz
+
+    task redirect_read();       
+        acaddr = 44'h0004000_0000;  // Emulate Snoop Address                    
+        reg_ctrl =  (5'b01001 << `CRRESP_pos) 
+                    |  (`CMD_REDIRECT << `CMD_pos)
+                    // | (1 << `SNEAKEN_pos)
+                    // | (1 << `MONEN_pos)               
+                    | (1 << `REREADSEN_pos)               
+                    | (1 << `EN_pos);
+
+        reg_addr = 32'h4000_0000;
+        reg_size = 32'h0100_0000; 
+
+        // Start Pattern Size
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_BASE_ADDR_BYTE_OFFSET,prot,reg_addr,resp);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_MEM_SIZE_BYTE_OFFSET,prot,reg_size,resp);
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_CONTROL_BYTE_OFFSET,prot,reg_ctrl,resp); 
+        
+        #200ns;
+    
+    endtask :redirect_read
+
+    task sneak_snoop();       
+        acaddr = 44'h00040000000;  // Emulate Snoop Address                    
+        reg_ctrl =  (5'b01001 << `CRRESP_pos) 
+                    |  (`CMD_HOLD << `CMD_pos)
+                    // | (1 << `SNEAKEN_pos)
+                    | (1 << `MONEN_pos)               
+                    | (1 << `EN_pos);
+
+        // Match start pattern simulation (this is the same data VIP has)
+        reg_PATTERN_SIZE = 4;
+        reg_sneak_target_snoop= 10'b00000_00010; // ReadShared
+        reg_sneak_target_addr= 32'h40000000;
+        reg_sneak_target_size= 4;
+        reg_sneak_addr= 32'h40000000;
+        reg_sneak_snoop= 4'b0111;
+
+        // Start Pattern Size
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_START_PATTERN_SIZE_BYTE_OFFSET,prot,reg_PATTERN_SIZE,resp);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_SNEAK_TARGET_SNOOP_BYTE_OFFSET,prot,reg_sneak_target_snoop,resp);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_SNEAK_TARGET_ADDR_BYTE_OFFSET,prot,reg_sneak_target_addr,resp);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_SNEAK_TARGET_SIZE_BYTE_OFFSET,prot,reg_sneak_target_size,resp);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_SNEAK_ADDR_BYTE_OFFSET,prot,reg_sneak_addr,resp);
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_SNEAK_SNOOP_BYTE_OFFSET,prot,reg_sneak_snoop,resp);
+
+        mst_agent.AXI4LITE_WRITE_BURST(`DEVIL_BASE_ADDR +`DEVIL_REGISTER_FILE_CONTROL_BYTE_OFFSET,prot,reg_ctrl,resp); 
+        
+        #200ns;
+        acsnoop = 4'b0001;
+        #400ns;
+        acsnoop = 4'b0000;
+        #200ns;
+    
+    endtask :sneak_snoop
 
     task deanon();       
         acaddr = 44'h00040000000;  // Emulate Snoop Address

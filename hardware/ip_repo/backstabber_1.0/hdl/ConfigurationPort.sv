@@ -1,4 +1,23 @@
 `timescale 1 ns / 1 ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Technische Universitat Munchen. Chair of Cyber-Physical Systems.
+// Engineer: Denis Hoornaert.
+// 
+// Create Date: 02/04/2020 10:53:49 AM
+// Design Name: Configuration port
+// Module Name: ConfigurationPort
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
 
 module ConfigurationPort #
 	(

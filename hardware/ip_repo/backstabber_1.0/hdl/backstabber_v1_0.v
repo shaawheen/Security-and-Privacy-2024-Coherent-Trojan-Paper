@@ -1,3 +1,22 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Boston University
+// Engineer: Shahin Roozkhosh
+//
+// Create Date: 03/04/2022 04:57:49 PM
+// Design Name:
+// Module Name: Back Stabber
+// Project Name: Backstabbing
+// Target Devices: zcu102 with ACE port
+// Tool Versions:
+// Description:
+//
+// Dependencies:
+//
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+//
+//////////////////////////////////////////////////////////////////////////////////
 `timescale 1 ns / 1 ps
     
 
@@ -293,7 +312,9 @@
         output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_0,
         output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_1,
         output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_2,
-        output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_3
+        output wire                 [C_ACE_DATA_WIDTH-1 : 0] debug_buff_3,
+        output wire             [(C_ACE_DATA_WIDTH*4)-1 : 0] debug_w_cache_line_from_devil,
+        output wire                                    [4:0] debug_fsm_register_cl
 	);
 
     `include "devil_ctrl_defines.vh"
@@ -430,6 +451,8 @@
     wire                      [4:0] w_fsm_devil_state;
     wire                      [4:0] w_fsm_devil_state_active;
     wire                      [4:0] w_fsm_devil_controller;
+    wire                      [4:0] w_fsm_register_cl;
+    wire                            w_end_devil_controller;
     wire                            w_devil_end;
     wire                            w_acready;
     wire                            w_devil_reply;
@@ -458,6 +481,8 @@
     wire                            w_internal_adl_en;
     wire                            w_internal_adt_en;
     wire                            w_trigger_active_from_ctrl;
+    wire                            w_reply_type;
+    wire                            w_active_r_phase;
     
     wire    w_en;
     assign  w_en = w_control_reg[0];
@@ -468,19 +493,21 @@
 
     // Register File Signals
     wire                        w_control_EN;
-    wire                  [3:0] w_control_TEST;
+    wire                  [3:0] w_reserved;
     wire                  [3:0] w_control_FUNC;
     wire                  [4:0] w_control_CRRESP;
     wire                        w_control_ACFLT;
     wire                        w_control_ADDRFLT;
-    wire                        w_control_OSHEN;
-    wire                        w_control_CONEN;
+    wire                        w_reserved1;
+    wire                        w_reserved2;
     wire                        w_control_ADLEN;
     wire                        w_control_ADTEN;
-    wire                        w_control_PDTEN;
+    wire                        w_control_ONESHOT;
     wire                        w_control_MONEN;
     wire                  [3:0] w_control_CMD;
     wire                        w_control_STENDEN;
+    wire                        w_control_SNEAKEN;
+    wire                        w_control_REREADSEN;
     wire                 [15:0] w_deanon_counter;
     wire [C_ACE_ADDR_WIDTH-1:0] w_output_addr;
     wire                        w_status_OSH_END;
@@ -489,34 +516,27 @@
     wire                  [3:0] w_acsnoop_type;
     wire                 [31:0] w_base_addr_Data;
     wire                 [31:0] w_mem_size_Data;
-    // wire [31:0] w_wdata_0_data;
-    // wire [31:0] w_wdata_1_data;
-    // wire [31:0] w_wdata_2_data;
-    // wire [31:0] w_wdata_3_data;
-    // wire [31:0] w_wdata_4_data;
-    // wire [31:0] w_wdata_5_data;
-    // wire [31:0] w_wdata_6_data;
-    // wire [31:0] w_wdata_7_data;
-    // wire [31:0] w_wdata_8_data;
-    // wire [31:0] w_wdata_9_data;
-    // wire [31:0] w_wdata_10_data;
-    // wire [31:0] w_wdata_11_data;
-    // wire [31:0] w_wdata_12_data;
-    // wire [31:0] w_wdata_13_data;
-    // wire [31:0] w_wdata_14_data;
-    // wire [31:0] w_wdata_15_data;
+    wire                 [31:0] w_sneak_target_snoop_data;
+    wire                 [31:0] w_sneak_target_addr_data;
+    wire                 [31:0] w_sneak_target_size_data;
+    wire                 [31:0] w_sneak_addr_data;
+    wire                 [31:0] w_sneak_snoop_data;
+
+    assign w_reserved = 0;
+    assign w_reserved1 = 0;
+    assign w_reserved2 = 0;
 
     assign w_control_reg = {w_control_MONEN,    // bit 21
-                            w_control_PDTEN,    // bit 20
+                            w_control_ONESHOT,  // bit 20
                             w_control_ADTEN,    // bit 19
                             w_control_ADLEN,    // bit 18
-                            w_control_CONEN,    // bit 17 
-                            w_control_OSHEN,    // bit 16
+                            w_reserved2,        // bit 17 
+                            w_reserved1,        // bit 16
                             w_control_ADDRFLT,  // bit 15
                             w_control_ACFLT,    // bit 14
                             w_control_CRRESP,   // bit 13:9
                             w_control_FUNC,     // bit 8:5
-                            w_control_TEST,     // bit 4:1
+                            w_reserved,         // bit 4:1
                             w_control_EN};      // bit 0
 
     wire  		                    w_bram_trigger;
@@ -583,7 +603,7 @@
     wire w_trigger_passive_path;
     wire w_trigger_active_path;
     assign w_trigger_passive_path = r_trigger_passive_path;
-    assign w_trigger_devil_controller = r_trigger_passive_path;
+    assign w_trigger_devil_controller = r_trigger_passive_path || r_trigger_active_path;
     assign w_trigger_active_path = r_trigger_active_path;
 
 
@@ -704,8 +724,8 @@
     assign arvalid  = w_devil_en ? w_devil_arvalid  : ((snoop_state == DVM_SYNC_LAST) && crready && arready); 
 
     // ACE R Channel (Read data phase)
-    assign rready       = w_devil_en ? w_devil_rready : snoop_state == DVM_SYNC_READ;
-    assign rack         = w_devil_en ? w_devil_rack   : snoop_state == DVM_SYNC_READ;
+    assign rready       = w_devil_rready || (snoop_state == DVM_SYNC_READ);
+    assign rack         = w_devil_rack   || (snoop_state == DVM_SYNC_READ);
 
     // ACE AW channel (Write address phase)
     assign awaddr   = w_devil_en ? w_devil_awaddr   : 0;
@@ -757,6 +777,8 @@
     assign debug_buff_1                 = w_buff_1;
     assign debug_buff_2                 = w_buff_2;
     assign debug_buff_3                 = w_buff_3;
+    assign debug_w_cache_line_from_devil= w_cache_line_from_devil; //w_read_cache_line;
+    assign debug_fsm_register_cl        = w_fsm_register_cl;
 
 	//main state-machine
 	always @(posedge ace_aclk)
@@ -817,7 +839,7 @@
         begin
             r_trigger_passive_path <= 0; // Clean trigger
             r_trigger_active_path <= 0; // Clean trigger
-            if (w_devil_reply) 
+            if (w_end_devil_controller || (w_external_mode && w_end_active_devil)) 
                 snoop_state <= IDLE;
             else
                 snoop_state <= snoop_state;
@@ -985,21 +1007,19 @@
     .o_rdata(s01_axi_rdata),
     .o_rresp(s01_axi_rresp),
     .o_control_EN(w_control_EN),
-    .o_control_TEST(w_control_TEST),
     .o_control_FUNC(w_control_FUNC),
     .o_control_CRRESP(w_control_CRRESP),
     .o_control_ACFLT(w_control_ACFLT),
     .o_control_ADDRFLT(w_control_ADDRFLT),
-    .o_control_OSHEN(w_control_OSHEN),
-    .o_control_CONEN(w_control_CONEN),
     .o_control_ADLEN(w_control_ADLEN),
     .o_control_ADTEN(w_control_ADTEN),
-    .o_control_PDTEN(w_control_PDTEN),
+    .o_control_ONESHOT(w_control_ONESHOT),
     .o_control_MONEN(w_control_MONEN),
     .o_control_CMD(w_control_CMD),
     .o_control_STENDEN(w_control_STENDEN),
-    .o_status_OSH_END(w_read_status_reg[0]),
-    .i_status_OSH_END_hw_set(w_write_status_reg[0]),
+    .o_control_SNEAKEN(w_control_SNEAKEN),
+    .o_control_REREADSEN(w_control_REREADSEN),
+    .i_status_Reserved_hw_set(0),
     .i_status_BUSY_hw_set(w_devil_busy),
     .i_status_BUSY_hw_clear(~w_devil_busy),
     .i_status_DEANON_COUNT(w_deanon_counter),
@@ -1084,7 +1104,12 @@
     .o_end_pattern_14_data(w_write_cache_line_end_pattern[31+32*14:0+32*14]),
     .o_end_pattern_15_data(w_write_cache_line_end_pattern[31+32*15:0+32*15]),
     .o_end_pattern_size_data(w_end_pattern_size_data),
-    .i_deanon_addr_data(w_output_addr)
+    .i_deanon_addr_data(w_output_addr),
+    .o_sneak_target_snoop_data(w_sneak_target_snoop_data),
+    .o_sneak_target_addr_data(w_sneak_target_addr_data),
+    .o_sneak_target_size_data(w_sneak_target_size_data),
+    .o_sneak_addr_data(w_sneak_addr_data),
+    .o_sneak_snoop_data(w_sneak_snoop_data)
     );
 
     // Instantiation of devil-controller module
@@ -1100,12 +1125,15 @@
         .i_en(w_en),
         .i_cmd(w_control_CMD),
         .i_trigger(w_trigger_devil_controller),
-        .i_acaddr_snapshot(r_acaddr_snapshot),
-        .i_acsnoop_snapshot(r_acsnoop_snapshot),
+        .i_acaddr_snapshot(w_acaddr_snapshot),
+        .i_acsnoop_snapshot(w_acsnoop_snapshot),
         .o_fsm_devil_controller(w_fsm_devil_controller), 
+        .o_end_devil_controller(w_end_devil_controller),
         
         // Internal Signals, from devil to devil controller  
+        .i_r_phase(w_r_phase),
         .i_end_active_devil(w_end_active_devil),
+        .i_active_devil_busy(w_active_devil_busy),
         .i_end_passive_devil(w_devil_end),
         .i_end_reply(w_devil_reply),
         .i_cache_line_active_devil(w_cache_line_from_devil),
@@ -1114,6 +1142,7 @@
         .o_internal_adl_en(w_internal_adl_en),
         .o_internal_adt_en(w_internal_adt_en),
         .o_trigger_active(w_trigger_active_from_ctrl),
+        .i_active_r_phase(w_active_r_phase),
 
         // External Signals, from register file
         .i_external_cache_line(w_write_cache_line),
@@ -1128,8 +1157,19 @@
         .i_word_index(w_word_index),
         .i_delay_reg(w_delay_reg),
         .i_stenden(w_control_STENDEN),
+        .i_control_reg(w_control_reg),
+        .i_base_addr_reg(w_base_addr_reg),
+        .i_addr_size_reg(w_addr_size_reg),
         .o_deanon_counter(w_deanon_counter),
         .o_output_addr(w_output_addr),
+        .i_sneak_target_snoop(w_sneak_target_snoop_data),
+        .i_sneak_target_addr(w_sneak_target_addr_data),
+        .i_sneak_target_size(w_sneak_target_size_data),
+        .i_sneak_addr(w_sneak_addr_data),
+        .i_sneak_snoop(w_sneak_snoop_data[3:0]),
+        .i_sneak_en(w_control_SNEAKEN),
+        .i_redirect_reads_en(w_control_REREADSEN),  
+        .o_cache_line(w_read_cache_line), 
 
         // Internal Signals, from devil controller to BRAM
         .o_trigger_bram_write(w_bram_trigger),
@@ -1138,7 +1178,10 @@
         .i_bram_end(w_bram_end),
 
         // Internal Signals, from devil controller to devil passive
-        .o_controller_signals(w_signals_from_controller)
+        .o_reply_type(w_reply_type),
+        .o_controller_signals(w_signals_from_controller),
+
+        .o_fsm_register_cl(w_fsm_register_cl)
     );
 
     // Instantiation of devil-in-fpgs module
@@ -1228,11 +1271,13 @@
         // Internal Signals, from devil controller to devil passive
         .i_controller_signals(w_signals_from_controller),
         .i_trigger_from_ctr(w_trigger_active_from_ctrl),
+        .i_reply_type(w_reply_type),
 
         // Internal Signals, from devil passive to devil controller
         .i_internal_adl_en(w_internal_adl_en),
         .i_internal_adt_en(w_internal_adt_en),
-        .i_trigger_active((w_trigger_active_from_ctrl || w_trigger_active_path)),
+        .i_trigger_active((w_trigger_active_from_ctrl)),
+        .o_active_r_phase(w_active_r_phase),
 
         .i_snoop_state(w_snoop_state),
         .o_fsm_devil_state(w_fsm_devil_state),
@@ -1254,11 +1299,10 @@
         .i_external_arsnoop(w_arsnoop_Data[3:0]),
         .i_external_awaddr({w_h_awaddr_Data[11:0], w_l_awaddr_Data}),
         .i_external_awsnoop(w_awsnoop_Data[2:0]),
-        .o_cache_line(w_read_cache_line),
         .i_external_cache_line(w_write_cache_line),
         .o_external_mode(w_external_mode),
         .o_end_active(w_end_active_devil),
-        // .o_busy_active(),
+        .o_busy_active(w_active_devil_busy),
         .o_devil_cache_line(w_cache_line_from_devil),
         .i_cache_line_active_devil(w_cache_line_active_devil),
         .i_cache_line_passive_devil(w_cache_line_passive_devil),

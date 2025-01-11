@@ -31,21 +31,6 @@ module active_devil #(
         (
         input  wire                              ace_aclk,
         input  wire                              ace_aresetn,
-        // ACE AC Channel (Snoop)
-        input  wire       [C_ACE_ADDR_WIDTH-1:0] i_acaddr,
-        input  wire                        [2:0] i_acprot,
-        output wire                              o_acready,
-        input  wire                        [3:0] i_acsnoop,
-        input  wire                              i_acvalid,
-        // ACE CD Channel (Snoop data)
-        output wire       [C_ACE_DATA_WIDTH-1:0] o_cddata,
-        output wire                              o_cdlast,
-        input  wire                              i_cdready,
-        output wire                              o_cdvalid,
-        // ACE CR Channel (Snoop response)
-        input  wire                              i_crready,
-        output wire                        [4:0] o_crresp,
-        output wire                              o_crvalid,
         // ACE AR Channel (Read address phase)
         output wire       [C_ACE_ADDR_WIDTH-1:0] o_araddr,
         output wire                        [1:0] o_arbar,
@@ -58,6 +43,7 @@ module active_devil #(
         output wire                        [2:0] o_arprot,
         output wire                        [3:0] o_arqos,
         input  wire                              i_arready,
+        input  wire                              i_acvalid,
         output wire                        [3:0] o_arregion,
         output wire                        [2:0] o_arsize,
         output wire                        [3:0] o_arsnoop,
@@ -136,7 +122,10 @@ module active_devil #(
         input wire                         [2:0] i_internal_awsnoop,
         input wire                         [2:0] i_external_awsnoop,
         
-        // Internal Signalas, from devil controller to devil passive
+        // Internal Signals, from Devil Passive to Devil controller
+        output wire                              o_r_phase, 
+
+        // Internal Signals, from devil controller to devil passive
         input wire    [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
         input wire                               i_trigger_from_ctr,
 
@@ -203,27 +192,12 @@ module active_devil #(
 
 //------------------------------------------------------------------------------
 // ACE INTERFACE 
-//------------------------------------------------------------------------------
-     // ACE AC Channel (Snoop)
-    // (Not used for now!)
-    assign o_acready    = 0;
-
-    // ACE CD Channel (Snoop data)
-    // (Not used for now!)
-    assign o_cddata     = 0;
-    assign o_cdlast     = 0;
-    assign o_cdvalid    = 0;
-
-    // ACE CR Channel (Snoop response)
-    // (Not used for now!)
-    assign o_crresp     = 0;
-    assign o_crvalid    = 0;
-    
-    assign w_araddr    = (i_trigger_from_ctr ?  w_from_ctrl_araddr  : ( i_trigger_from_passive ? i_internal_araddr     : i_external_araddr ))  ;
-    assign w_arsnoop   = (i_trigger_from_ctr ?  w_from_ctrl_arsnoop : ( i_trigger_from_passive ? i_internal_arsnoop    : i_external_arsnoop )) ;
-    assign w_awaddr    = (i_trigger_from_ctr ?  w_from_ctrl_awaddr  : ( i_trigger_from_passive ? i_internal_awaddr     : i_external_awaddr ))  ;
-    assign w_awsnoop   = (i_trigger_from_ctr ?  w_from_ctrl_awsnoop : ( i_trigger_from_passive ? i_internal_awsnoop    : i_external_awsnoop )) ;
-    assign w_ardomain  = (i_trigger_from_ctr ?  w_from_ctrl_ardomain: ( i_trigger_from_passive ? i_internal_ardomain   : i_external_ardomain ));
+//------------------------------------------------------------------------------    
+    assign w_araddr    = w_from_ctrl_araddr  ;
+    assign w_arsnoop   = w_from_ctrl_arsnoop ;
+    assign w_awaddr    = w_from_ctrl_awaddr  ;
+    assign w_awsnoop   = w_from_ctrl_awsnoop ;
+    assign w_ardomain  = w_from_ctrl_ardomain;
 
     // ACE AR Channel (Read address phase)
     assign o_araddr     = (w_ar_phase && i_arready) ? w_araddr : 0;
@@ -234,7 +208,7 @@ module active_devil #(
     assign o_arid       = 0;
     assign o_arlen      = (w_ar_phase && i_arready) || (w_snooping) ? 8'h3: 8'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
     assign o_arlock     = 0;
-    assign o_arprot     = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged 
+    assign o_arprot     = 3'b001; // [2] Data access, [1] Non-secure access, [0] Privileged 
     assign o_arqos      = 0;
     assign o_arregion   = 0;
     assign o_arsize     = 3'b100; //Size of each burst is 16B
@@ -256,7 +230,7 @@ module active_devil #(
     assign o_awid     = 0;
     assign o_awlen    = (w_aw_phase && i_awready) ? 8'h3: 8'h0; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
     assign o_awlock   = 0;
-    assign o_awprot   = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged
+    assign o_awprot   = 3'b001; // [2] Data access, [1] Non-secure access, [0] Privileged
     assign o_awqos    = 0;
     assign o_awregion = 0;
     assign o_awsize   = 3'b100; //Size of each burst is 16B (data-bus of 128 bits )
@@ -291,6 +265,8 @@ module active_devil #(
     assign w_w_phase    = (fsm_devil_state_active == DEVIL_W_PHASE)    ? 1:0;
     assign w_b_phase    = (fsm_devil_state_active == DEVIL_B_PHASE)    ? 1:0;
     assign w_wack_phase = (fsm_devil_state_active == DEVIL_WACK)       ? 1:0;
+
+    assign o_r_phase = w_r_phase;
     
     // ACE W Channel Write Data 
     assign w_wdata = r_index_active == 1 ? i_cache_line[127+128*1:0+128*1]: 
@@ -315,30 +291,13 @@ module active_devil #(
 //------------------------------------------------------------------------------
 // DEVIL-IN-THE-FPGA CONTROL REGISTERS
 //------------------------------------------------------------------------------
-    wire       w_en;
-    wire [3:0] w_test;
     wire [3:0] w_func;
-    wire [4:0] w_crresp;
-    wire       w_acf_lt;    
-    wire       w_addr_flt;    
-    wire       w_con_en;    
-    wire       w_osh_en;    
     wire       w_adl_en; // Active Data Leak Enable    
     wire       w_adt_en; // Active Data Tampering Enable   
-    wire       w_pdt_en; // Passive Data Tampering Enable
 
-    assign w_en = i_control_reg[0];
-    assign w_test = i_control_reg[4:1];
     assign w_func = i_func;
-    // assign w_func = i_control_reg[8:5];
-    assign w_crresp = i_control_reg[13:9];
-    assign w_acf_lt = i_control_reg[14];
-    assign w_addr_flt = i_control_reg[15];
-    assign w_osh_en = i_control_reg[16];
-    assign w_con_en = i_control_reg[17];
     assign w_adl_en = i_control_reg[18]; // Active Data Leak Enable   
     assign w_adt_en = i_control_reg[19]; // Active Data Tampering Enable
-    assign w_pdt_en = i_control_reg[20]; // Passive Data Tampering Enable
 
 //------------------------------------------------------------------------------
 // FSM
@@ -382,36 +341,24 @@ module active_devil #(
             DEVIL_FUNCTION: // 1
                 begin
                     case (w_func[3:0])
-                        `OSH  : 
-                        begin
-                            fsm_devil_state_active <= DEVIL_END_OP;
-                        end
-                        `CON  : 
-                        begin
-                            fsm_devil_state_active <= DEVIL_END_OP;
-                        end
-                        `ADL  :
+                        `READ_SNOOP  :
                         begin
                             if (w_adl_en || i_internal_adl_en) 
                                 fsm_devil_state_active <= DEVIL_READ_SNOOP;  
                             else
                                 fsm_devil_state_active <= DEVIL_END_OP;
                         end
-                        `ADT  :
+                        `WRITE_SNOOP  :
                         begin
                             if (w_adt_en || i_internal_adt_en)
                                 fsm_devil_state_active <= DEVIL_WRITE_SNOOP;  
                             else
                                 fsm_devil_state_active <= DEVIL_END_OP;
                         end
-                        `PDT  :
-                        begin
-                            fsm_devil_state_active <= DEVIL_END_OP;
-                        end
                         default : fsm_devil_state_active <= DEVIL_END_OP; 
                     endcase                                                      
                 end
-            DEVIL_READ_SNOOP: // 10
+            DEVIL_READ_SNOOP: // 3
                 begin
                     fsm_devil_state_active <= DEVIL_AR_PHASE;                                                  
                     // TO IMPLEMENT
@@ -421,14 +368,14 @@ module active_devil #(
                     fsm_devil_state_active <= DEVIL_AW_PHASE;                                                  
                     // TO IMPLEMENT
                 end
-            DEVIL_AR_PHASE: //13
+            DEVIL_AR_PHASE: //5
                 begin
                     if (i_arready)  
                         fsm_devil_state_active <= DEVIL_R_PHASE;
                     else
                         fsm_devil_state_active <= fsm_devil_state_active;
                 end
-            DEVIL_R_PHASE: //14
+            DEVIL_R_PHASE: //6
                 begin
                     if (w_rready && i_rvalid) begin 
                         r_index_active <= r_index_active + 1;
@@ -440,7 +387,7 @@ module active_devil #(
                     else
                         fsm_devil_state_active <= fsm_devil_state_active;
                 end
-            DEVIL_RACK: //15
+            DEVIL_RACK: //7
                 begin
                     fsm_devil_state_active <= DEVIL_END_OP;
                 end

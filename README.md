@@ -11,10 +11,11 @@ This GitHub repository aggregates the artifacts of the paper "Coherent Trojans: 
 
 **Results**
 - All experiments/attacks are made reproducible in this folder. These attacks show a fraction of the potentiality of the Trojan Tool and Coherent Trojans.
-	- [Deanonymization Attack](./results/Deanonymization/001_match_pattern_may_27/README.md): Can subvert both 1st and 2nd-stage virtual memory translation, i.e., OS and hypervisor, as well as obfuscation techniques like [ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization);
-	- [Confidentiality Attack](./results/Confidentiality/002_rsa_key_leak_POC_mar_19/README.md): Leak RSA private key from [OpenSSL](https://www.openssl.org/);
-	- [Integrity Attack](./results/Integrity/003_priv_escal_POC_mar_22/README.md): Privilege escalation attack on Linux. Elevates the privilege level of user-space applications (EL0) to root (EL1), subverting Linux superuser authentication;
-	- [Availability Attack](./results/Availability/001_deg_perf_POC_may_2/README.md): Degrades performance of a safety-critical application (Tested on [RT-Bench](https://rt-bench.gitlab.io/rt-bench/branch/main/index.html)).
+	- [Deanonymization Attack](./results/Deanonymization/README.md): Can subvert both 1st and 2nd-stage virtual memory translation, i.e., OS and hypervisor, as well as obfuscation techniques like [ASLR](https://en.wikipedia.org/wiki/Address_space_layout_randomization);
+	- [Confidentiality Attack](./results/Confidentiality/README.md): Leak RSA private key from [OpenSSL](https://www.openssl.org/);
+	- [Integrity Attack](./results/Integrity/README.md): Privilege escalation attack on Linux. Elevates the privilege level of user-space applications (EL0) to root (EL1), subverting Linux superuser authentication;
+	- [Availability Attack](./results/Availability/README.md): Degrades performance of a safety-critical application (Tested on [RT-Bench](https://rt-bench.gitlab.io/rt-bench/branch/main/index.html)).
+	- [TrustZone Attack](./results/Trustzone/README.md): An attack capable of extracting secrets from TrustZone.
 
 ---
 ## Note

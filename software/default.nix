@@ -36,7 +36,7 @@ let
       text = ''
         #!/bin/bash
 
-        export BAO_SDCARD=/media/$USER/boot2
+        export BAO_SDCARD=/media/$USER/boot3
         
         if [ -d $BAO_SDCARD ]
             then  

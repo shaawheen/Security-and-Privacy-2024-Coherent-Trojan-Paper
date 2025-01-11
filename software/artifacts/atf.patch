@@ -1,3 +1,15 @@
+diff --git a/include/services/std_svc.h b/include/services/std_svc.h
+index b0614fb42..bf2f0ec9e 100644
+--- a/include/services/std_svc.h
++++ b/include/services/std_svc.h
+@@ -13,6 +13,7 @@
+ #define ARM_STD_SVC_UID			0x8400ff01
+ /*					0x8400ff02 is reserved */
+ #define ARM_STD_SVC_VERSION		0x8400ff03
++#define AUTHENTICATION_SERVICE  0x8400ff04
+ 
+ /* ARM Standard Service Calls version numbers */
+ #define STD_SVC_VERSION_MAJOR		0x0
 diff --git a/plat/arm/common/arm_cci.c b/plat/arm/common/arm_cci.c
 index 3795fc52f..f2de0515f 100644
 --- a/plat/arm/common/arm_cci.c
@@ -14,20 +26,133 @@ index 3795fc52f..f2de0515f 100644
  void plat_arm_interconnect_enter_coherency(void)
  {
  	cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
-+	mmio_write_32(0xFD6E0000UL + 0x90004UL, 0xffffffff); // disable prefetch in all interfaces
++	mmio_write_32(0xFD6E0000UL + 0x90004UL, 0x1); // disable CCI prefetch
 +	cci_enable_snoop_dvm_reqs(1); //enable cci port of PL
  }
  
  /******************************************************************************
 diff --git a/plat/xilinx/zynqmp/aarch64/zynqmp_common.c b/plat/xilinx/zynqmp/aarch64/zynqmp_common.c
-index 9f374b03d..db295b972 100644
+index 9f374b03d..3b5713527 100644
 --- a/plat/xilinx/zynqmp/aarch64/zynqmp_common.c
 +++ b/plat/xilinx/zynqmp/aarch64/zynqmp_common.c
-@@ -26,6 +26,7 @@ const mmap_region_t plat_arm_mmap[] = {
+@@ -26,7 +26,8 @@ const mmap_region_t plat_arm_mmap[] = {
  	{ DEVICE0_BASE, DEVICE0_BASE, DEVICE0_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
  	{ DEVICE1_BASE, DEVICE1_BASE, DEVICE1_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
  	{ CRF_APB_BASE, CRF_APB_BASE, CRF_APB_SIZE, MT_DEVICE | MT_RW | MT_SECURE },
+-	{0}
 +	{ UL(0x80000000), UL(0x80000000), UL(0x30000), MT_DEVICE | MT_RW | MT_SECURE },
- 	{0}
++	{ 0 }
  };
  
+ static unsigned int zynqmp_get_silicon_ver(void)
+diff --git a/services/std_svc/std_svc_setup.c b/services/std_svc/std_svc_setup.c
+index 39db42913..77d314dd0 100644
+--- a/services/std_svc/std_svc_setup.c
++++ b/services/std_svc/std_svc_setup.c
+@@ -24,14 +24,67 @@
+ #include <smccc_helpers.h>
+ #include <tools_share/uuid.h>
+ 
++
++// -----------------------------------------------------------------------------
++// AUTHENTICATION SERVICE related Code
++// -----------------------------------------------------------------------------
++#define AUTHENTICATION_SUCCESS 	0x1
++#define AUTHENTICATION_FAIL 	0x0
++
++uint8_t xor_key        = 0;  
++uint8_t checksum_value = 0;
++
++// XOR encryption and decryption (symmetric). This is is not a secure encryption
++// algorithm, but it is enough for this demonstration. We just want to show that 
++// coherent trojan can leak the data directly from cache and get the plaintext. 
++// For this porpuse, using a simple encryption algorithm or a strong one, like 
++// AES or chacha20 would yield the same result. Second, those algorithms would 
++// require us to put them in S-EL1/0  as it wouldn't fit in the S-EL3 firmware 
++// image. Third, this way we show that even the highest privileged level can be
++// compromised.
++
++void xor_cipher(uint8_t *data, uint32_t length, uint8_t key) {
++    for (uint32_t i = 0; i < length; i++) {
++        data[i] ^= key;
++    }
++}
++
++// Basic Checksum to perform athentication (just for test porpuses, this is
++// a very weak authentication method)
++__attribute__((aligned(64))) uint8_t checksum(uint8_t *plaintext) {
++	uint8_t checksum = 0;
++	for (int i = 0; i < 32; i++) {
++		checksum ^= plaintext[i];
++	}
++	return checksum;
++}
++
++int authenticate(uint8_t *enc_data){
++	uint8_t *decrypted = (uint8_t *) 0xffffd000;
++
++    // Copy ciphertext for decryption
++    memcpy((uint8_t *)decrypted, enc_data, 32);
++
++    // // Decrypt 
++    xor_cipher((uint8_t *)decrypted, 32, xor_key);
++
++    // Basic Authentication
++    if (checksum((uint8_t *)decrypted) == checksum_value) {
++        return AUTHENTICATION_SUCCESS;
++    } else {
++        return AUTHENTICATION_FAIL;
++    }
++}
++// ---------------------------------------------------------
++
+ /* Standard Service UUID */
+-static uuid_t arm_svc_uid = {
+-	{0x5b, 0x90, 0x8d, 0x10},
+-	{0x63, 0xf8},
+-	{0xe8, 0x47},
+-	0xae, 0x2d,
+-	{0xc0, 0xfb, 0x56, 0x41, 0xf6, 0xe2}
+-};
++//  static uuid_t arm_svc_uid = {
++//  	{0x5b, 0x90, 0x8d, 0x10},
++//  	{0x63, 0xf8},
++//  	{0xe8, 0x47},
++//  	0xae, 0x2d,
++//  	{0xc0, 0xfb, 0x56, 0x41, 0xf6, 0xe2}
++//  };
+ 
+ /* Setup Standard Services */
+ static int32_t std_svc_setup(void)
+@@ -72,6 +125,7 @@ static int32_t std_svc_setup(void)
+ 	return ret;
+ }
+ 
++
+ /*
+  * Top-level Standard Service SMC handler. This handler will in turn dispatch
+  * calls to PSCI SMC handler
+@@ -184,16 +238,20 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
+ 		 * Return the number of Standard Service Calls. PSCI is the only
+ 		 * standard service implemented; so return number of PSCI calls
+ 		 */
+-		SMC_RET1(handle, PSCI_NUM_CALLS);
++		// SMC_RET1(handle, PSCI_NUM_CALLS);
+ 
+ 	case ARM_STD_SVC_UID:
+ 		/* Return UID to the caller */
+-		SMC_UUID_RET(handle, arm_svc_uid);
++		// SMC_UUID_RET(handle, arm_svc_uid);
+ 
+ 	case ARM_STD_SVC_VERSION:
+ 		/* Return the version of current implementation */
+-		SMC_RET2(handle, STD_SVC_VERSION_MAJOR, STD_SVC_VERSION_MINOR);
++		// SMC_RET2(handle, STD_SVC_VERSION_MAJOR, STD_SVC_VERSION_MINOR);
+ 
++	case AUTHENTICATION_SERVICE:
++		checksum_value = x2;
++		xor_key = x3;
++		SMC_RET1(handle, authenticate((uint8_t *) x1));
+ 	default:
+ 		VERBOSE("Unimplemented Standard Service Call: 0x%x \n", smc_fid);
+ 		SMC_RET1(handle, SMC_UNK);

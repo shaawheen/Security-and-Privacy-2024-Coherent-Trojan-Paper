@@ -46,64 +46,6 @@ module passive_devil #(
         input  wire                              i_crready,
         output wire                        [4:0] o_crresp,
         output wire                              o_crvalid,
-        // ACE AR Channel (Read address phase)
-        output wire       [C_ACE_ADDR_WIDTH-1:0] o_araddr,
-        output wire                        [1:0] o_arbar,
-        output wire                        [1:0] o_arburst,
-        output wire                        [3:0] o_arcache,
-        output wire                        [1:0] o_ardomain,
-        output wire                        [5:0] o_arid,
-        output wire                        [7:0] o_arlen,
-        output wire                              o_arlock,
-        output wire                        [2:0] o_arprot,
-        output wire                        [3:0] o_arqos,
-        input  wire                              i_arready,
-        output wire                        [3:0] o_arregion,
-        output wire                        [2:0] o_arsize,
-        output wire                        [3:0] o_arsnoop,
-        output wire                       [15:0] o_aruser,
-        output wire                              o_arvalid,
-        // ACE R Channel (Read data phase)
-        output wire                              o_rack,
-        input  wire       [C_ACE_DATA_WIDTH-1:0] i_rdata,
-        input  wire                        [5:0] i_rid,
-        input  wire                              i_rlast,
-        output wire                              o_rready,
-        input  wire                        [3:0] i_rresp,
-        input  wire                              i_ruser,
-        input  wire                              i_rvalid,
-        // ACE AW channel (Write address phase)
-        output wire       [C_ACE_ADDR_WIDTH-1:0] o_awaddr,
-        output wire                        [1:0] o_awbar,
-        output wire                        [1:0] o_awburst,
-        output wire                        [3:0] o_awcache,
-        output wire                        [1:0] o_awdomain,
-        output wire                        [5:0] o_awid,
-        output wire                        [7:0] o_awlen,
-        output wire                              o_awlock,
-        output wire                        [2:0] o_awprot,
-        output wire                        [3:0] o_awqos,
-        input  wire                              i_awready,
-        output wire                        [3:0] o_awregion,
-        output wire                        [2:0] o_awsize,
-        output wire                        [2:0] o_awsnoop,
-        output wire                       [15:0] o_awuser,
-        output wire                              o_awvalid,
-        // ACE W channel (Write data phase)
-        output wire                              o_wack,
-        output wire       [C_ACE_DATA_WIDTH-1:0] o_wdata,
-        output wire                        [5:0] o_wid,
-        output wire                              o_wlast,
-        input  wire                              i_wready,
-        output wire                       [15:0] o_wstrb,
-        output wire                              o_wuser,
-        output wire                              o_wvalid,
-        // ACE B channel (Write response)
-        input  wire                        [5:0] i_bid,
-        output wire                              o_bready,
-        input  wire                        [1:0] i_bresp,
-        input  wire                              i_buser,
-        input  wire                              i_bvalid,
         
         input  wire                        [3:0] i_snoop_state,
         output wire       [DEVIL_STATE_SIZE-1:0] o_fsm_devil_state_passive,
@@ -123,8 +65,7 @@ module passive_devil #(
         input  wire                        [3:0] i_acsnoop_snapshot,
         output wire                              o_responding,
         input wire                               i_active_end,
-        output wire                              o_action_taken,
-        output wire                              o_trans_monitored, 
+        output wire                              o_action_taken, 
 
         // Internal Signals, from Devil Passive to Devil Active
         output wire                        [3:0] o_internal_func, 
@@ -137,9 +78,10 @@ module passive_devil #(
         output wire                              o_internal_adt_en,
         output wire                              o_external_mode,
 
-        // Internal Signalas, from devil controller to devil passive
+        // Internal Signals, from devil controller to devil passive
         input wire    [CTRL_IN_SIGNAL_WIDTH-1:0] i_controller_signals,
-        input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_2_monitor, 
+        input wire    [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line_2_monitor, 
+        input wire                               i_reply_type,
 
         // Internal Signals, Controller In/Out Cache Line
         input  wire   [(C_ACE_DATA_WIDTH*4)-1:0] i_cache_line, 
@@ -193,8 +135,6 @@ module passive_devil #(
     reg                    [7:0] r_burst_cnt;
     reg                          r_trigger_active;
     reg                          r_action_taken;
-    reg                          r_trans_mont_end;
-    reg                          r_trans_monitored;
     reg                    [3:0] r_active_func;
     reg                          r_internal_adl_en;
     reg                          r_internal_adt_en;
@@ -219,62 +159,9 @@ module passive_devil #(
     // ACE CR Channel (Snoop response)
     assign o_crresp     = r_crresp;
     assign o_crvalid    = r_crvalid;
-    
-    // ACE AR Channel (Read address phase)
-    // (Not used for now!)
-    assign o_araddr     = 0; 
-    assign o_arbar      = 0;
-    assign o_arburst    = `WRAP;
-    assign o_arcache    = 4'h3; // Read-Allocate //Refer to page 64 of manual. 
-    assign o_ardomain   = 2'b10;  // outer shareable
-    assign o_arid       = 0;
-    assign o_arlen      = w_arlen; 
-    assign w_arlen      = 8'h3; // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
-    assign o_arlock     = 0;
-    assign o_arprot     = 3'b011; // [2] Instruction access, [1] Non-secure access, [0] Privileged
-    assign o_arqos      = 0;
-    assign o_arregion   = 0;
-    assign o_arsize     = 3'b100; //Size of each burst is 16B 
-    assign o_arsnoop    = 0;
-    assign o_aruser     = 0;
-    assign o_arvalid    = 0;
 
-    // ACE R Channel (Read data phase)
-    // (Not used for now!)
-    assign o_rack   = 0;
-    assign o_rready = 0;
-
-    // ACE AW channel (Wri0te address phase)
-    // (Not used for now!)
-    assign o_awaddr     = 0;
-    assign o_awbar      = 0;
-    assign o_awburst    = 0;
-    assign o_awcache    = 0;
-    assign o_awdomain   = 0;
-    assign o_awid       = 0;
-    assign o_awlen      = 0;
-    assign o_awlock     = 0;
-    assign o_awprot     = 0;
-    assign o_awqos      = 0;
-    assign o_awregion   = 0;
-    assign o_awsize     = 0;
-    assign o_awsnoop    = 0;
-    assign o_awuser     = 0;
-    assign o_awvalid    = 0;
-
-    // ACE W channel (Write data phase)
-    // (Not used for now!)
-    assign o_wack   = 0;
-    assign o_wdata  = 0;
-    assign o_wid    = 0;
-    assign o_wlast  = 0;
-    assign o_wstrb  = 0;
-    assign o_wuser  = 0;
-    assign o_wvalid = 0;
-
-    // ACE B channel (Write response) 
-    // (Not used for now!)
-    assign o_bready = 0;
+    // Set to 7'h3 for 4 bursts of 16B (128 bits) to match 64B cache line size
+    assign w_arlen      = 8'h3; 
 
 //------------------------------------------------------------------------------
 // DEVIL-IN-THE-FPGA CONTROL REGISTERS
@@ -282,30 +169,22 @@ module passive_devil #(
     // Devil-in-the-fpga Control Reg parameters/bits
     // TODO: Put this in a common file with the bits in 
     wire       w_en;
-    wire [3:0] w_test;
-    wire [3:0] w_func;
     wire [4:0] w_crresp;
     wire       w_acf_lt;    
     wire       w_addr_flt;    
-    wire       w_con_en;    
-    wire       w_osh_en;    
     wire       w_adl_en; // Active Data Leak Enable    
     wire       w_adt_en; // Active Data Tampering Enable   
-    wire       w_pdt_en; // Passive Data Tampering Enable
+    wire       w_one_shot; // Passive Data Tampering Enable
     wire       w_mon_en; // Enable Transactions Monitor
 
     assign w_en = i_control_reg[0];
-    assign w_test = i_control_reg[4:1];
-    assign w_func = i_control_reg[8:5];
     assign w_crresp = i_control_reg[13:9];
     assign w_acf_lt = i_control_reg[14];
     assign w_addr_flt = i_control_reg[15];
-    assign w_osh_en = i_control_reg[16];
-    assign w_con_en = i_control_reg[17];
     assign w_adl_en = i_control_reg[18]; // Active Data Leak Enable   
     assign w_adt_en = i_control_reg[19]; // Active Data Tampering Enable
-    assign w_pdt_en = i_control_reg[20]; // Passive Data Tampering Enable
-    assign w_mon_en = i_control_reg[21]; // Passive Data Tampering Enable
+    assign w_one_shot = i_control_reg[20]; 
+    assign w_mon_en = i_control_reg[21]; 
 
 //------------------------------------------------------------------------------
 // GENERIC OUTPUT SIGNALS
@@ -327,7 +206,6 @@ module passive_devil #(
     assign o_internal_func      = r_active_func;
     assign o_trigger_active     = r_trigger_active;
     assign o_action_taken       = r_action_taken;
-    assign o_trans_monitored    = r_trans_monitored;
     assign o_external_mode      = (w_adl_en || w_adt_en); // Informes when an action is trigger by PS 
     assign o_internal_adl_en    = r_internal_adl_en;
     assign o_internal_adt_en    = r_internal_adt_en;
@@ -366,11 +244,9 @@ module passive_devil #(
         r_burst_cnt <= 0;
         r_status_reg <= 0;
         r_action_taken <= 0; 
-        r_trans_mont_end <= 0;
         r_trigger_active <= 0;
         r_internal_adl_en <= 0;
         r_internal_adt_en <= 0;
-        r_trans_monitored <= 0;
         fsm_devil_state_passive <= DEVIL_IDLE;
         end 
     else
@@ -398,110 +274,47 @@ module passive_devil #(
                     case ({w_addr_flt, w_acf_lt})
                         `NO_FILTER  : 
                         begin
-                            fsm_devil_state_passive <= w_mon_en ? DEVIL_MONITOR_TRANS : DEVIL_TAKE_ACTIONS;
+                            fsm_devil_state_passive <= DEVIL_TAKE_ACTIONS;
                         end
                         `AC_FILTER  : 
                         begin
                             if(w_ac_filter)
-                                fsm_devil_state_passive <= w_mon_en ? DEVIL_MONITOR_TRANS : DEVIL_TAKE_ACTIONS;
+                                fsm_devil_state_passive <= DEVIL_TAKE_ACTIONS;
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
                         `ADDR_FILTER  : 
                         begin
                             if(w_addr_filter)
-                                fsm_devil_state_passive <= w_mon_en ? DEVIL_MONITOR_TRANS : DEVIL_TAKE_ACTIONS;  
+                                fsm_devil_state_passive <= DEVIL_TAKE_ACTIONS;  
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
                         `AC_ADDR_FILTER  : 
                         begin
                             if(w_addr_filter && w_ac_filter)
-                                fsm_devil_state_passive <= w_mon_en ? DEVIL_MONITOR_TRANS : DEVIL_TAKE_ACTIONS;  
+                                fsm_devil_state_passive <= DEVIL_TAKE_ACTIONS;  
                             else
                                 fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
                         end
                         default : fsm_devil_state_passive <= DEVIL_DUMMY_REPLY; 
                     endcase                                                     
                 end
-            DEVIL_MONITOR_TRANS:
-                begin
-                    r_araddr <= i_acaddr_snapshot;
-                    r_arsnoop <= i_acsnoop_snapshot;
-                    r_trans_mont_end <= 0;
-                    r_trigger_active <= 1;
-                    r_trans_monitored <= 1;
-                    r_internal_adl_en <= 1; // Enable Read Snoop (internal trigger)
-                    // ReadNoSnoop , ardomain = 2'b00 and arsnoop = 4'b0000
-                    r_ardomain <= 2'b00; 
-                    r_arsnoop <= 4'b0000; 
-                    // r_internal_adt_en <= 0; // En Write Snoop (internal trigger)
-                    r_active_func <= `ADL; // Read snoop
-                    fsm_devil_state_passive <= DEVIL_MONITOR_TRANS_WAIT;
-                end
-            DEVIL_MONITOR_TRANS_WAIT:
-                begin
-                    if (i_active_end)
-                    begin
-                        r_trans_mont_end <= 1;
-                        r_trigger_active <= 0;
-                        r_internal_adl_en <= 0;
-                        fsm_devil_state_passive  <= DEVIL_TAKE_ACTIONS;
-                    end                           
-                    else
-                        fsm_devil_state_passive <= fsm_devil_state_passive;
-                end
             DEVIL_TAKE_ACTIONS:
                 begin
-                    if(!w_mon_en)
-                        fsm_devil_state_passive <= DEVIL_FUNCTION;
-                    else 
-                    begin
-                        // wait for the devil controller signal to keep going 
-                        if(w_reply) 
-                            fsm_devil_state_passive <= DEVIL_FUNCTION;
-                        else
-                            fsm_devil_state_passive <= fsm_devil_state_passive;
-                    end
-                end
-            DEVIL_FUNCTION: // 6
-                begin
-                    case (w_func[3:0])
-                        `OSH  : 
-                        begin
-                            if (i_read_status_reg[0] == 0 && w_osh_en)
-                                fsm_devil_state_passive <= DEVIL_ONE_SHOT_DELAY; 
-                            else 
-                                fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
-                        end
-                        `CON  : 
-                        begin
-                            if (w_con_en)
-                                fsm_devil_state_passive <= DEVIL_CONTINUOS_DELAY;  
-                            else
-                                fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
-                        end
-                        `ADL  :
-                        begin
+                    // wait for the devil controller signal to keep going
+                    // Devil Control is what controls the progress of the snoop
+                    // response, regardeless of the operation mode of the Trojan
+                    // i.e., monitor enabled or not
+                    if(w_reply) 
+                        if(i_reply_type == `DATA_REPLY )
+                            fsm_devil_state_passive <= DEVIL_SNOOP_RESPONSE;
+                        else 
                             fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
-                        end
-                        `ADT  :
-                        begin
-                            fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
-                        end
-                        `PDT  :
-                        begin
-                            if (w_pdt_en)
-                                fsm_devil_state_passive <= DEVIL_SNOOP_RESPONSE;  
-                            else
-                                fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
-                        end
-                        `DMY  :
-                        begin
-                            fsm_devil_state_passive <= DEVIL_DUMMY_REPLY;
-                        end
-                        default : fsm_devil_state_passive <= DEVIL_DUMMY_REPLY; 
-                    endcase                                                      
+                    else
+                        fsm_devil_state_passive <= fsm_devil_state_passive;
+
+                    // end
                 end
             DEVIL_DUMMY_REPLY: // 8
                 begin
@@ -541,7 +354,7 @@ module passive_devil #(
                             if( (w_arlen == 0) || (r_burst_cnt == w_arlen)) 
                             begin // last reply
                                 r_cdlast <= 1;   
-                                if(!w_pdt_en) // Passive Data Tampering Disable                           
+                                if(w_one_shot)                        
                                     fsm_devil_state_passive  <= DEVIL_END_OP;  
                                 else
                                     fsm_devil_state_passive  <= DEVIL_END_REPLY;  
@@ -555,136 +368,17 @@ module passive_devil #(
                     else
                         fsm_devil_state_passive <= fsm_devil_state_passive;
                 end
-            DEVIL_RESPONSE: // 3
-                begin
-                    // if(handshake) begin
-                        if(w_func[3:0] == `OSH)
-                        begin
-                            r_status_reg[0] <= 1; 
-                        end
-
-                        r_crresp <= w_crresp[4:0];
-                        // r_rdata <= w_crresp[4:0]; // outputing w_crresp just to check if it is right
-
-                        case (w_test[3:0])
-                            `FUZZING: 
-                            begin
-                                r_crvalid <= 1;
-                                r_cdvalid <= 1; 
-                                r_cdlast <= 1;
-                                fsm_devil_state_passive  <= r_return; 
-                            end
-                            `REPLY_WITH_DELAY_CRVALID: 
-                            begin
-                                // r_crvalid <= 1;
-                                //r_cdvalid <= 1; 
-                                //r_cdlast <= 1;
-                                fsm_devil_state_passive  <= DEVIL_DELAY;
-                            end 
-                            `REPLY_WITH_DELAY_CDVALID:  
-                            begin
-                                r_crvalid <= 1;
-                                // r_cdvalid <= 1; 
-                                r_cdlast <= 1;
-                                fsm_devil_state_passive  <= DEVIL_DELAY;
-                            end 
-                            `REPLY_WITH_DELAY_CDLAST:  
-                            begin
-                                r_crvalid <= 1;
-                                r_cdvalid <= 1; 
-                                // r_cdlast <= 1;
-                                fsm_devil_state_passive  <= DEVIL_DELAY;
-                            end 
-                            default : 
-                            begin
-                                r_crvalid <= r_crvalid;
-                                r_cdvalid <= r_cdvalid; 
-                                r_cdlast <= r_cdlast;
-                                fsm_devil_state_passive  <= r_return; 
-                            end
-                        endcase         
-                    // end
-                    // else
-                    //     fsm_devil_state_passive <= DEVIL_RESPONSE;                             
-                end
-            DEVIL_ONE_SHOT_DELAY: // 1
-                begin
-                    if (i_read_status_reg[0] == 0 && i_crready) // just one reply with delay                                      
-                    begin                                                            
-                        fsm_devil_state_passive  <= DEVIL_RESPONSE;
-                        r_return <= DEVIL_END_OP;                              
-                    end  
-                    else if(i_read_status_reg[0] && i_crready) // normal reply                                                         
-                    begin                          
-                        fsm_devil_state_passive  <= DEVIL_DUMMY_REPLY;                                
-                    end 
-                    else          
-                        fsm_devil_state_passive <= fsm_devil_state_passive;                                                                                  
-                end
-            DEVIL_CONTINUOS_DELAY: //2
-                begin
-                    if (!w_con_en && i_crready)                                      
-                    begin                                                   // just one reply with delay            
-                        fsm_devil_state_passive  <= DEVIL_RESPONSE;  
-                        r_return <= DEVIL_END_OP; // last reply      
-                    end  
-                    else if(i_crready) 
-                    begin         
-                        fsm_devil_state_passive  <= DEVIL_RESPONSE;                                     
-                        r_return <= DEVIL_END_REPLY;      
-                    end                                                                                               
-                    else
-                        fsm_devil_state_passive <= fsm_devil_state_passive;
-                end
-            DEVIL_DELAY: // 4
-                begin
-                    // wait some cycles to respond
-                    if(r_counter == (i_delay_reg == 0 ? 0 :`NUM_OF_CYCLES << (i_delay_reg-1)) )
-                    begin
-                        r_counter <= 0;
-                        case (w_test[3:0])
-                            `REPLY_WITH_DELAY_CRVALID: 
-                            begin
-                                r_crvalid <= 1;
-                                fsm_devil_state_passive  <= r_return; 
-                            end 
-                            `REPLY_WITH_DELAY_CDVALID:  
-                            begin
-                                r_cdvalid <= 1; 
-                                fsm_devil_state_passive  <= r_return; 
-                            end 
-                            `REPLY_WITH_DELAY_CDLAST:  
-                            begin
-                                r_cdlast <= 1; 
-                                fsm_devil_state_passive  <= r_return; 
-                            end 
-                            default : 
-                            begin
-                                r_crvalid <= r_crvalid;
-                                r_cdvalid <= r_cdvalid; 
-                                r_cdlast <= r_cdlast;
-                                fsm_devil_state_passive  <= r_return; 
-                            end
-                        endcase                
-                    end
-                    else
-                    begin
-                        r_counter <= r_counter + 1;
-                        fsm_devil_state_passive <= DEVIL_DELAY;
-                    end                                
-                end
             DEVIL_END_OP: // 7 State to signal the End of the FSM operation
                 begin
+                    r_crresp <= 0;
                     r_crvalid <= 0;
                     r_cdvalid <= 0;
-                    r_crresp <= 0;
                     r_cdlast <= 0;
                     r_burst_cnt <= 0;
                     r_status_reg[0] <= 0;    
                     r_end_op <= 1;
                     r_reply <= 1;
                     r_action_taken <= 0; 
-                    r_trans_monitored <= 0;
                     fsm_devil_state_passive <= DEVIL_IDLE;                                                  
                 end
             DEVIL_END_REPLY: // 9 State to signal the End of a reply
@@ -696,7 +390,6 @@ module passive_devil #(
                     r_burst_cnt <= 0;
                     r_status_reg[0] <= 0;    
                     r_reply <= 1;
-                    r_trans_monitored <= 0;
                     r_action_taken <= 0; 
                     fsm_devil_state_passive <= DEVIL_IDLE;                                                  
                 end

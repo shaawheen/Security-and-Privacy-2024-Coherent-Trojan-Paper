@@ -17,23 +17,18 @@ register_blocks:
             0: Disables 
             1: Enables 
       - <<:
-        - { name:  TEST, bit_assignment:  { width: 4 }, type: rw  ,  initial_value: 0}
+        - { name:  Reserved1, bit_assignment:  { width: 4 }, type: rw  ,  initial_value: 0}
         - comment: |
-            Chooses the type of tests to be performed
-            0b0000: Fuzzing. Combination of several test inputs
-            0b0001: Reply with Delay crvalid
-            0b0010: Reply with Delay cdvalid
-            0b0011: Reply with Delay cdlast
-            0bxxxx: Reserved
+            Reserved
       - <<:
         - { name:  FUNC, bit_assignment:  { width: 4 }, type: rw  ,  initial_value: 0}
         - comment: |
             Chooses the functions of the IP
-            0b0000: One-Shot Delay. The IP just delyas one time the snoop response. The delay is defined by DELAY reg value.
-            0b0001: Continuous Delay. The IP is constantly delaying the snoop requests while the CONEN bit is active.
+            0b0000: Reserved
+            0b0001: Reserved
             0b0010: **A**ctive **D**ata **L**eak. The IP issues a snoop request to read an address when the ADLEN bit is active 
             0b0011: **A**ctive **D**ata **T**ampering. The IP issues a snoop request to write to an address when the ADTEN bit is active
-            0b0100: **P**assive **D**ata **T**ampering. The IP responds to a snoop requests with wrong data while the PDTEN bit is active 
+            0b0100: Reserved
             0bxxxx: Reserved
       - <<:
         - { name:  CRRESP, bit_assignment:  { width: 5 }, type: rw  ,  initial_value: 0}
@@ -52,17 +47,13 @@ register_blocks:
             0: Disables address filter
             1: Enables address filter
       - <<:
-        - { name:  OSHEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - { name:  Reserved2, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
         - comment: |
-            Enable or disable the one shot delay of the snoop response
-            0: Disables one shot delay 
-            1: Enables one shot delay 
+            Reserved
       - <<:
-        - { name:  CONEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - { name:  Reserved3, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
         - comment: |
-            Enable or disable the continuous delay of the snoop response
-            0: Disables continuous delay
-            1: Enables continuous delay
+            Reserved
       - <<:
         - { name:  ADLEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
         - comment: |
@@ -76,11 +67,11 @@ register_blocks:
             0: Disables Active Data Tampering
             1: Enables Active Data Tampering
       - <<:
-        - { name:  PDTEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - { name:  ONESHOT, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
         - comment: |
-            Enable or disable the **P**assive **D**ata **T**ampering
-            0: Disables Passive Data Tampering
-            1: Enables Passive Data Tampering
+            Enables One-Shot Operation. The IP won't do other reply until the IP is disabled and enabled again.
+            0: Disables One-Shot Operation
+            1: Enables One-Shot Operation
       - <<:
         - { name:  MONEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
         - comment: |
@@ -101,7 +92,19 @@ register_blocks:
             0: Feature Disabled. Just **St**art pattern is used. 
             1: Feature Enabled. **St**art pattern and a **En**d pattern are used.
       - <<:
-        - { name:  Res, bit_assignment:  { width: 5 }, type: reserved}
+        - { name:  SNEAKEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - comment: |
+            Enable or disable the Sneak Snoop feature. This feature, if enable, will insert a snoop between the snoop request and snoop response.  
+            0: Feature Disabled.
+            1: Feature Enabled. 
+      - <<:
+        - { name:  REREADSEN, bit_assignment:  { width: 1 }, type: rw  ,  initial_value: 0}
+        - comment: |
+            Enable or disable the Redirection of Read Snoops.
+            0: Feature Disabled.
+            1: Feature Enabled. 
+      - <<:
+        - { name:  Res, bit_assignment:  { width: 3 }, type: reserved}
 
 ################################################################           
     - name: status
@@ -109,11 +112,9 @@ register_blocks:
         Status of the IP.
       bit_fields:
       - <<:
-        - { name:  OSH_END, bit_assignment:  { width: 1 }, type: [custom, sw_write: clear_1, hw_set: true ], initial_value: 0}
+        - { name:  Reserved, bit_assignment:  { width: 1 }, type: [custom, sw_write: clear_1, hw_set: true ], initial_value: 0}
         - comment: |
-            The One-Shot delay has been applied to one snoop. Cleared by SW (writing 1).
-            0: No delay has been applied
-            1: Delay has been applied to one snoop request
+            Reserved
       - <<:
         - { name:  BUSY, bit_assignment:  { width: 1 }, type: [custom, sw_write: none, hw_set: true, hw_clear: true ],  initial_value: 0}
         - comment: |
@@ -833,12 +834,53 @@ register_blocks:
       - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
 
 ################################################################
-    - name: deanon_addr
+    - name: deanon_addr 
       comment: |
         The Physical address corresponding to the deanonimize code/data.
       offset_address: 0x10C
       bit_fields:
       - { name: data, bit_assignment:  { width: 32 }, type: ro  ,  initial_value: 0}
+
+################################################################
+    - name: sneak_target_snoop
+      comment: |
+        Target snoop to trigger the writes redirection.
+      offset_address: 0x110
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+      
+################################################################
+    - name: sneak_target_addr
+      comment: |
+        Target snoop address to trigger the writes redirection.
+      offset_address: 0x114
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: sneak_target_size
+      comment: |
+        Region size (added to the target address) to trigger the writes redirection.
+      offset_address: 0x118
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: sneak_addr
+      comment: |
+        Address to issue the snoop.
+      offset_address: 0x11C
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
+################################################################
+    - name: sneak_snoop
+      comment: |
+        Type of snoop to issue.
+      offset_address: 0x120
+      bit_fields:
+      - { name: data, bit_assignment:  { width: 32 }, type: wo  ,  initial_value: 0}
+
 
     # - name: register_2
     #   offset_address: 0x08

@@ -25,7 +25,7 @@ stdenv.mkDerivation rec {
 
     buildPhase = ''
         export CROSS_COMPILE=aarch64-none-elf-
-        make -f Makefile DEBUG=0 PLAT=zynqmp bl31 LOG_LEVEL=30
+        make -f Makefile DEBUG=0 PLAT=zynqmp bl31 LOG_LEVEL=30 CFLAGS="-Os"
     '';
     
     installPhase = ''

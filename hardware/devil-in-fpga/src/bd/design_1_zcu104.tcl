@@ -216,7 +216,7 @@ proc create_hier_cell_devil_ip { parentCell nameHier } {
    CONFIG.C_BRAM_CNT {0.0} \
    CONFIG.C_DATA_DEPTH {4096} \
    CONFIG.C_MON_TYPE {MIX} \
-   CONFIG.C_NUM_OF_PROBES {11} \
+   CONFIG.C_NUM_OF_PROBES {13} \
    CONFIG.C_PROBE_WIDTH_PROPAGATION {AUTO} \
    CONFIG.C_SLOT_0_INTF_TYPE {xilinx.com:interface:acemm_rtl:1.0} \
    CONFIG.C_SLOT_0_TYPE {0} \
@@ -244,8 +244,10 @@ proc create_hier_cell_devil_ip { parentCell nameHier } {
   connect_bd_net -net backstabber_0_debug_devil_controller_state [get_bd_pins backstabber_0/debug_devil_controller_state] [get_bd_pins system_ila_0/probe10]
   connect_bd_net -net backstabber_0_debug_devil_state [get_bd_pins backstabber_0/debug_devil_passive_state] [get_bd_pins system_ila_0/probe1]
   connect_bd_net -net backstabber_0_debug_devil_state_active [get_bd_pins backstabber_0/debug_devil_active_state] [get_bd_pins system_ila_0/probe2]
+  connect_bd_net -net backstabber_0_debug_fsm_register_cl [get_bd_pins backstabber_0/debug_fsm_register_cl] [get_bd_pins system_ila_0/probe12]
   connect_bd_net -net backstabber_0_debug_snoop_state [get_bd_pins backstabber_0/debug_snoop_state] [get_bd_pins system_ila_0/probe0]
   connect_bd_net -net backstabber_0_debug_status [get_bd_pins backstabber_0/debug_status] [get_bd_pins system_ila_0/probe5]
+  connect_bd_net -net backstabber_0_debug_w_cache_line_from_devil [get_bd_pins backstabber_0/debug_w_cache_line_from_devil] [get_bd_pins system_ila_0/probe11]
   connect_bd_net -net bram_rddata_1 [get_bd_pins bram_rddata] [get_bd_pins backstabber_0/bram_rddata]
   connect_bd_net -net rst_ps8_0_99M_peripheral_aresetn [get_bd_pins ace_aresetn] [get_bd_pins backstabber_0/ace_aresetn] [get_bd_pins backstabber_0/config_axi_aresetn] [get_bd_pins backstabber_0/m00_axi_aresetn] [get_bd_pins backstabber_0/s00_axi_aresetn] [get_bd_pins backstabber_0/s01_axi_aresetn]
   connect_bd_net -net zynq_ultra_ps_e_0_pl_clk0 [get_bd_pins ace_aclk] [get_bd_pins backstabber_0/ace_aclk] [get_bd_pins backstabber_0/config_axi_aclk] [get_bd_pins backstabber_0/m00_axi_aclk] [get_bd_pins backstabber_0/s00_axi_aclk] [get_bd_pins backstabber_0/s01_axi_aclk] [get_bd_pins system_ila_0/clk]
@@ -1196,8 +1198,8 @@ Port;FD4A0000;FD4AFFFF;1|FPD;DPDMA;FD4C0000;FD4CFFFF;1|FPD;DDR_XMPU5_CFG;FD05000
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"0.450328",
-   "Default View_TopLeft":"211,1705",
+   "Default View_ScaleFactor":"1.16629",
+   "Default View_TopLeft":"1206,2037",
    "ExpandedHierarchyInLayout":"/devil_ip",
    "PinnedBlocks":"/rst_ps8_0_99M|/smartconnect_0|/vio_0|/zynq_ultra_ps_e_0|/devil_ip|/byte_writer_0|/AXI_PerfectTranslator_0|/axi_bram_ctrl_0|/blk_mem_gen_0|",
    "guistr":"# # String gsaved with Nlview 7.0r4  2019-12-20 bk=1.5203 VDI=41 GEI=36 GUI=JA:10.0 TLS
@@ -1206,60 +1208,62 @@ preplace inst AXI_PerfectTranslator_0 -pg 1 -lvl 3 -x 930 -y 2260 -defaultsOSRD
 preplace inst axi_bram_ctrl_0 -pg 1 -lvl 2 -x 520 -y 1930 -defaultsOSRD
 preplace inst blk_mem_gen_0 -pg 1 -lvl 4 -x 1480 -y 1940 -defaultsOSRD
 preplace inst byte_writer_0 -pg 1 -lvl 3 -x 930 -y 2470 -defaultsOSRD
-preplace inst devil_ip -pg 1 -lvl 4 -x 1480 -y 2222 -defaultsOSRD
+preplace inst devil_ip -pg 1 -lvl 4 -x 1480 -y 2244 -defaultsOSRD
 preplace inst rst_ps8_0_99M -pg 1 -lvl 1 -x 120 -y 2160 -defaultsOSRD
 preplace inst smartconnect_0 -pg 1 -lvl 1 -x 120 -y 2340 -defaultsOSRD
 preplace inst vio_0 -pg 1 -lvl 3 -x 930 -y 2710 -defaultsOSRD
-preplace inst zynq_ultra_ps_e_0 -pg 1 -lvl 5 -x 3436 -y 2270 -defaultsOSRD
-preplace inst devil_ip|backstabber_0 -pg 1 -lvl 1 -x 1590 -y 2382 -defaultsOSRD
-preplace inst devil_ip|system_ila_0 -pg 1 -lvl 2 -x 1970 -y 2462 -defaultsOSRD
-preplace netloc blk_mem_gen_0_doutb 1 3 1 1160 1970n
-preplace netloc devil_ip_bram_addr 1 3 2 1180 1810 2260
-preplace netloc devil_ip_bram_clk 1 3 2 1100 1790 2280
-preplace netloc devil_ip_bram_en 1 3 2 1170 2662 2260
-preplace netloc devil_ip_bram_we 1 3 2 1180 2672 2250
-preplace netloc devil_ip_bram_wrdata 1 3 2 1170 1800 2270
-preplace netloc rst_ps8_0_99M_peripheral_aresetn 1 0 4 -480 2040 300 2160 680 2130 1120
-preplace netloc vio_0_probe_out0 1 2 2 690 2580 1100
-preplace netloc zynq_ultra_ps_e_0_pl_clk0 1 0 6 -490 2030 330 2030 660 2082 1150 2082 2310 2390 3750
-preplace netloc zynq_ultra_ps_e_0_pl_resetn0 1 0 6 -470 2650 N 2650 N 2650 1130 2682 N 2682 3760
-preplace netloc AXI_PerfectTranslator_0_M00_AXI 1 3 2 1130 2102 2300
+preplace inst zynq_ultra_ps_e_0 -pg 1 -lvl 5 -x 4072 -y 2270 -defaultsOSRD
+preplace inst devil_ip|backstabber_0 -pg 1 -lvl 1 -x 1610 -y 2424 -defaultsOSRD
+preplace inst devil_ip|system_ila_0 -pg 1 -lvl 2 -x 2020 -y 2504 -defaultsOSRD
+preplace netloc blk_mem_gen_0_doutb 1 3 1 1150 1970n
+preplace netloc devil_ip_bram_addr 1 3 2 1170 1810 2300
+preplace netloc devil_ip_bram_clk 1 3 2 1150 1790 2320
+preplace netloc devil_ip_bram_en 1 3 2 1160 2724 2320
+preplace netloc devil_ip_bram_we 1 3 2 1170 2104 2310
+preplace netloc devil_ip_bram_wrdata 1 3 2 1160 1800 2330
+preplace netloc rst_ps8_0_99M_peripheral_aresetn 1 0 4 -480 2040 300 2160 680 2130 1110
+preplace netloc vio_0_probe_out0 1 2 2 690 2590 1110
+preplace netloc zynq_ultra_ps_e_0_pl_clk0 1 0 6 -490 2030 330 2040 660 2114 1140 2114 2360 2390 4390
+preplace netloc zynq_ultra_ps_e_0_pl_resetn0 1 0 6 -470 2050 N 2050 N 2050 1140 2080 N 2080 4400
+preplace netloc AXI_PerfectTranslator_0_M00_AXI 1 3 2 1130 2124 2350
 preplace netloc axi_bram_ctrl_0_BRAM_PORTA 1 2 2 660 1870 N
-preplace netloc backstabber_0_ACE 1 4 1 2290 2172n
-preplace netloc byte_writer_0_axi 1 0 4 -460 2050 N 2050 N 2050 1100
+preplace netloc backstabber_0_ACE 1 4 1 2340 2194n
+preplace netloc byte_writer_0_axi 1 0 4 -470 2580 N 2580 N 2580 1110
 preplace netloc smartconnect_0_M00_AXI 1 1 2 N 2310 670
-preplace netloc smartconnect_0_M01_AXI 1 1 3 320 2140 N 2140 1140
-preplace netloc smartconnect_0_M02_AXI 1 1 3 330 2150 N 2150 1110
+preplace netloc smartconnect_0_M01_AXI 1 1 3 320 2140 N 2140 1120
+preplace netloc smartconnect_0_M02_AXI 1 1 3 330 2150 N 2150 1100
 preplace netloc smartconnect_0_M03_AXI 1 1 1 310 1910n
-preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_FPD 1 2 4 690 2092 N 2092 N 2092 3750
-preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_LPD 1 0 6 -450 2060 N 2060 N 2060 1150 2070 N 2070 3760
-preplace netloc devil_ip|backstabber_0_bram_addr 1 1 2 1810 2192 NJ
-preplace netloc devil_ip|backstabber_0_bram_clk 1 1 2 N 2262 2080J
-preplace netloc devil_ip|backstabber_0_bram_en 1 1 2 1820 2232 NJ
-preplace netloc devil_ip|backstabber_0_bram_rst 1 1 2 1830 2252 NJ
-preplace netloc devil_ip|backstabber_0_bram_we 1 1 2 1850 2272 NJ
-preplace netloc devil_ip|backstabber_0_bram_wrdata 1 1 2 N 2282 2080J
-preplace netloc devil_ip|backstabber_0_debug_buff_0 1 1 1 N 2502
-preplace netloc devil_ip|backstabber_0_debug_buff_1 1 1 1 N 2522
-preplace netloc devil_ip|backstabber_0_debug_buff_2 1 1 1 N 2542
-preplace netloc devil_ip|backstabber_0_debug_buff_3 1 1 1 N 2562
-preplace netloc devil_ip|backstabber_0_debug_counter 1 1 1 N 2442
-preplace netloc devil_ip|backstabber_0_debug_delay_reg 1 1 1 N 2462
-preplace netloc devil_ip|backstabber_0_debug_devil_controller_state 1 1 1 1800 2422n
-preplace netloc devil_ip|backstabber_0_debug_devil_state 1 1 1 1820 2382n
-preplace netloc devil_ip|backstabber_0_debug_devil_state_active 1 1 1 1810 2402n
-preplace netloc devil_ip|backstabber_0_debug_snoop_state 1 1 1 1830 2362n
-preplace netloc devil_ip|backstabber_0_debug_status 1 1 1 N 2482
-preplace netloc devil_ip|bram_rddata_1 1 0 1 N 2502
-preplace netloc devil_ip|rst_ps8_0_99M_peripheral_aresetn 1 0 1 1370 2322n
-preplace netloc devil_ip|zynq_ultra_ps_e_0_pl_clk0 1 0 2 1380 2142 1840
-preplace netloc devil_ip|backstabber_0_ACE 1 1 2 1860 2172 NJ
-preplace netloc devil_ip|smartconnect_0_M01_AXI 1 0 1 N 2262
-preplace netloc devil_ip|smartconnect_0_M02_AXI 1 0 1 N 2282
-levelinfo -pg 1 -510 120 520 930 1480 3436 3790
-levelinfo -hier devil_ip * 1590 1970 *
-pagesize -pg 1 -db -bbox -sgen -510 0 3790 3940
-pagesize -hier devil_ip -db -bbox -sgen 1340 2132 2110 2642
+preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_FPD 1 2 4 690 2094 N 2094 N 2094 4390
+preplace netloc zynq_ultra_ps_e_0_M_AXI_HPM0_LPD 1 0 6 -460 2060 N 2060 N 2060 1100 2070 N 2070 4410
+preplace netloc devil_ip|backstabber_0_bram_addr 1 1 2 1850 2214 NJ
+preplace netloc devil_ip|backstabber_0_bram_clk 1 1 2 1860 2234 NJ
+preplace netloc devil_ip|backstabber_0_bram_en 1 1 2 1870 2254 NJ
+preplace netloc devil_ip|backstabber_0_bram_rst 1 1 2 1880 2274 NJ
+preplace netloc devil_ip|backstabber_0_bram_we 1 1 2 1890 2294 NJ
+preplace netloc devil_ip|backstabber_0_bram_wrdata 1 1 2 N 2304 2130J
+preplace netloc devil_ip|backstabber_0_debug_buff_0 1 1 1 N 2524
+preplace netloc devil_ip|backstabber_0_debug_buff_1 1 1 1 N 2544
+preplace netloc devil_ip|backstabber_0_debug_buff_2 1 1 1 N 2564
+preplace netloc devil_ip|backstabber_0_debug_buff_3 1 1 1 N 2584
+preplace netloc devil_ip|backstabber_0_debug_counter 1 1 1 N 2464
+preplace netloc devil_ip|backstabber_0_debug_delay_reg 1 1 1 N 2484
+preplace netloc devil_ip|backstabber_0_debug_devil_controller_state 1 1 1 1860 2444n
+preplace netloc devil_ip|backstabber_0_debug_devil_state 1 1 1 1880 2404n
+preplace netloc devil_ip|backstabber_0_debug_devil_state_active 1 1 1 1870 2424n
+preplace netloc devil_ip|backstabber_0_debug_snoop_state 1 1 1 1890 2384n
+preplace netloc devil_ip|backstabber_0_debug_status 1 1 1 N 2504
+preplace netloc devil_ip|bram_rddata_1 1 0 1 N 2544
+preplace netloc devil_ip|rst_ps8_0_99M_peripheral_aresetn 1 0 1 1370 2364n
+preplace netloc devil_ip|zynq_ultra_ps_e_0_pl_clk0 1 0 2 1380 2164 1900
+preplace netloc devil_ip|backstabber_0_debug_w_cache_line_from_devil 1 1 1 1850 2604n
+preplace netloc devil_ip|backstabber_0_debug_fsm_register_cl 1 1 1 1840 2624n
+preplace netloc devil_ip|backstabber_0_ACE 1 1 2 1910 2194 NJ
+preplace netloc devil_ip|smartconnect_0_M01_AXI 1 0 1 N 2304
+preplace netloc devil_ip|smartconnect_0_M02_AXI 1 0 1 N 2324
+levelinfo -pg 1 -510 120 520 930 1480 4072 4430
+levelinfo -hier devil_ip * 1610 2020 *
+pagesize -pg 1 -db -bbox -sgen -510 0 4430 3940
+pagesize -hier devil_ip -db -bbox -sgen 1340 2154 2160 2704
 "
 }
 
